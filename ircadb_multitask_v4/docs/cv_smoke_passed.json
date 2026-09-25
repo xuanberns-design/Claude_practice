@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "synthetic_only": true,
+  "patients": 20,
+  "folds": 5,
+  "test_sizes": [
+    3,
+    4,
+    4,
+    4,
+    5
+  ],
+  "fold0_exact_original_split": true,
+  "oof_each_patient_once": true,
+  "clean_pretrain_then_joint": true,
+  "validation_quality_guard_disabled_for_smoke_only": true,
+  "actual_train_calls": 5,
+  "all_5_checkpoints_independent": true,
+  "trained_epochs_per_fold": 2
+}

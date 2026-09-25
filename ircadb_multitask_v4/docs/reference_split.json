@@ -1,0 +1,252 @@
+{
+  "train": [
+    "3Dircadb1.3",
+    "3Dircadb1.4",
+    "3Dircadb1.8",
+    "3Dircadb1.9",
+    "3Dircadb1.10",
+    "3Dircadb1.11",
+    "3Dircadb1.12",
+    "3Dircadb1.13",
+    "3Dircadb1.15",
+    "3Dircadb1.16",
+    "3Dircadb1.17",
+    "3Dircadb1.18",
+    "3Dircadb1.19",
+    "3Dircadb1.20"
+  ],
+  "val": [
+    "3Dircadb1.2",
+    "3Dircadb1.6",
+    "3Dircadb1.14"
+  ],
+  "test": [
+    "3Dircadb1.1",
+    "3Dircadb1.5",
+    "3Dircadb1.7"
+  ],
+  "statistics": {
+    "train": {
+      "patients": 14,
+      "slices": 1984,
+      "tumor_positive": 12
+    },
+    "val": {
+      "patients": 3,
+      "slices": 420,
+      "tumor_positive": 2
+    },
+    "test": {
+      "patients": 3,
+      "slices": 419,
+      "tumor_positive": 2
+    }
+  },
+  "seed": 2026,
+  "balance_score": 0.17725634624816833,
+  "fingerprint": "8e882724e33cd0b8fa82bc7132a4ab5e9f28f4b51fb75be501ada0f0c1c00191",
+  "reference_only": true,
+  "source": "https://www.ircad.fr/research-and-development/data-sets/liver-segmentation-3d-ircadb-01/",
+  "patients": [
+    {
+      "id": "3Dircadb1.1",
+      "number": 1,
+      "n_slices": 129,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.2",
+      "number": 2,
+      "n_slices": 172,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.3",
+      "number": 3,
+      "n_slices": 200,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.4",
+      "number": 4,
+      "n_slices": 91,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.5",
+      "number": 5,
+      "n_slices": 139,
+      "sex": "M",
+      "has_tumor": false,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.6",
+      "number": 6,
+      "n_slices": 135,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.7",
+      "number": 7,
+      "n_slices": 151,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.8",
+      "number": 8,
+      "n_slices": 124,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.9",
+      "number": 9,
+      "n_slices": 111,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.10",
+      "number": 10,
+      "n_slices": 122,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.11",
+      "number": 11,
+      "n_slices": 132,
+      "sex": "M",
+      "has_tumor": false,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.12",
+      "number": 12,
+      "n_slices": 260,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.13",
+      "number": 13,
+      "n_slices": 122,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.14",
+      "number": 14,
+      "n_slices": 113,
+      "sex": "F",
+      "has_tumor": false,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.15",
+      "number": 15,
+      "n_slices": 125,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.16",
+      "number": 16,
+      "n_slices": 155,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.17",
+      "number": 17,
+      "n_slices": 119,
+      "sex": "M",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.18",
+      "number": 18,
+      "n_slices": 74,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.19",
+      "number": 19,
+      "n_slices": 124,
+      "sex": "F",
+      "has_tumor": true,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    },
+    {
+      "id": "3Dircadb1.20",
+      "number": 20,
+      "n_slices": 225,
+      "sex": "F",
+      "has_tumor": false,
+      "tumor_voxels": 0,
+      "reference_only": true,
+      "tumor_presence_scope": "configured_target_reference_not_local_dicom"
+    }
+  ]
+}

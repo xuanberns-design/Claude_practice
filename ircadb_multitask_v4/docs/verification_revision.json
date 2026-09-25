@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-23",
+  "scope": "software verification only, no real-patient retraining",
+  "pytest": {
+    "passed": 89,
+    "warnings": 8,
+    "exit_code": 0
+  },
+  "synthetic_pipeline": {
+    "passed": true,
+    "resume_max_parameter_difference": 0.0
+  },
+  "synthetic_fivefold": {
+    "passed": true,
+    "patients": 20,
+    "outer_test_sizes": [
+      3,
+      4,
+      4,
+      4,
+      5
+    ],
+    "independent_models": 5,
+    "oof_once_per_patient": true
+  },
+  "configs_loaded": 7,
+  "markdown_missing_relative_links": 0,
+  "real_dicom_training_performed": false
+}

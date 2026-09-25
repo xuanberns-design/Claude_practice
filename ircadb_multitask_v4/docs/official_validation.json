@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "official_patient": 18,
+  "slices": 74,
+  "shape": [
+    74,
+    512,
+    512
+  ],
+  "mask_names": [
+    "bone",
+    "gallbladder",
+    "liver",
+    "livertumor",
+    "portalvein",
+    "skin",
+    "venacava"
+  ],
+  "alignment_modes": [
+    "physical_position"
+  ],
+  "tumor_voxels": 4539,
+  "DICOM_PatientSex": "M",
+  "tested_slice_index": 36,
+  "fbp_simulation_metrics_single_slice_only": {
+    "32": {
+      "SSIM": 0.667429820027472,
+      "PSNR_dB": 17.291540910810397,
+      "MAE_HU": 119.57388948183325,
+      "RMSE_HU": 162.74235043261967
+    },
+    "64": {
+      "SSIM": 0.7579684232818773,
+      "PSNR_dB": 22.647299511816364,
+      "MAE_HU": 62.720480498122924,
+      "RMSE_HU": 85.14067635601211
+    },
+    "128": {
+      "SSIM": 0.8836613621701832,
+      "PSNR_dB": 29.85669906855948,
+      "MAE_HU": 26.246483939938116,
+      "RMSE_HU": 36.00893090928909
+    },
+    "full_1024": {
+      "SSIM": 0.9845373626618767,
+      "PSNR_dB": 35.56177270981351,
+      "MAE_HU": 5.709470133057039,
+      "RMSE_HU": 11.940839275739043
+    }
+  },
+  "model_default_forward_shapes": [
+    [
+      1,
+      5,
+      512,
+      512
+    ],
+    [
+      1,
+      2,
+      512,
+      512
+    ]
+  ],
+  "model_parameters": 15701383,
+  "seconds_projection_and_forward": 30.01317858695984,
+  "trained_on_real_data": false,
+  "verification_phase": "historical_v1_2026-09-18_format_only",
+  "v2_full_real_patient_training_completed": false
+}

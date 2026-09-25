@@ -1,0 +1,12 @@
+# 先按 https://pytorch.org/get-started/locally/ 安装匹配硬件的 torch。
+torch>=2.6,<3
+numpy>=1.26,<3
+scipy>=1.11,<2
+scikit-image==0.25.2
+pydicom==3.0.1
+nibabel==5.3.2
+PyYAML>=6,<7
+matplotlib>=3.8,<4
+pillow>=10,<13
+tqdm>=4.66,<5
+pytest>=8,<9

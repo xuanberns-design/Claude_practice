@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-21",
+  "pytest_command": "python -m pytest -q",
+  "observed_pytest_result": {
+    "passed": 70,
+    "expected_minority_stratification_warnings": 5,
+    "seconds": 17.04
+  },
+  "single_split_synthetic_pipeline": {
+    "passed": true,
+    "type": "synthetic_pipeline_only",
+    "resume_max_parameter_difference": 0.0,
+    "test_patients": [
+      "3Dircadb1.2",
+      "3Dircadb1.3"
+    ],
+    "views": [
+      32,
+      64,
+      128
+    ],
+    "outputs": [
+      "training",
+      "checkpoint_resume",
+      "evaluation",
+      "nifti_inference"
+    ]
+  },
+  "five_fold_synthetic_pipeline": {
+    "passed": true,
+    "synthetic_only": true,
+    "patients": 20,
+    "folds": 5,
+    "test_sizes": [
+      3,
+      4,
+      4,
+      4,
+      5
+    ],
+    "fold0_exact_original_split": true,
+    "oof_each_patient_once": true,
+    "clean_pretrain_then_joint": true,
+    "validation_quality_guard_disabled_for_smoke_only": true,
+    "actual_train_calls": 5,
+    "all_5_checkpoints_independent": true,
+    "trained_epochs_per_fold": 2
+  },
+  "python_files_syntax_checked": 30,
+  "all_python_files_documented": true,
+  "all_config_fields_documented": 83,
+  "yaml_configs_loaded": 5,
+  "cli_help_paths_checked": 9,
+  "real_v2_training_completed": false,
+  "gpu_amp_tested": false,
+  "actual_user_split_received": false,
+  "notes": [
+    "运行时读取用户真实旧splits.json，fold0不从CSV猜测。",
+    "合成测试关闭质量门槛，正式YAML保持开启。",
+    "本记录证明软件行为，不证明真实患者性能。"
+  ],
+  "python_source_sha256": {
+    "src/__init__.py": "c8755c8f28859708df320928127431b42b04f3719dedd23b5a65b30aa779f46e",
+    "src/cache_quality.py": "69ca6ecb3b208dee3c9d31ec096d304b713ab96aa6a0b4eefcb952366f13b2ee",
+    "src/cli.py": "12148b669237d5e66d4dac2e1f3b0e9a9bc33a6257ad75148984b278aa3fc3d2",
+    "src/common.py": "fca7a1a49e50fcb8260d764cc60728b87d4d7d881c7c37570e1e035831bb6764",
+    "src/config.py": "1f196f391814357c67e701d85ac42f7abbec8c06e3dd3b471c90938e28201f5e",
+    "src/crossval.py": "07fb2e6dac2f07972177f67ab8c6b50375687048feb2b575fddea353959e8f3b",
+    "src/dataset.py": "c9d06098a9ab7aa9423a696785db02d2051ea92ccc214512229ed1340af0cc44",
+    "src/dicom_io.py": "c2dde3ae1367a36f3dcbee38e17ea3e9e113f927a6373f6c9cb8331f6ca04832",
+    "src/evaluate.py": "b646951a9498b6aaf9711cb0ffbc894b88e14beb07772bc6b844a132229d43bc",
+    "src/infer.py": "0d2780ee2075c68ce286ea30fe8251003404f2c986a30a7e68f5e346b730e2d7",
+    "src/losses.py": "93d675372c6cdad133445e80aa3cfd1294ced4f467e451cc7c9ec682c8bd61fa",
+    "src/metrics.py": "65f979fad214085acd0363f1292e7f9b5e0ae6adcf821ffbe8da369427ebe3dd",
+    "src/model.py": "460ea26365185afc4e7217dd9f01aa4abd4ddc38a5e859b7f48449fa62f75b23",
+    "src/official.py": "880ba972e6176c0f477b05c204ab35886d0d69f84a51e2b29e6ed0dbb7550c53",
+    "src/predict.py": "9e398fecb91119e895f5661dd20a005a819bcb6b37a9e583b530ddc1a4e015be",
+    "src/prepare.py": "ef79c154c8f34cb722dcbd07a04579e17e8afcc5c3bf26ee9129aa767354d2b8",
+    "src/projection.py": "0c0356fe8198fa88368504e920b6af68726b6b3ff43c3e69eb537f7bf6fcc860",
+    "src/split.py": "7b962ba1fc340f6daf7d98d37d7dbe370271962ea6412f3ef9c68d23a39269dc",
+    "src/train.py": "b43122f9dcc7f9b381ff7309a7ec7e41449a8d1827f28af6f3e0ce0d327f53ab",
+    "src/visualize.py": "c4a7122a65b7bf69313c9f0eb32fa4228078fe4730d91f09120ea9990be9c945",
+    "tests/__init__.py": "fc5d37eb5b2ac9db7db593d3ade07de3a909c76f13593df7d4fc7165a2c91f95",
+    "tests/phantom.py": "accdde4ee0194533aced0f390fd365beba2969773081394cba7053727dd3e74c",
+    "tests/smoke_crossval.py": "b53dad8341f6deac2baf0c25506eff0c1d0419228453806a96109a804dcbd85e",
+    "tests/smoke_pipeline.py": "bf9fc5879a52fa571f25f0fc98f865bd49ea3e7a68ff42a2944a972401412893",
+    "tests/test_cache_quality.py": "cad8adb6c71444f2caecb393ceda27da7471babc8c4c19c5940476957f615c0b",
+    "tests/test_core.py": "5358a5b6511807a5608e1622aa7ccc80a3191a131487060b3a604610db430795",
+    "tests/test_crossval.py": "05912b88c46c69159ac525993b3ddbe2d74a161d5345c76c96602388e3407cdc",
+    "tests/test_patch_integration.py": "115e89abcfa9efd62d2517abec12263c66affa2916ac8644420d94e1a9d3d4e4",
+    "tests/test_revision.py": "3708951d608b10cb66abc0417c6ddd35b83578abeb7719743a4d0172c0a7267e",
+    "tests/test_visualization.py": "684c370293cc1b59d3ef619025c27cc6cb2cd5713a33d3932b575ce4f999c4ce"
+  }
+}

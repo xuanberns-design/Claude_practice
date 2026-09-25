@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "type": "synthetic_pipeline_only",
+  "resume_max_parameter_difference": 0.0,
+  "test_patients": [
+    "3Dircadb1.2",
+    "3Dircadb1.3"
+  ],
+  "views": [
+    32,
+    64,
+    128
+  ],
+  "outputs": [
+    "training",
+    "checkpoint_resume",
+    "evaluation",
+    "nifti_inference"
+  ]
+}
