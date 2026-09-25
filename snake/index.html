@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Snake</title>
+<style>
+  :root { --bg: #0d0f1a; --grid: #161a2b; --snake: #39ff9f; --food: #ff3d7f; --text: #e6e8f2; --muted: #8a90a8; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    padding: 16px; touch-action: none; user-select: none;
+  }
+  h1 { margin: 0; font-size: 1.6rem; letter-spacing: 0.1em; color: var(--snake); text-shadow: 0 0 12px var(--snake); }
+  .hud { display: flex; gap: 24px; font-size: 1rem; color: var(--muted); }
+  .hud b { color: var(--text); }
+  .board { position: relative; width: min(90vw, 480px); aspect-ratio: 1; }
+  canvas { width: 100%; height: 100%; border-radius: 12px; background: var(--grid); box-shadow: 0 0 30px #39ff9f22; }
+  .overlay {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; background: #0d0f1acc; border-radius: 12px; text-align: center;
+  }
+  .overlay.hidden { display: none; }
+  .overlay h2 { margin: 0; font-size: 1.5rem; }
+  .overlay p { margin: 0; color: var(--muted); }
+  button {
+    font: inherit; font-weight: 600; padding: 10px 24px; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--snake); color: var(--bg); box-shadow: 0 0 16px var(--snake);
+  }
+  .help { color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+  <h1>NEON SNAKE</h1>
+  <div class="hud">
+    <span>Score <b id="score">0</b></span>
+    <span>Best <b id="best">0</b></span>
+  </div>
+  <div class="board">
+    <canvas id="game" width="480" height="480"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="title">Ready?</h2>
+      <p id="message">Eat the pink dots. Don't bite yourself.</p>
+      <button id="start">Play</button>
+    </div>
+  </div>
+  <div class="help">Arrow keys / WASD or swipe · Space to pause</div>
+
+<script>
+const GRID = 20;
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const CELL = canvas.width / GRID;
+const $ = id => document.getElementById(id);
+
+let snake, dir, nextDir, food, score, speed, timer, running, paused;
+let best = 0;
+try { best = Number(localStorage.getItem('neon-snake-best')) || 0; } catch {}
+$('best').textContent = best;
+
+function reset() {
+  snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+  dir = { x: 1, y: 0 };
+  nextDir = dir;
+  score = 0;
+  speed = 130;
+  $('score').textContent = 0;
+  placeFood();
+}
+
+function placeFood() {
+  do {
+    food = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+  } while (snake.some(s => s.x === food.x && s.y === food.y));
+}
+
+function start() {
+  reset();
+  running = true;
+  paused = false;
+  $('overlay').classList.add('hidden');
+  loop();
+}
+
+function loop() {
+  clearTimeout(timer);
+  if (!running || paused) return;
+  step();
+  draw();
+  timer = setTimeout(loop, speed);
+}
+
+function step() {
+  dir = nextDir;
+  // Walls wrap around, so only self-collision ends the game.
+  const head = {
+    x: (snake[0].x + dir.x + GRID) % GRID,
+    y: (snake[0].y + dir.y + GRID) % GRID,
+  };
+  const eating = head.x === food.x && head.y === food.y;
+  // The tail moves out of the way this tick unless we're growing.
+  const body = eating ? snake : snake.slice(0, -1);
+  if (body.some(s => s.x === head.x && s.y === head.y)) return gameOver();
+
+  snake.unshift(head);
+  if (eating) {
+    score++;
+    $('score').textContent = score;
+    speed = Math.max(60, speed - 3);
+    placeFood();
+  } else {
+    snake.pop();
+  }
+}
+
+function gameOver() {
+  running = false;
+  if (score > best) {
+    best = score;
+    $('best').textContent = best;
+    try { localStorage.setItem('neon-snake-best', best); } catch {}
+  }
+  $('title').textContent = 'Game over';
+  $('message').textContent = `You scored ${score}.`;
+  $('start').textContent = 'Play again';
+  $('overlay').classList.remove('hidden');
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.shadowBlur = 16;
+  ctx.shadowColor = '#ff3d7f';
+  ctx.fillStyle = '#ff3d7f';
+  ctx.beginPath();
+  ctx.arc((food.x + 0.5) * CELL, (food.y + 0.5) * CELL, CELL * 0.35, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = '#39ff9f';
+  snake.forEach((s, i) => {
+    ctx.fillStyle = i === 0 ? '#b8ffd9' : '#39ff9f';
+    ctx.globalAlpha = 1 - (i / snake.length) * 0.6;
+    ctx.fillRect(s.x * CELL + 2, s.y * CELL + 2, CELL - 4, CELL - 4);
+  });
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
+
+function turn(x, y) {
+  // Ignore reversing straight into yourself.
+  if (x === -dir.x && y === -dir.y) return;
+  nextDir = { x, y };
+}
+
+function togglePause() {
+  if (!running) return;
+  paused = !paused;
+  $('title').textContent = 'Paused';
+  $('message').textContent = 'Press Space to continue.';
+  $('start').textContent = 'Resume';
+  $('overlay').classList.toggle('hidden', !paused);
+  loop();
+}
+
+const KEYS = {
+  ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1],
+  ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0],
+};
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') {
+    e.preventDefault();
+    running ? togglePause() : start();
+    return;
+  }
+  const k = KEYS[e.key] || KEYS[e.key.toLowerCase()];
+  if (k) { e.preventDefault(); turn(...k); }
+});
+
+let touchStart = null;
+document.addEventListener('touchstart', e => {
+  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (!touchStart) return;
+  const dx = e.changedTouches[0].clientX - touchStart.x;
+  const dy = e.changedTouches[0].clientY - touchStart.y;
+  touchStart = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+  Math.abs(dx) > Math.abs(dy) ? turn(Math.sign(dx), 0) : turn(0, Math.sign(dy));
+});
+
+$('start').addEventListener('click', () => (paused ? togglePause() : start()));
+
+reset();
+draw();
+</script>
+</body>
+</html>
