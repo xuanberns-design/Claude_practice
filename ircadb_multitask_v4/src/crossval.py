@@ -19,7 +19,7 @@ aggregate_folds 检查五折真实划分、checkpoint、统一训练/推理参�
 K_FOLDS = 5
 SPLIT_NAMES = ("train", "val", "test")
 # 必须与 evaluate.py 写入 provenance 的指标口径版本一致。
-EXPECTED_METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2"
+EXPECTED_METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v4"
 FOLD_SPECIFIC_CONFIG_KEYS = {"run_dir", "split_path", "split_counts"}
 
 import copy

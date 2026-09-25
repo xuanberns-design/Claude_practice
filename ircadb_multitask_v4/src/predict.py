@@ -1,6 +1,6 @@
 """训练patch匹配的重叠滑窗推理；evaluate与infer必须共用本文件。
 
-参数入口：Config.patch_size/inference_overlap/inference_tta。TTA默认关闭。
+参数入口：Config.patch_size/inference_overlap/inference_tta/seg_tta。TTA默认关闭。
 """
 import torch
 
@@ -15,9 +15,26 @@ def sliding_starts(length, patch, overlap):
     return starts
 
 
+def _segment_tta(model, restored, view, cfg):
+    flips = [()] if not getattr(cfg, "seg_tta", False) else [(), (-1,), (-2,), (-2, -1)]
+    prob = 0
+    for dims in flips:
+        r = torch.flip(restored, dims) if dims else restored
+        p = model.segment(r, view).float().sigmoid()
+        prob = prob + (torch.flip(p, dims) if dims else p)
+    return prob / len(flips)
+
+
 @torch.inference_mode()
-def predict_batch(model, x, view, cfg):
-    """返回中心恢复层[B,H,W]和概率[B,2,H,W]，不读取GT或mask。"""
+def predict_batch(model, x, view, cfg, sino=None, n_views=None):
+    """返回中心恢复层[B,H,W]和概率[B,2,H,W]，不读取GT或mask。
+
+    dual_domain：整图一次性重建（投影/FBP为全局算子，不能分块），分割可选翻转TTA。
+    """
+    if getattr(model, "dual_domain", False):
+        restored = model.restore(x, view, sino, n_views)
+        c = cfg.context_slices // 2
+        return restored[:, c].float(), _segment_tta(model, restored, view, cfg)
     ps = cfg.patch_size or x.shape[-1]
     ps = min(ps,x.shape[-2],x.shape[-1])
     # 下限确保边界权重非零，避免图像四周0/0或不连续拼接。

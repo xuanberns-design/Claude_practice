@@ -112,6 +112,58 @@ class Config:
     selection_reconstruction_weight: float = 0.65
     selection_roi_scale_hu: float = 50.0
     selection_fp_scale_ml: float = 10.0
+    # ---------------- V4：双域重建（默认值保持 V3 行为，旧配置/权重可原样使用） ----------------
+    # image=V3 图像域后处理；dual_domain=正弦图补全+可微FBP+图像精修（推荐，需整图训练）。
+    reconstruction_mode: str = "image"
+    # 正弦图补全的稠密角度数：须整除 full_views，且为每个 views 的整数倍（偶数）。
+    sino_dense_views: int = 256
+    sino_base_channels: int = 16
+    # 角度方向周期填充行数（带探测器翻转），让卷积在 0°/180° 处连续。
+    sino_angle_pad: int = 8
+    # 已测角度直接写回测量值（硬数据一致性），网络只负责缺失角度。
+    sino_data_consistency: bool = True
+    # RCAB 瓶颈加入多膨胀率上下文，扩大条纹去除所需的感受野（仅新实验开启，旧权重无此模块）。
+    reconstruction_dilated_bottleneck: bool = False
+    # 损失：缺失角度正弦图 L1、双域中间 FBP 图 L1、频域 L1、测量角度投影一致性。
+    sino_weight: float = 0.0
+    dd_image_weight: float = 0.0
+    fft_weight: float = 0.0
+    projection_consistency_weight: float = 0.0
+    projection_consistency_angles: int = 16
+    # 双域模式下的精确几何增强（绕投影中心的 90° 旋转/镜像，正弦图同步变换）。
+    augment_geometry: bool = True
+    # ---------------- V4：分割 ----------------
+    seg_backbone: str = "plain"
+    seg_base_channels: int | None = None
+    # 额外宽窗输入（HU），如 [-500, 500]；null 表示与 V3 相同只用肝窗。
+    seg_wide_window: tuple | None = None
+    seg_deep_supervision_weight: float = 0.0
+    # 肿瘤 Focal-Tversky（alpha 罚假阳，beta 罚假阴；beta>alpha 偏向召回小病灶）。
+    tumor_tversky_weight: float = 0.0
+    tumor_tversky_alpha: float = 0.3
+    tumor_tversky_beta: float = 0.7
+    tumor_tversky_gamma: float = 0.75
+    # 标签定义 tumor ⊆ liver：惩罚 p(tumor) > p(liver) 的不一致预测。
+    seg_hierarchy_weight: float = 0.0
+    # 推理期分割翻转 TTA（双域模式只对分割做，重建只算一次）。
+    seg_tta: bool = False
+    # ---------------- V4：3D 后处理（验证集自动调参） ----------------
+    postprocess: bool = False
+    tumor_threshold: float | None = None
+    postprocess_keep_largest_liver: bool = True
+    postprocess_fill_holes: bool = True
+    # 肿瘤只保留在“预测肝脏向外扩张 margin_mm”内；null 关闭该约束。
+    tumor_liver_margin_mm: float | None = 5.0
+    min_tumor_ml: float = 0.0
+    auto_tune_postprocess: bool = False
+    tune_tumor_thresholds: tuple = (0.3, 0.4, 0.5, 0.6, 0.7)
+    tune_min_tumor_ml: tuple = (0.0, 0.05, 0.2, 0.5)
+    # ---------------- V4：优化 ----------------
+    ema_decay: float = 0.0
+    lr_warmup_epochs: int = 0
+    # best.pt 从该 epoch 起才参与选模/早停计数；null=warmup_epochs（V3行为）。
+    # V3 的 best.pt 出现在分割刚满权重约10轮时（epoch 69），分割欠训练；V4 设为 warmup+ramp。
+    selection_start_epoch: int | None = None
 
     def validate(self):
         if self.image_size < 32 or self.image_size % 16:
@@ -193,7 +245,53 @@ class Config:
         if min(self.selection_ssim_tolerance,self.selection_psnr_tolerance_db,
                self.selection_roi_mae_relative_tolerance,self.selection_roi_mae_absolute_tolerance_hu) < 0:
             raise ValueError("验证退化容差不可为负")
+        self._validate_v4()
         return self
+
+    def _validate_v4(self):
+        if self.reconstruction_mode not in ("image", "dual_domain"):
+            raise ValueError("reconstruction_mode 必须为 image 或 dual_domain")
+        if self.reconstruction_mode == "dual_domain":
+            if self.patch_size is not None and self.patch_size != self.image_size:
+                raise ValueError("dual_domain 的投影/FBP 是整幅图算子，patch_size 必须为 null 或等于 image_size")
+            a = self.sino_dense_views
+            if a < 2 or a % 2 or self.full_views % a:
+                raise ValueError("sino_dense_views 必须为偶数并整除 full_views")
+            if any(a % v or v % 2 for v in self.views):
+                raise ValueError("sino_dense_views 必须是每个稀疏视角数的整数倍，且稀疏视角数为偶数")
+            if self.sino_base_channels < 4 or self.sino_angle_pad < 0:
+                raise ValueError("sino_base_channels>=4，sino_angle_pad>=0")
+        if min(self.sino_weight, self.dd_image_weight, self.fft_weight, self.projection_consistency_weight) < 0:
+            raise ValueError("V4 重建损失权重不可为负")
+        if self.projection_consistency_weight > 0 and self.reconstruction_mode != "dual_domain":
+            raise ValueError("projection_consistency_weight 需要 dual_domain 模式（需要测量正弦图）")
+        if self.projection_consistency_angles < 1:
+            raise ValueError("projection_consistency_angles 必须为正")
+        if self.seg_backbone not in ("plain", "resattn"):
+            raise ValueError("seg_backbone 必须为 plain 或 resattn")
+        if self.seg_base_channels is not None and self.seg_base_channels < 4:
+            raise ValueError("seg_base_channels 必须 >=4 或 null")
+        if self.seg_wide_window is not None and (len(self.seg_wide_window) != 2
+                                                 or self.seg_wide_window[0] >= self.seg_wide_window[1]):
+            raise ValueError("seg_wide_window 必须为 [low, high]")
+        if min(self.seg_deep_supervision_weight, self.tumor_tversky_weight, self.seg_hierarchy_weight) < 0:
+            raise ValueError("V4 分割损失权重不可为负")
+        if self.seg_deep_supervision_weight > 0 and self.seg_backbone != "resattn":
+            raise ValueError("深监督仅支持 seg_backbone=resattn")
+        if not (0 <= self.tumor_tversky_alpha <= 1 and 0 <= self.tumor_tversky_beta <= 1
+                and self.tumor_tversky_alpha + self.tumor_tversky_beta > 0 and self.tumor_tversky_gamma > 0):
+            raise ValueError("Tversky 参数无效")
+        thresholds = list(self.tune_tumor_thresholds) + ([self.tumor_threshold] if self.tumor_threshold is not None else [])
+        if not thresholds or any(not 0 < t < 1 for t in thresholds):
+            raise ValueError("肿瘤阈值必须在(0,1)")
+        if not self.tune_min_tumor_ml or min(list(self.tune_min_tumor_ml) + [self.min_tumor_ml]) < 0:
+            raise ValueError("最小肿瘤体积不可为负")
+        if self.tumor_liver_margin_mm is not None and self.tumor_liver_margin_mm < 0:
+            raise ValueError("tumor_liver_margin_mm 必须非负或 null")
+        if self.selection_start_epoch is not None and not 0 <= self.selection_start_epoch < self.epochs:
+            raise ValueError("selection_start_epoch 必须在[0, epochs)")
+        if not 0 <= self.ema_decay < 1 or self.lr_warmup_epochs < 0:
+            raise ValueError("ema_decay 需在[0,1)，lr_warmup_epochs 非负")
 
 
 def load_config(path=None):

@@ -28,6 +28,10 @@ def main():
     infer.add_argument("--input", required=True)
     infer.add_argument("--views", type=int, required=True)
     infer.add_argument("--output", default="runs/inference")
+    infer.add_argument("--sinogram", help="dual_domain 模型的稀疏正弦图 npy [Z, views, D]")
+    infer.add_argument("--reproject-fbp", action="store_true", help="无正弦图时用FBP重投影近似（质量下降）")
+    tune = sub.add_parser("tune-postprocess", help="仅在验证集上选择肿瘤阈值/最小体积，写入 run_dir/postprocess.json")
+    tune.add_argument("--checkpoint", required=True)
     quality = sub.add_parser("cache-audit",help="核查现有缓存HU分布与可选DICOM padding")
     quality.add_argument("--with-dicom",action="store_true")
     quality.add_argument("--output")
@@ -73,7 +77,10 @@ def main():
         evaluate(cfg, args.checkpoint, args.split, not args.no_export)
     elif args.command == "infer":
         from .infer import infer_nifti
-        infer_nifti(cfg, args.checkpoint, args.input, args.views, args.output)
+        infer_nifti(cfg, args.checkpoint, args.input, args.views, args.output, args.sinogram, args.reproject_fbp)
+    elif args.command == "tune-postprocess":
+        from .evaluate import tune_postprocess
+        tune_postprocess(cfg, args.checkpoint, "val")
     elif args.command == "cache-audit":
         from .cache_quality import inspect_cache
         inspect_cache(cfg,args.output,args.with_dicom)

@@ -1,0 +1,36 @@
+{
+  "setting": {
+    "size": 64,
+    "views": 16,
+    "dense": 128,
+    "steps": 1500,
+    "output": "docs/benchmark_dual_vs_image.json"
+  },
+  "synthetic_only": true,
+  "FBP": {
+    "SSIM": 0.5493202655033884,
+    "PSNR_dB": 18.410585403442383,
+    "MAE_HU": 97.31935119628906
+  },
+  "interpolated_sinogram_FBP_untrained": {
+    "SSIM": 0.576239961958057,
+    "PSNR_dB": 19.793560028076172,
+    "MAE_HU": 36.104515075683594
+  },
+  "V3_image_domain": {
+    "mode": "image",
+    "seconds": 161.1,
+    "parameters": 1963953,
+    "SSIM": 0.9125995099812808,
+    "PSNR_dB": 31.609346389770508,
+    "MAE_HU": 10.365128517150879
+  },
+  "V4_dual_domain": {
+    "mode": "dual_domain",
+    "seconds": 455.5,
+    "parameters": 2455970,
+    "SSIM": 0.9218174766954401,
+    "PSNR_dB": 32.33377456665039,
+    "MAE_HU": 7.899511814117432
+  }
+}

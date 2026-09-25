@@ -7,7 +7,30 @@ import numpy as np
 from skimage.transform import radon, iradon
 
 
-def simulate_slice(hu, pixel_mm, cfg, rng):
+def dense_indices(cfg):
+    return np.arange(0, cfg.full_views, cfg.full_views // cfg.sino_dense_views)
+
+
+def to_sinogram_units(sino, pixel_mm, cfg):
+    """线积分 -> 水等效像素路径长，并转为 [A, D]；FBP(s) = HU/1000 + 1。"""
+    return (np.asarray(sino, np.float64).T / (pixel_mm * cfg.mu_water_per_mm)).astype(np.float32)
+
+
+def dense_sinograms(hu, pixel_mm, cfg, rng):
+    """仅补充双域缓存：返回(测量, 无噪声)稠密正弦图 [A, D]。
+
+    无噪声时只投影稠密角度；有噪声时复现 simulate_slice 的完整投影和同一随机流，
+    保证与已缓存的稀疏FBP来自同一次“测量”。
+    """
+    if cfg.photons_per_ray > 0:
+        return simulate_slice(hu, pixel_mm, cfg, rng, return_sinogram=True)[2]
+    theta = dense_indices(cfg) * (180.0 / cfg.full_views)
+    mu = np.maximum(hu / 1000.0 + 1.0, 0.0).astype(np.float32) * cfg.mu_water_per_mm
+    clean = to_sinogram_units(radon(mu, theta=theta, circle=False, preserve_range=True) * pixel_mm, pixel_mm, cfg)
+    return clean, clean
+
+
+def simulate_slice(hu, pixel_mm, cfg, rng, return_sinogram=False):
     theta = np.arange(cfg.full_views, dtype=np.float64) * (180.0 / cfg.full_views)
     mu = np.maximum(hu / 1000.0 + 1.0, 0.0).astype(np.float32) * cfg.mu_water_per_mm
     sino = radon(mu, theta=theta, circle=False, preserve_range=True) * pixel_mm
@@ -29,6 +52,10 @@ def simulate_slice(hu, pixel_mm, cfg, rng):
     for v in cfg.views:
         idx = np.arange(0, cfg.full_views, cfg.full_views // v)
         sparse[int(v)] = fbp(measured[:, idx], theta[idx])
+    if return_sinogram:
+        dense = dense_indices(cfg)
+        return full, sparse, (to_sinogram_units(measured[:, dense], pixel_mm, cfg),
+                              to_sinogram_units(sino[:, dense], pixel_mm, cfg))
     return full, sparse
 
 

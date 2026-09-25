@@ -1,4 +1,10 @@
-"""损失函数；权重均在 config.py 顶部，图像动态范围固定为1。"""
+"""损失函数；权重均在 config.py 顶部，图像动态范围固定为1。
+
+V4 新增（默认权重为0，保持 V3 行为）：
+- 双域：缺失角度正弦图 L1、双域中间 FBP 图加权 L1、测量角度投影一致性；
+- 频域 L1：稀疏角条纹是沿特定方向的高频能量，频域误差直接惩罚这类结构；
+- 分割：肿瘤逐样本 Focal-Tversky、tumor⊆liver 层级一致性、深监督。
+"""
 import torch
 import torch.nn.functional as F
 
@@ -54,9 +60,63 @@ def reconstruction_loss(pred, target, cfg, mask_stack=None, sparse=None):
         model_mse = (error.square()*weights).sum(axes)/per_denom
         fbp_mse = (((sparse.float()-target)*scale).square()*weights).sum(axes)/per_denom
         regression = (model_mse-fbp_mse).clamp_min(0).mean()
+    frequency = pred.new_zeros(())
+    if getattr(cfg, "fft_weight", 0) > 0:
+        # 体部加权后的窗内误差做2D FFT；幅度按像素数归一，条纹对应的方向性高频被直接惩罚。
+        body = (weights >= cfg.recon_body_weight).to(pred.dtype)
+        spectrum = torch.fft.rfft2((window(pred) - window(target)) * body, norm="ortho")
+        frequency = spectrum.abs().mean()
     return (cfg.l1_weight*l1+cfg.mse_weight*mse+cfg.ssim_weight*ssim
             +cfg.gradient_weight*gradient+cfg.correction_weight*regression
-            +getattr(cfg, "laplacian_weight", 0)*laplacian)
+            +getattr(cfg, "laplacian_weight", 0)*laplacian+getattr(cfg, "fft_weight", 0)*frequency)
+
+
+def region_weights(target, cfg, mask_stack=None):
+    target_hu = target*(cfg.hu_max-cfg.hu_min)+cfg.hu_min
+    weights = torch.full_like(target, cfg.recon_background_weight)
+    weights = torch.where(target_hu > cfg.metric_body_threshold_hu, cfg.recon_body_weight, weights)
+    if mask_stack is not None:
+        weights = torch.where(mask_stack[:,:,0] > 0, cfg.recon_liver_weight, weights)
+        weights = torch.where(mask_stack[:,:,1] > 0, cfg.recon_tumor_weight, weights)
+    return weights
+
+
+def dual_domain_loss(aux, batch, cfg, restored, model=None):
+    """正弦图补全与中间FBP图的监督；aux 来自 DualDomainReconstructor。"""
+    parts = {}
+    total = restored.new_zeros((), dtype=torch.float32)
+    if not aux:
+        return total, parts
+    scale = 1.0 / cfg.image_size
+    if cfg.sino_weight > 0:
+        missing = (aux["sino_mask"] == 0).float()
+        error = (aux["sino"].float() - batch["sino_target"].float()).abs() * scale
+        sino = (error * missing).sum() / (missing.sum() * error.shape[1] * error.shape[-1]).clamp_min(1)
+        total = total + cfg.sino_weight * sino
+        parts["sinogram"] = float(sino.detach())
+    if cfg.dd_image_weight > 0:
+        target = batch["target"].float()
+        weights = region_weights(target, cfg, batch.get("mask_stack"))
+        err = (aux["dd_image"].float() - target).abs() * (cfg.hu_max - cfg.hu_min) / cfg.reconstruction_scale_hu
+        dd = (weights * err).sum() / weights.sum().clamp_min(1)
+        total = total + cfg.dd_image_weight * dd
+        parts["dual_domain_image"] = float(dd.detach())
+    if cfg.projection_consistency_weight > 0 and model is not None:
+        # 最终输出的中心层重投影到随机抽取的“已测角度”，与测量值比较（训练期已知测量，推理不需要）。
+        op = model.reconstructor.op
+        c = cfg.context_slices // 2
+        mask_rows = aux["sino_mask"][:, 0, :, 0] > 0
+        common = mask_rows.all(0).nonzero()[:, 0]
+        if len(common):
+            pick = common[torch.randperm(len(common), device=common.device)[:cfg.projection_consistency_angles]]
+            hu = restored[:, c].float()*(cfg.hu_max-cfg.hu_min)+cfg.hu_min
+            mu_ratio = (hu/1000.0+1.0).clamp_min(0)
+            projected = op.project(mu_ratio, pick)
+            measured = batch["sino"][:, c][:, pick].float()
+            pc = (projected-measured).abs().mean()*scale
+            total = total + cfg.projection_consistency_weight * pc
+            parts["projection_consistency"] = float(pc.detach())
+    return total, parts
 
 
 def segmentation_loss(logits, target, cfg):
@@ -81,6 +141,21 @@ def segmentation_loss(logits, target, cfg):
         boundary = (dilated - eroded).clamp(0, 1)
         edge_bce = (bce_map*boundary).sum((0, 2, 3)) / boundary.sum((0, 2, 3)).clamp_min(1)
         loss = loss + boundary_weight * (edge_bce*weights).sum()/weights.sum()
+    tversky_weight = getattr(cfg, "tumor_tversky_weight", 0)
+    if tversky_weight > 0:
+        # 逐样本计算：批量级Dice会被大病灶主导，小病灶样本几乎没有梯度。
+        p_t, t_t = p[:, 1], target[:, 1]
+        tp = (p_t*t_t).sum((1, 2))
+        fp = (p_t*(1-t_t)).sum((1, 2))
+        fn = ((1-p_t)*t_t).sum((1, 2))
+        tversky = (tp+1.0)/(tp+cfg.tumor_tversky_alpha*fp+cfg.tumor_tversky_beta*fn+1.0)
+        positive = t_t.sum((1, 2)) > 0
+        if positive.any():
+            focal = (1-tversky[positive]).clamp_min(0).pow(cfg.tumor_tversky_gamma).mean()
+            loss = loss + tversky_weight*focal
+    hierarchy_weight = getattr(cfg, "seg_hierarchy_weight", 0)
+    if hierarchy_weight > 0:
+        loss = loss + hierarchy_weight*F.relu(p[:, 1]-p[:, 0]).mean()
     hard_negative_weight = getattr(cfg, "liver_hard_negative_weight", 0)
     if hard_negative_weight > 0:
         # 从非肝像素中只选择预测最像肝的部分，重点惩罚外侧血管类假阳性。
@@ -96,10 +171,27 @@ def segmentation_loss(logits, target, cfg):
     return loss
 
 
-def joint_loss(restored, logits, batch, cfg, epoch):
+def deep_supervision_loss(aux_logits, target, cfg):
+    """解码器低分辨率辅助输出：标签以最大池化下采样，保证小病灶不被平均掉。"""
+    if not aux_logits:
+        return target.new_zeros(())
+    terms, weights = [], []
+    for level, logits in enumerate(aux_logits):
+        factor = target.shape[-1] // logits.shape[-1]
+        small = F.adaptive_max_pool2d(target, logits.shape[-2:]) if factor > 1 else target
+        terms.append(segmentation_loss(logits, small, cfg))
+        weights.append(0.5 ** level)
+    return sum(w*t for w, t in zip(weights, terms)) / sum(weights)
+
+
+def joint_loss(restored, logits, batch, cfg, epoch, rec_aux=None, seg_aux=None, model=None):
     rec = reconstruction_loss(restored, batch["target"], cfg, batch.get("mask_stack"), batch["input"])
+    dd, dd_parts = dual_domain_loss(rec_aux, batch, cfg, restored, model)
     seg = segmentation_loss(logits, batch["mask"], cfg)
+    if seg_aux and cfg.seg_deep_supervision_weight > 0:
+        seg = seg + cfg.seg_deep_supervision_weight*deep_supervision_loss(seg_aux, batch["mask"].float(), cfg)
     ramp = (1.0 if cfg.seg_pretrain_clean and epoch < cfg.warmup_epochs else
             min(1.0, max(0.0, (epoch - cfg.warmup_epochs + 1) / max(cfg.ramp_epochs, 1))))
-    loss = cfg.reconstruction_weight*rec + cfg.segmentation_weight*ramp*seg
-    return loss, {"reconstruction": float(rec.detach()), "segmentation": float(seg.detach()), "seg_ramp": ramp}
+    loss = cfg.reconstruction_weight*(rec + dd) + cfg.segmentation_weight*ramp*seg
+    return loss, {"reconstruction": float(rec.detach()), "segmentation": float(seg.detach()), "seg_ramp": ramp,
+                  **dd_parts}

@@ -1,4 +1,6 @@
 """完整患者体积推理与逐视角评估；所有病例等权汇总，禁止切片级伪重复。"""
+# 必须与 crossval.EXPECTED_METRIC_PROTOCOL 一致；V4 分割主列为（可选）3D后处理结果并新增表面距离/病灶检出。
+METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v4"
 from pathlib import Path
 import hashlib
 from shutil import copyfile
@@ -7,6 +9,8 @@ import torch
 import torch.nn.functional as F
 import nibabel as nib
 from .dataset import PatientCache, view_channel
+from .ct_ops import mask_unmeasured
+from .postprocess import tumor_grid_counts, choose_parameters
 from .projection import denormalize
 from .metrics import reconstruction_metrics, segmentation_metrics, finite_summary, paired_bootstrap, regional_metrics
 from .common import read_json, write_json, write_csv, device_for, digest
@@ -16,16 +20,28 @@ from .model import JointUNet
 from .prepare import verify_cache
 from .split import validate_split
 
+# 只影响推理/后处理、不影响已训练权重的参数：可对已有 checkpoint（含V3权重）直接开启后处理或TTA。
+INFERENCE_ONLY_KEYS = {"postprocess", "tumor_threshold", "postprocess_keep_largest_liver", "postprocess_fill_holes",
+                       "tumor_liver_margin_mm", "min_tumor_ml", "auto_tune_postprocess", "tune_tumor_thresholds",
+                       "tune_min_tumor_ml", "seg_tta", "inference_tta"}
+
 
 @torch.inference_mode()
 def predict_volume(model, patient, view, cfg, device):
     restored, probs = [], []
     n = patient.meta["n_slices"]
+    dual = getattr(model, "dual_domain", False)
     for start in range(0, n, cfg.batch_size):
         slices = range(start, min(start+cfg.batch_size, n))
         x = torch.from_numpy(np.stack([patient.stack(f"fbp_{view}", z) for z in slices])).to(device)
         v = torch.full((len(x),), view_channel(view), device=device)
-        r, probability = predict_batch(model, x, v, cfg)
+        sino = n_views = None
+        if dual:
+            # 只把该视角已测角度交给模型；稠密角度不参与推理。
+            sino = torch.from_numpy(np.stack([mask_unmeasured(patient.stack("sino", z), cfg.sino_dense_views, view)
+                                              for z in slices])).to(device)
+            n_views = torch.full((len(x),), int(view), device=device, dtype=torch.long)
+        r, probability = predict_batch(model, x, v, cfg, sino, n_views)
         restored.append(r.float().cpu().numpy())
         probs.append(probability.float().cpu().numpy())
     return np.concatenate(restored), np.concatenate(probs)
@@ -98,10 +114,20 @@ def summarize(reconstruction, segmentation, cfg):
             "tumor_Dice_all": finite_summary([r["tumor_Dice"] for r in rows]),
             "tumor_Dice_positive_only": finite_summary([r["tumor_Dice"] for r in rows if r["tumor_positive"]]),
             "tumor_FP_ml_negative_only": finite_summary([r["tumor_false_positive_ml"] for r in rows if not r["tumor_positive"]])}
+        extra = {"liver_Dice_raw": "liver_Dice_raw", "tumor_Dice_positive_only_raw": "tumor_Dice_raw",
+                 "tumor_lesion_recall": "tumor_lesion_recall", "tumor_lesion_precision": "tumor_lesion_precision",
+                 "liver_HD95_mm": "liver_HD95_mm", "liver_ASSD_mm": "liver_ASSD_mm",
+                 "tumor_HD95_mm": "tumor_HD95_mm", "tumor_ASSD_mm": "tumor_ASSD_mm"}
+        for name, column in extra.items():
+            if any(column in r for r in rows):
+                values = [r.get(column) for r in rows if r["tumor_positive"] or not name.startswith("tumor")]
+                summary["segmentation"][str(view)][name] = finite_summary(values)
     return summary
 
 
-def evaluate_patients(model, ids, cfg, device, output=None, export=False):
+def evaluate_patients(model, ids, cfg, device, output=None, export=False, params=None, surface=None):
+    """params：验证集选出的肿瘤后处理参数；surface：是否计算HD95/ASSD（训练期验证默认关闭以省时）。"""
+    surface = export if surface is None else surface
     model.eval()
     rec_rows, seg_rows, region_rows = [], [], []
     quality_path = Path(cfg.cache_dir)/"quality_audit.json"
@@ -138,15 +164,20 @@ def evaluate_patients(model, ids, cfg, device, output=None, export=False):
                     if export:
                         for region,values in regional_metrics(image,target,regions,cfg).items():
                             region_rows.append({"patient":pid,"view":view,"reference":reference,"method":method,"region":region,**values})
-            seg_rows.append({"patient": pid, "view": view, **segmentation_metrics(probs, truth_masks, p.meta["spacing_zyx"], cfg)})
+            seg_rows.append({"patient": pid, "view": view, **segmentation_metrics(
+                probs, truth_masks, p.meta["spacing_zyx"], cfg, params, surface)})
             if output and export:
                 dest = Path(output) / "volumes" / pid / str(view)
                 dest.mkdir(parents=True, exist_ok=True)
                 save_nifti(dest / "restored_hu.nii.gz", restored, p.meta)
                 save_nifti(dest / "fbp_hu.nii.gz", fbp, p.meta)
-                for c, name in enumerate(("liver", "tumor")):
-                    save_nifti(dest / f"{name}.nii.gz", (probs[:, c] >= cfg.segmentation_threshold).astype(np.uint8), p.meta)
-                export_slice_figures(truth_hu, fbp, restored, truth_masks, probs, cfg, dest,
+                from .postprocess import postprocess_volume
+                binary = postprocess_volume(probs, p.meta["spacing_zyx"], cfg, params)
+                for name, volume in zip(("liver", "tumor"), binary):
+                    save_nifti(dest / f"{name}.nii.gz", volume.astype(np.uint8), p.meta)
+                # 可视化使用与指标相同的最终二值结果。
+                shown = np.stack(binary, axis=1).astype(np.float32)
+                export_slice_figures(truth_hu, fbp, restored, truth_masks, shown, cfg, dest,
                                      patient=pid, view=view)
     result = summarize(rec_rows, seg_rows, cfg)
     if output:
@@ -213,7 +244,7 @@ def load_checkpoint(path, cfg, device):
     ckpt = torch.load(path, map_location=device, weights_only=True)
     saved_cfg = Config(**ckpt["config"]).validate()
     ignored = {"data_root", "cache_dir", "run_dir", "device", "cpu_threads", "num_workers", "batch_size", "bootstrap_repeats",
-               "split_path", "save_slice_every"}
+               "split_path", "save_slice_every", *INFERENCE_ONLY_KEYS}
     mismatches = [k for k, v in config_dict(saved_cfg).items()
                   if k not in ignored and v != config_dict(cfg)[k]
                   and not (isinstance(v, (list, tuple)) and list(v) == list(config_dict(cfg)[k]))]
@@ -236,7 +267,9 @@ def evaluate(cfg, checkpoint, split="test", export=True):
         raise ValueError("评估数据审计指纹不同于训练时数据")
     verify_cache(cfg, splits[split])
     output = Path(cfg.run_dir) / f"evaluation_{split}"
-    result = evaluate_patients(model, splits[split], cfg, device, output, export)
+    params, params_source = load_postprocess_parameters(cfg, checkpoint)
+    result = evaluate_patients(model, splits[split], cfg, device, output, export, params, surface=True)
+    result["postprocess"] = {"enabled": cfg.postprocess, "parameters": params, "source": params_source}
     result["segmentation_training_enabled"] = cfg.segmentation_weight > 0
     result["checkpoint_after_segmentation_warmup"] = ckpt["epoch"] >= cfg.warmup_epochs
     write_json(output / "summary.json", result)
@@ -245,5 +278,60 @@ def evaluate(cfg, checkpoint, split="test", export=True):
                                            "audit_fingerprint": audit["fingerprint"], "split_fingerprint": ckpt["split_fingerprint"],
                                            "training_protocol":ckpt.get("training_protocol","v1"),
                                            "checkpoint_sha256":hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
-                                           "metric_protocol":"rawHU_unclipped_global_v1_plus_explicit_regions_v2"})
+                                           "postprocess": {"enabled": cfg.postprocess, "parameters": params,
+                                                           "source": params_source},
+                                           "metric_protocol": METRIC_PROTOCOL})
+    return result
+
+
+def file_sha256(path):
+    value = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8*1024*1024), b""):
+            value.update(chunk)
+    return value.hexdigest()
+
+
+def load_postprocess_parameters(cfg, checkpoint):
+    """若 run_dir/postprocess.json 由同一 checkpoint 在验证集上调得，则使用之；否则用配置默认值。"""
+    if not cfg.postprocess:
+        return None, "disabled"
+    path = Path(cfg.run_dir) / "postprocess.json"
+    if path.is_file():
+        tuned = read_json(path)
+        if tuned.get("checkpoint_sha256") == file_sha256(checkpoint) and tuned.get("split") == "val":
+            return tuned["parameters"], str(path.resolve())
+        print("postprocess.json 不属于当前 checkpoint，改用配置中的 tumor_threshold/min_tumor_ml", flush=True)
+    return {"tumor_threshold": cfg.tumor_threshold if cfg.tumor_threshold is not None else cfg.segmentation_threshold,
+            "min_tumor_ml": cfg.min_tumor_ml}, "config"
+
+
+def tune_postprocess(cfg, checkpoint, split="val"):
+    """只在验证集上搜索肿瘤阈值与最小体积；结果写入 run_dir/postprocess.json，测试时直接套用。"""
+    if split != "val":
+        raise ValueError("后处理参数只能在验证集上选择")
+    if not cfg.postprocess:
+        raise ValueError("请先在配置中开启 postprocess: true")
+    splits = read_json(split_file(cfg))
+    device = device_for(cfg)
+    model, ckpt = load_checkpoint(checkpoint, cfg, device)
+    if ckpt["split_fingerprint"] != digest({k: splits[k] for k in ("train", "val", "test")}):
+        raise ValueError("调参划分不同于训练时冻结的划分")
+    verify_cache(cfg, splits[split])
+    model.eval()
+    cases = []
+    for pid in splits[split]:
+        print(f"Tune postprocess {pid}", flush=True)
+        p = PatientCache(cfg, pid)
+        truth = p.get("native_masks")
+        for view in cfg.views:
+            _, probs = predict_volume(model, p, view, cfg, device)
+            probs = native_resize(probs, truth.shape[-2:])
+            cases.append(tumor_grid_counts(probs, truth[:, 1], p.meta["spacing_zyx"], cfg))
+    parameters, table = choose_parameters(cases, cfg)
+    result = {"split": split, "patients": splits[split], "parameters": parameters, "candidates": table,
+              "checkpoint": str(Path(checkpoint).resolve()), "checkpoint_sha256": file_sha256(checkpoint),
+              "note": "仅用验证集选择；测试集评估直接套用，不能再按测试结果修改。"}
+    write_json(Path(cfg.run_dir) / "postprocess.json", result)
+    print(f"验证集选出的后处理参数: {parameters}", flush=True)
     return result

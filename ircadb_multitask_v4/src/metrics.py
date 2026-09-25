@@ -4,6 +4,7 @@
 """
 import math
 import numpy as np
+from scipy import ndimage
 from skimage.metrics import structural_similarity
 
 
@@ -48,13 +49,55 @@ def dice_score(pred, truth):
     return float(2*np.count_nonzero(p & t)/denom) if denom else 1.0
 
 
-def segmentation_metrics(probability, truth, spacing, cfg):
-    p, t = probability >= cfg.segmentation_threshold, truth.astype(bool)
+def surface_distance_metrics(pred, truth, spacing):
+    """HD95 与平均对称表面距离(mm)；在两者外包框内计算 EDT。任一为空返回 None。"""
+    pred, truth = np.asarray(pred, bool), np.asarray(truth, bool)
+    if not pred.any() or not truth.any():
+        return None, None
+    idx = np.argwhere(pred | truth)
+    lo, hi = np.maximum(idx.min(0) - 2, 0), np.minimum(idx.max(0) + 3, pred.shape)
+    box = tuple(slice(int(a), int(b)) for a, b in zip(lo, hi))
+    p, t = pred[box], truth[box]
+    pb = p & ~ndimage.binary_erosion(p)
+    tb = t & ~ndimage.binary_erosion(t)
+    to_truth = ndimage.distance_transform_edt(~tb, sampling=spacing)[pb]
+    to_pred = ndimage.distance_transform_edt(~pb, sampling=spacing)[tb]
+    distances = np.concatenate([to_truth, to_pred])
+    return float(np.percentile(distances, 95)), float(distances.mean())
+
+
+def lesion_detection(pred, truth):
+    """病灶级检出：GT 连通域被预测覆盖的比例（召回）与预测连通域命中 GT 的比例（精确率）。"""
+    structure = np.ones((3, 3, 3), dtype=bool)
+    gt_labels, gt_count = ndimage.label(truth, structure=structure)
+    pr_labels, pr_count = ndimage.label(pred, structure=structure)
+    recall = (len(np.unique(gt_labels[pred & (gt_labels > 0)])) / gt_count) if gt_count else None
+    precision = (len(np.unique(pr_labels[truth & (pr_labels > 0)])) / pr_count) if pr_count else None
+    return recall, precision, int(gt_count), int(pr_count)
+
+
+def segmentation_metrics(probability, truth, spacing, cfg, params=None, surface=True):
+    """主列为后处理结果（postprocess=false 时与 V3 相同的纯阈值结果），*_raw 为纯阈值对照。"""
+    from .postprocess import postprocess_volume
+    raw = probability >= cfg.segmentation_threshold
+    liver, tumor = postprocess_volume(probability, spacing, cfg, params)
+    t = truth.astype(bool)
     voxel_ml = float(np.prod(spacing) / 1000)
-    return {"liver_Dice": dice_score(p[:, 0], t[:, 0]), "tumor_Dice": dice_score(p[:, 1], t[:, 1]),
-            "tumor_positive": bool(t[:, 1].any()),
-            "tumor_false_positive_ml": float(np.count_nonzero(p[:, 1] & ~t[:, 1])*voxel_ml),
-            "tumor_ground_truth_ml": float(t[:, 1].sum()*voxel_ml)}
+    result = {"liver_Dice": dice_score(liver, t[:, 0]), "tumor_Dice": dice_score(tumor, t[:, 1]),
+              "tumor_positive": bool(t[:, 1].any()),
+              "tumor_false_positive_ml": float(np.count_nonzero(tumor & ~t[:, 1])*voxel_ml),
+              "tumor_ground_truth_ml": float(t[:, 1].sum()*voxel_ml),
+              "tumor_predicted_ml": float(tumor.sum()*voxel_ml),
+              "liver_Dice_raw": dice_score(raw[:, 0], t[:, 0]), "tumor_Dice_raw": dice_score(raw[:, 1], t[:, 1]),
+              "tumor_false_positive_ml_raw": float(np.count_nonzero(raw[:, 1] & ~t[:, 1])*voxel_ml)}
+    recall, precision, gt_count, pr_count = lesion_detection(tumor, t[:, 1])
+    result.update({"tumor_lesion_recall": recall, "tumor_lesion_precision": precision,
+                   "tumor_lesions_truth": gt_count, "tumor_lesions_predicted": pr_count})
+    if surface:
+        for name, pred, gt in (("liver", liver, t[:, 0]), ("tumor", tumor, t[:, 1])):
+            hd95, assd = surface_distance_metrics(pred, gt, spacing)
+            result.update({f"{name}_HD95_mm": hd95, f"{name}_ASSD_mm": assd})
+    return result
 
 
 def finite_summary(values):

@@ -1,4 +1,29 @@
-# 3D-IRCADb-01 2.5D 重建与分割联合模型 · 修订版
+# 3D-IRCADb-01 2.5D 重建与分割联合模型 · V4
+
+## V4 更新（本次）
+
+V4 针对 V3 结果中的两个问题：**32 视角条纹伪影明显、重建指标比 FBP 提高有限**，以及**肿瘤分割不准、肝外假阳性多**。完整诊断、每项改动的依据和合成消融结果见 [V4优化说明](docs/V4优化说明.md)。新增参数见 [参数说明](docs/参数说明.md) 末尾“V4 新增参数”一节。
+
+- **双域重建**（`reconstruction_mode: dual_domain`）：流程为稀疏正弦图 → 角度插值 + 正弦图 U-Net 补全缺失角度 → 已测角度硬数据一致性 → 与 skimage 逐像素一致的可微 FBP → 图像域 RCAB U-Net 精修。改为整图训练，加入精确的正弦图同步几何增强，以及正弦图、双域中间图、频域、投影一致性损失。
+- **分割**（`seg_backbone: resattn`）：残差注意力编码器 + 注意力门 + 深监督 + 以肝概率为条件的肿瘤头 + 宽窗输入；肿瘤使用逐样本 Focal-Tversky 与层级一致性损失；分割满权重后才开始选 best.pt。
+- **3D 后处理**：肝取最大连通域并填洞，肿瘤限制在预测肝 ±5 mm 内并删除小碎片；阈值和最小体积**只在验证集**上自动选择。新增 HD95/ASSD 与病灶级检出率指标。
+- **训练**：EMA 权重、学习率预热、分割 TTA。
+- **兼容**：新参数默认值等于 V3 行为；V3 的 YAML 和权重可原样评估。后处理可以直接用于 V3 的 best.pt，无需重训。
+
+V4 快速开始（复用 V3 的 256 缓存，prepare 只补充正弦图）：
+
+~~~powershell
+python -m src.cli --config configs/v4_dualdomain_256.yaml prepare
+python -m src.cli --config configs/v4_dualdomain_256.yaml train
+python -m src.cli --config configs/v4_dualdomain_256.yaml evaluate --checkpoint runs/v4_dualdomain256/best.pt --split test
+~~~
+
+最终报告建议使用 [configs/v4_dualdomain_native512.yaml](configs/v4_dualdomain_native512.yaml)，原因是 256 网格的指标以原 512 CT 为参照时存在上限。本包**未包含**在真实 20 例上训练的 V4 权重，真实提升须重训后以测试集或五折结果为准。
+
+---
+
+以下为 V3 说明，仍然适用（V4 配置沿用相同的审计、划分、缓存、评估和五折流程）。
+
 
 本包依据你上传的旧代码、当前 V2 的三份测试 CSV 和新的标注范围要求修改。**交付的是可运行代码与配置，不包含在真实 20 位患者上重新训练的权重，也不预先声称 SSIM/Dice 已提高。** 修正后的实验须从原始 DICOM 重做审计、投影缓存、训练和折外测试。
 
