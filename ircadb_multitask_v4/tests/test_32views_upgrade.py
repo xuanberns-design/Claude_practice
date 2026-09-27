@@ -115,3 +115,38 @@ def test_finetune_source_rejects_other_fold_and_loads_same_fold(tmp_path):
     source = load_finetune_source(path, cfg, target, "fold_0", "audit")
     assert source["source_epoch"] == 4
     assert all(torch.equal(target.state_dict()[k], v) for k, v in source_model.state_dict().items())
+
+
+def _positive_row(threshold, recall, dice, fp):
+    return {"tumor_threshold": threshold, "min_tumor_ml": 0., "tumor_liver_margin_mm": 10.,
+            "lesion_recall": recall, "dice": dice, "false_positive_ml": fp, "positive": True,
+            "false_positive_lesions": 1 if fp else 0}
+
+
+def test_32_calibration_all_patient_fp_fallback_without_negative_case():
+    cfg = Config(fp_guard_fallback="all_patients", max_fp_increase_ml=5.)
+    baseline = {"tumor_threshold": 0.3, "min_tumor_ml": 0.2, "tumor_liver_margin_mm": 5.0}
+    base_rows = [[{"dice": .5, "lesion_recall": .5, "positive": True, "false_positive_ml": 2.}]]
+    # 0.10：召回最高但真值外体积 +10 mL，超限；0.20：召回提高且只 +3 mL，应被选中。
+    candidates = [[_positive_row(.1, 1., .6, 12.), _positive_row(.2, .75, .55, 5.)]]
+    selected, table, status = choose_32_parameters(candidates, base_rows, baseline, cfg)
+    assert selected["tumor_threshold"] == .2
+    assert status["fp_guard"] == "all_patients" and status["status"] == "selected_candidate"
+    assert not table[0]["eligible"] and table[1]["eligible"]
+
+
+def test_selection_recall_is_averaged_over_32_view_tuning_thresholds():
+    cfg = Config(postprocess=True, tumor_liver_margin_mm=None, selection_32_lesion_priority=True,
+                 tune_32_thresholds=(0.1, 0.2, 0.3, 0.4))
+    probability = np.zeros((3, 2, 24, 24), dtype=np.float32)
+    probability[:, 0] = 0.9
+    probability[1, 1, 4:7, 4:7] = 0.8    # 高置信病灶
+    probability[1, 1, 15:18, 15:18] = 0.25  # 只在低阈值下检出的小病灶
+    truth = np.zeros_like(probability)
+    truth[:, 0] = 1
+    truth[1, 1, 4:7, 4:7] = truth[1, 1, 15:18, 15:18] = 1
+    result = segmentation_metrics(probability, truth, (1., 1., 1.), cfg, None, surface=False, view=32)
+    assert result["tumor_lesion_recall"] == 0.5          # 默认阈值 0.5
+    assert result["tumor_lesion_recall_tuned_range"] == pytest.approx((1 + 1 + .5 + .5) / 4)
+    assert "tumor_lesion_recall_tuned_range" not in segmentation_metrics(
+        probability, truth, (1., 1., 1.), cfg, None, surface=False, view=64)

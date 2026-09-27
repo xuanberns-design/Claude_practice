@@ -94,6 +94,17 @@ def segmentation_metrics(probability, truth, spacing, cfg, params=None, surface=
     recall, precision, gt_count, pr_count = lesion_detection(tumor, t[:, 1])
     result.update({"tumor_lesion_recall": recall, "tumor_lesion_precision": precision,
                    "tumor_lesions_truth": gt_count, "tumor_lesions_predicted": pr_count})
+    if view == 32 and getattr(cfg, "selection_32_lesion_priority", False):
+        # 训练期选模与部署阈值对齐：部署时 32 views 阈值在 tune_32_thresholds 中选择，
+        # 若只在默认阈值(0.5)下量召回，选出的权重未必在低阈值下最好。这里取整个候选区间的平均。
+        recalls, fps = [], []
+        for threshold in cfg.tune_32_thresholds:
+            override = {"per_view": {"32": {"tumor_threshold": float(threshold), "min_tumor_ml": 0.0}}}
+            _, candidate = postprocess_volume(probability, spacing, cfg, {**(params or {}), **override}, view)
+            recalls.append(lesion_detection(candidate, t[:, 1])[0])
+            fps.append(float(np.count_nonzero(candidate & ~t[:, 1])*voxel_ml))
+        result["tumor_lesion_recall_tuned_range"] = (float(np.mean(recalls)) if recalls[0] is not None else None)
+        result["tumor_false_positive_ml_tuned_range"] = float(np.mean(fps))
     if surface:
         for name, pred, gt in (("liver", liver, t[:, 0]), ("tumor", tumor, t[:, 1])):
             hd95, assd = surface_distance_metrics(pred, gt, spacing)

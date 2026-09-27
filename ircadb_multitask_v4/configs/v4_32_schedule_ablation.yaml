@@ -154,3 +154,7 @@ ema_decay: 0.999
 lr_warmup_epochs: 5
 selection_start_epoch: 40
 selection_32_lesion_priority: true
+max_negative_fp_ml: 5.0
+# 验证集无阴性患者时改用全部验证患者的真值外预测体积约束（不超过原参数 +5 mL）。
+fp_guard_fallback: all_patients
+max_fp_increase_ml: 5.0

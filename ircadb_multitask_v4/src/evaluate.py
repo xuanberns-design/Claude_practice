@@ -26,7 +26,8 @@ from .split import validate_split
 INFERENCE_ONLY_KEYS = {"postprocess", "tumor_threshold", "postprocess_keep_largest_liver", "postprocess_fill_holes",
                        "tumor_liver_margin_mm", "min_tumor_ml", "auto_tune_postprocess", "tune_tumor_thresholds",
                        "tune_min_tumor_ml", "tune_32_thresholds", "tune_32_min_ml",
-                       "tune_32_liver_margins", "max_negative_fp_ml", "seg_tta", "inference_tta"}
+                       "tune_32_liver_margins", "max_negative_fp_ml", "fp_guard_fallback", "max_fp_increase_ml",
+                       "seg_tta", "inference_tta"}
 
 
 @torch.inference_mode()
@@ -120,6 +121,8 @@ def summarize(reconstruction, segmentation, cfg):
             "tumor_FP_lesions_negative_only": finite_summary([r.get("tumor_lesions_predicted") for r in rows if not r["tumor_positive"]])}
         extra = {"liver_Dice_raw": "liver_Dice_raw", "tumor_Dice_positive_only_raw": "tumor_Dice_raw",
                  "tumor_lesion_recall": "tumor_lesion_recall", "tumor_lesion_precision": "tumor_lesion_precision",
+                 "tumor_lesion_recall_tuned_range": "tumor_lesion_recall_tuned_range",
+                 "tumor_FP_ml_tuned_range": "tumor_false_positive_ml_tuned_range",
                  "liver_HD95_mm": "liver_HD95_mm", "liver_ASSD_mm": "liver_ASSD_mm",
                  "tumor_HD95_mm": "tumor_HD95_mm", "tumor_ASSD_mm": "tumor_ASSD_mm"}
         for name, column in extra.items():
@@ -283,13 +286,19 @@ def validation_score(summary, cfg):
         if 32 not in cfg.views:
             raise ValueError("32 views 病灶优先选模需要 cfg.views 包含 32")
         s = summary["segmentation"]["32"]
-        recall = s["tumor_lesion_recall"]["mean"]
+        # 优先使用 tune_32_thresholds 区间平均召回（与部署阈值一致）；旧结果回退到默认阈值召回。
+        recall = s.get("tumor_lesion_recall_tuned_range", {}).get("mean")
+        if recall is None:
+            recall = s["tumor_lesion_recall"]["mean"]
         dice = s["tumor_Dice_positive_only"]["mean"]
         liver = s["liver_Dice"]["mean"]
         if recall is None or dice is None or liver is None:
             raise ValueError("32 views 病灶优先选模需要阳性肿瘤病例和完整分割指标")
-        # 重建退化与阴性假阳性由 eligibility 两个硬约束另行检查。
-        return float(.75 * recall + .20 * dice + .025 * liver + .025 * rec_score)
+        # 联合训练时重建也在变化：保留 selection_reconstruction_weight 的重建权重，避免为召回牺牲重建。
+        # 固定重建器微调时 rec_score 为常数，不影响排序。重建退化与阴性假阳性仍由 eligibility 硬约束检查。
+        seg_score = .75 * recall + .20 * dice + .05 * liver
+        weight = cfg.selection_reconstruction_weight
+        return float(weight * rec_score + (1 - weight) * seg_score)
     seg = []
     for v in cfg.views:
         s = summary["segmentation"][str(v)]

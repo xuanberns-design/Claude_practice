@@ -205,6 +205,9 @@ def choose_32_parameters(per_case_rows, baseline_rows, baseline_params, cfg):
     baseline_dice = float(np.mean(baseline_positive))
     baseline_recall = float(np.mean([rows[0]["lesion_recall"] for rows in baseline_rows if rows[0]["positive"]]))
     baseline_negative_fp = [rows[0]["false_positive_ml"] for rows in baseline_rows if not rows[0]["positive"]]
+    baseline_all_fp = float(np.mean([rows[0]["false_positive_ml"] for rows in baseline_rows]))
+    all_patient_guard = not baseline_negative_fp and getattr(cfg, "fp_guard_fallback", "keep_baseline") == "all_patients"
+    all_fp_limit = baseline_all_fp + getattr(cfg, "max_fp_increase_ml", 0.0)
     keys = [(r["tumor_threshold"], r["min_tumor_ml"], r["tumor_liver_margin_mm"])
             for r in per_case_rows[0]]
     if len(keys) != len(set(keys)):
@@ -225,13 +228,20 @@ def choose_32_parameters(per_case_rows, baseline_rows, baseline_params, cfg):
         # Without a negative validation patient, the requested FP guard is
         # unmeasurable. Keep the frozen baseline instead of approving a lower
         # threshold on recall alone.
-        eligible = bool(negative) and dice + 1e-12 >= baseline_dice and fp <= cfg.max_negative_fp_ml + 1e-12
+        all_fp = float(np.mean([r["false_positive_ml"] for r in chosen]))
+        if negative:
+            fp_ok = fp <= cfg.max_negative_fp_ml + 1e-12
+        else:
+            # 阳性患者真值外的预测体积同样是假阳性，可在无阴性病例时作为替代约束。
+            fp_ok = all_patient_guard and all_fp <= all_fp_limit + 1e-12
+        eligible = dice + 1e-12 >= baseline_dice and fp_ok
         table.append({"tumor_threshold": threshold, "min_tumor_ml": min_ml,
                       "tumor_liver_margin_mm": margin,
                       "tumor_lesion_recall_positive_mean": recall,
                       "tumor_Dice_positive_mean": dice,
                       "tumor_FP_ml_negative_mean": fp,
                       "tumor_FP_lesions_negative_mean": fp_lesions,
+                      "tumor_FP_ml_all_patients_mean": all_fp,
                       "eligible": bool(eligible)})
     eligible = [r for r in table if r["eligible"]]
     # 允许等召回时按 Dice、阴性假阳性和更严格的门控排序。
@@ -246,8 +256,13 @@ def choose_32_parameters(per_case_rows, baseline_rows, baseline_params, cfg):
                  "baseline_tumor_Dice_positive_mean": baseline_dice,
                  "baseline_tumor_FP_ml_negative_mean": float(np.mean(baseline_negative_fp)) if baseline_negative_fp else None,
                  "max_negative_fp_ml": cfg.max_negative_fp_ml,
-                 "negative_validation_patients": len(baseline_negative_fp)}
-    if not baseline_negative_fp:
+                 "negative_validation_patients": len(baseline_negative_fp),
+                 "baseline_tumor_FP_ml_all_patients_mean": baseline_all_fp,
+                 "fp_guard": ("negative_patients" if baseline_negative_fp else
+                              "all_patients" if all_patient_guard else "unavailable")}
+    if all_patient_guard:
+        selection["all_patients_fp_limit_ml"] = all_fp_limit
+    if not baseline_negative_fp and not all_patient_guard:
         selection["status"] = "kept_baseline_no_negative_validation"
         return baseline, table, selection
     if best is None or (best["tumor_lesion_recall_positive_mean"], best["tumor_Dice_positive_mean"]) <= (baseline_recall, baseline_dice):

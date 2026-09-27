@@ -161,3 +161,6 @@ tune_32_thresholds: [0.10, 0.15, 0.20, 0.25, 0.30]
 tune_32_min_ml: [0.0, 0.05, 0.2]
 tune_32_liver_margins: [5.0, 10.0, null]
 max_negative_fp_ml: 5.0
+# 验证集无阴性患者时改用全部验证患者的真值外预测体积约束（不超过原参数 +5 mL）。
+fp_guard_fallback: all_patients
+max_fp_increase_ml: 5.0

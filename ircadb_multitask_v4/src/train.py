@@ -246,6 +246,8 @@ def train(cfg, resume=None):
             rec_grad_total += float(rec_norm)*n
             seg_grad_total += float(seg_norm)*n
         scheduler.step()
+        if count == 0:
+            raise FloatingPointError(f"epoch {epoch+1} 所有 batch 的梯度都非有限，训练已发散；请降低 lr 或检查输入")
         record = {"epoch": epoch+1, "loss": total/count, "reconstruction_loss": rec_total/count,
                   "segmentation_loss": seg_total/count, "seg_ramp": parts["seg_ramp"], "lr": optimizer.param_groups[0]["lr"],
                   "reconstructor_grad_norm":rec_grad_total/count,"segmenter_grad_norm":seg_grad_total/count,

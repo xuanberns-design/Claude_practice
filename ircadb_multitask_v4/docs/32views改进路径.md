@@ -55,3 +55,16 @@ python -m scripts.package_delivery --output ../ircadb_32views_complete_results.z
 ```
 
 脚本会先核对两版 `best.pt`、校准文件的权重哈希、验证/测试 provenance、逐患者逐视角 CSV、概率 NIfTI、门控诊断和测试 PNG；缺失就拒绝生成压缩包。压缩包包含代码、配置、文档、已运行结果和权重，不包含原始 DICOM 或投影缓存；生成后执行 ZIP CRC 校验并报告 SHA-256。
+
+## 审阅后的修正（2026-09-27）
+
+1. **训练期选模阈值与部署阈值不一致。** 微调、联合配置的 `tumor_threshold: null`，所以每轮验证在 0.5 阈值下计算 32 views 病灶召回；部署时 32 views 实际使用 `tune_32_thresholds`（0.10–0.30）中选出的阈值。两者不一致时，选出的权重未必在低阈值下召回最好。现在开启 `selection_32_lesion_priority` 后，32 views 另外计算 `tumor_lesion_recall_tuned_range`，即候选阈值区间上的平均一对一召回，选模优先使用它。旧阈值召回仍在 CSV 中保留。
+2. **联合训练时选模几乎不看重建。** 原先的病灶优先评分中重建只占 0.025，而 `v4_32_schedule_ablation`、`v4_32_joint_combined` 会同时训练重建器，best.pt 可能在重建明显变差时仍被选中，只要不低于 FBP 即可。现在评分改为 `w·重建 + (1-w)·(0.75 召回 + 0.20 Dice + 0.05 肝 Dice)`，`w = selection_reconstruction_weight`（配置中为 0.5）。固定重建器微调时重建分数是常数，排序与原来相同。
+3. **验证集没有阴性患者时，32 views 校准不起作用。** 20 例中只有 5/11/14/20 为阴性，3 人验证集经常一个阴性都没有，此时 `tune-32-postprocess` 一定保留原参数。新增 `fp_guard_fallback: all_patients`（三个 32 views 配置已开启）：没有阴性患者时，改用全部验证患者“真值以外的预测体积”作为假阳性约束，要求不比原参数多出 `max_fp_increase_ml`（5 mL）；同时保留阳性 Dice 不下降的要求。有阴性患者时仍按原规则执行。`postprocess.json` 的 `selection_32.fp_guard` 会记录实际使用的约束。代码默认值仍为 `keep_baseline`，旧配置行为不变。
+4. 如果一个 epoch 的所有 batch 都因梯度非有限被跳过，现在会明确报错为“训练发散”，不再出现除零错误。
+
+## 仍值得做的方向（需要真实结果确认）
+
+- **分辨率是小病灶召回的主要瓶颈。** patient 8 的 3 个病灶合计约 10 mL，在 256 网格上每个病灶只剩很少的像素。阈值和门控只能找回“有响应但被阈值删掉”的病灶。运行 `--save-probabilities` 后，如果 `postprocess_lesion_diagnostics_32.csv` 中漏检病灶的 `tumor_probability_max` 本身就低于 0.1，应改用原生 512 双域配置；更进一步可以增加一个在预测肝脏包围框内、原生分辨率上运行的第二阶段肿瘤分割器。
+- **固定重建器微调可以提速。** 重建器不更新时，每步仍要完整计算一次正弦图网络、FBP 和图像网络。可以对训练集各视角的重建结果预计算一次并缓存。代价是几何增强要作用在缓存的重建图上，与在线重建不完全等价，建议作为独立实验。
+- **验证集只有 3 人，基于召回的选模噪声很大。** 最终结论应以五折折外结果为准，每折的 32 views 参数只在本折验证集上选择。

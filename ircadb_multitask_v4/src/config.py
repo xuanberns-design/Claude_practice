@@ -162,6 +162,11 @@ class Config:
     tune_32_min_ml: tuple = (0.0, 0.05, 0.2)
     tune_32_liver_margins: tuple = (5.0, 10.0, None)
     max_negative_fp_ml: float = 5.0
+    # 验证集没有肿瘤阴性患者时（20例中仅4例阴性，3人验证集经常如此）：
+    # keep_baseline=保留原参数（旧行为，校准不起作用）；
+    # all_patients=改用全部验证患者“真值外预测体积”的均值，不得比原参数多 max_fp_increase_ml。
+    fp_guard_fallback: str = "keep_baseline"
+    max_fp_increase_ml: float = 5.0
     # ---------------- V4：优化 ----------------
     ema_decay: float = 0.0
     lr_warmup_epochs: int = 0
@@ -308,6 +313,8 @@ class Config:
             raise ValueError("tune_32_liver_margins 必须是非负毫米数或 null 的非空列表")
         if self.max_negative_fp_ml < 0:
             raise ValueError("max_negative_fp_ml 不可为负")
+        if self.fp_guard_fallback not in ("keep_baseline", "all_patients") or self.max_fp_increase_ml < 0:
+            raise ValueError("fp_guard_fallback 必须为 keep_baseline/all_patients，max_fp_increase_ml 非负")
         if self.seg_pretrain_mix_epochs < 0 or self.seg_pretrain_mix_epochs > self.warmup_epochs:
             raise ValueError("seg_pretrain_mix_epochs 必须在[0,warmup_epochs]内")
         if self.freeze_reconstructor and not self.seg_finetune_checkpoint:
