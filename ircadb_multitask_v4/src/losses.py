@@ -185,12 +185,22 @@ def deep_supervision_loss(aux_logits, target, cfg):
 
 
 def joint_loss(restored, logits, batch, cfg, epoch, rec_aux=None, seg_aux=None, model=None):
-    rec = reconstruction_loss(restored, batch["target"], cfg, batch.get("mask_stack"), batch["input"])
-    dd, dd_parts = dual_domain_loss(rec_aux, batch, cfg, restored, model)
+    if cfg.reconstruction_weight > 0:
+        rec = reconstruction_loss(restored, batch["target"], cfg, batch.get("mask_stack"), batch["input"])
+        dd, dd_parts = dual_domain_loss(rec_aux, batch, cfg, restored, model)
+    else:
+        # Segmentation fine-tuning keeps the pretrained reconstructor fixed.
+        # Computing SSIM/FBP losses here would consume time without contributing
+        # any gradients or changing checkpoint selection.
+        rec = restored.new_zeros(())
+        dd, dd_parts = restored.new_zeros(()), {}
     seg = segmentation_loss(logits, batch["mask"], cfg)
     if seg_aux and cfg.seg_deep_supervision_weight > 0:
         seg = seg + cfg.seg_deep_supervision_weight*deep_supervision_loss(seg_aux, batch["mask"].float(), cfg)
-    ramp = (1.0 if cfg.seg_pretrain_clean and epoch < cfg.warmup_epochs else
+    # Once segmentation has received full-strength clean-CT supervision, keep
+    # that strength at the switch to reconstructed CT. The old schedule dropped
+    # from 1.0 to 1/ramp_epochs at exactly this boundary.
+    ramp = (1.0 if cfg.seg_pretrain_clean else
             min(1.0, max(0.0, (epoch - cfg.warmup_epochs + 1) / max(cfg.ramp_epochs, 1))))
     loss = cfg.reconstruction_weight*(rec + dd) + cfg.segmentation_weight*ramp*seg
     return loss, {"reconstruction": float(rec.detach()), "segmentation": float(seg.detach()), "seg_ramp": ramp,

@@ -1,9 +1,8 @@
-# V4 首选（可复用 V3 实际运行的 256 缓存）：双域重建（正弦图补全+可微FBP+图像精修）+ 注意力分割 + 3D后处理。
-# cache_dir 与 V3 运行的 cache/quality256_newlabels 相同：对同一 cache_dir 再运行一次 prepare 即就地补充
-# 正弦图（约1GB），不必重新 audit/split/投影。网络/损失已改变，必须新 run_dir、从头训练。显存估计约8-12GB（batch 8, AMP；CPU实测fp32单样本训练约1.5GB激活）。
+# 可选组合对照：逐步切换训练输入 + 连续分割损失 + 病灶均衡 + 32 views 加权。
+# 与 v4_32_schedule_ablation.yaml 共用缓存/网络，从头训练到独立 run。
 data_root: E:/6_Xinsong/X-ray thesis/X-ray datasets/3Dircadb1
 cache_dir: E:/6_Xinsong/X-ray thesis/ircadb_multitask_v3/cache/quality256_newlabels
-run_dir: runs/v4_dualdomain256
+run_dir: runs/v4_32_joint_combined
 split_path: null
 seed: 2026
 image_size: 256
@@ -20,9 +19,9 @@ views:
 - 64
 - 128
 view_weights:
-- 0.5
-- 0.25
-- 0.25
+- 0.7
+- 0.15
+- 0.15
 fbp_filter: ramp
 photons_per_ray: 0.0
 readout_noise_std: 0.0
@@ -87,6 +86,7 @@ mse_weight: 0.5
 correction_weight: 0.05
 seg_to_recon_scale: 0.1
 seg_pretrain_clean: true
+seg_pretrain_mix_epochs: 10
 negative_tumor_weight: 0.5
 liver_hard_negative_weight: 0.2
 liver_hard_negative_fraction: 0.02
@@ -153,3 +153,5 @@ tune_min_tumor_ml:
 ema_decay: 0.999
 lr_warmup_epochs: 5
 selection_start_epoch: 40
+selection_32_lesion_priority: true
+lesion_balanced_sampling: true

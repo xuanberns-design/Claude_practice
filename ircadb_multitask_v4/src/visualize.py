@@ -77,6 +77,9 @@ def comparison_figure(truth, fbp, restored, masks, probability, cfg, path,
         raise ValueError("六联图需要 [0,1] 概率，而不是分割 logits")
 
     expert_labels = _labels(masks > 0)
+    # evaluate() passes the *final* postprocessed 0/1 mask here. Standalone
+    # callers may still pass probabilities that require the configured cutoff.
+    final_binary = bool(np.all((probability == 0) | (probability == 1)))
     predicted_labels = _labels(probability >= cfg.segmentation_threshold)
     overlay = np.zeros((*truth.shape, 4), dtype=np.float32)
     overlay[predicted_labels == 1] = (*LIVER_COLOR, LIVER_ALPHA)
@@ -118,9 +121,11 @@ def comparison_figure(truth, fbp, restored, masks, probability, cfg, path,
             context.append(f"Slice {z} (zero-based)")
         fig.suptitle(" | ".join(context) if context else "Sparse-view CT reconstruction and segmentation",
                      fontsize=16, fontweight="bold", y=0.985)
+        prediction_note = ("Postprocessed binary prediction" if final_binary else
+                           f"Prediction threshold: {cfg.segmentation_threshold:g}")
         fig.text(0.5, 0.018,
                  f"CT window: [{cfg.window_min:g}, {cfg.window_max:g}] HU  |  "
-                 f"Prediction threshold: {cfg.segmentation_threshold:g}  |  "
+                 f"{prediction_note}  |  "
                  "Panel 3: expert mask; panel 6: model prediction",
                  ha="center", va="center", fontsize=9, color="#444444")
         fig.subplots_adjust(left=0.025, right=0.975, bottom=0.075, top=0.925,

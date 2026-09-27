@@ -1,9 +1,8 @@
-# V4 首选（可复用 V3 实际运行的 256 缓存）：双域重建（正弦图补全+可微FBP+图像精修）+ 注意力分割 + 3D后处理。
-# cache_dir 与 V3 运行的 cache/quality256_newlabels 相同：对同一 cache_dir 再运行一次 prepare 即就地补充
-# 正弦图（约1GB），不必重新 audit/split/投影。网络/损失已改变，必须新 run_dir、从头训练。显存估计约8-12GB（batch 8, AMP；CPU实测fp32单样本训练约1.5GB激活）。
+# 32 views 肝内病灶微调：从同一患者划分、同一缓存的 V4 best.pt 初始化，固定双域重建器。
+# 首次运行前核实 seg_finetune_checkpoint 与 cache_dir 指向原训练机器的真实文件。
 data_root: E:/6_Xinsong/X-ray thesis/X-ray datasets/3Dircadb1
 cache_dir: E:/6_Xinsong/X-ray thesis/ircadb_multitask_v3/cache/quality256_newlabels
-run_dir: runs/v4_dualdomain256
+run_dir: runs/v4_32_seg_finetune
 split_path: null
 seed: 2026
 image_size: 256
@@ -20,9 +19,9 @@ views:
 - 64
 - 128
 view_weights:
-- 0.5
-- 0.25
-- 0.25
+- 0.7
+- 0.15
+- 0.15
 fbp_filter: ramp
 photons_per_ray: 0.0
 readout_noise_std: 0.0
@@ -52,20 +51,20 @@ reconstruction_backbone: rcab
 reconstruction_upsample: pixelshuffle
 batch_size: 16
 num_workers: 0
-epochs: 200
-warmup_epochs: 20
-ramp_epochs: 20
+epochs: 60
+warmup_epochs: 0
+ramp_epochs: 0
 samples_per_epoch: 4000
 tumor_sample_probability: 0.6
 tumor_boundary_sample_probability: 0.5
 patch_center_jitter_fraction: 0.125
-lr: 0.0002
+lr: 0.00005
 weight_decay: 0.0001
 grad_clip: 1.0
 amp: false
 device: auto
 cpu_threads: 4
-reconstruction_weight: 1.0
+reconstruction_weight: 0.0
 segmentation_weight: 1.0
 l1_weight: 1.0
 ssim_weight: 0.3
@@ -86,7 +85,7 @@ recon_tumor_weight: 8.0
 mse_weight: 0.5
 correction_weight: 0.05
 seg_to_recon_scale: 0.1
-seg_pretrain_clean: true
+seg_pretrain_clean: false
 negative_tumor_weight: 0.5
 liver_hard_negative_weight: 0.2
 liver_hard_negative_fraction: 0.02
@@ -151,5 +150,14 @@ tune_min_tumor_ml:
 - 0.2
 - 0.5
 ema_decay: 0.999
-lr_warmup_epochs: 5
-selection_start_epoch: 40
+lr_warmup_epochs: 3
+selection_start_epoch: 0
+selection_32_lesion_priority: true
+seg_finetune_checkpoint: runs/v4_dualdomain256/best.pt
+freeze_reconstructor: true
+lesion_balanced_sampling: true
+seg_pretrain_mix_epochs: 0
+tune_32_thresholds: [0.10, 0.15, 0.20, 0.25, 0.30]
+tune_32_min_ml: [0.0, 0.05, 0.2]
+tune_32_liver_margins: [5.0, 10.0, null]
+max_negative_fp_ml: 5.0

@@ -23,6 +23,7 @@ def main():
     evaluate.add_argument("--checkpoint", required=True)
     evaluate.add_argument("--split", choices=["val", "test"], default="test")
     evaluate.add_argument("--no-export", action="store_true")
+    evaluate.add_argument("--save-probabilities", action="store_true", help="保存肝/瘤概率 NIfTI 与 32 views 后处理诊断")
     infer = sub.add_parser("infer", help="对无需mask的稀疏FBP HU NIfTI推理")
     infer.add_argument("--checkpoint", required=True)
     infer.add_argument("--input", required=True)
@@ -32,13 +33,15 @@ def main():
     infer.add_argument("--reproject-fbp", action="store_true", help="无正弦图时用FBP重投影近似（质量下降）")
     tune = sub.add_parser("tune-postprocess", help="仅在验证集上选择肿瘤阈值/最小体积，写入 run_dir/postprocess.json")
     tune.add_argument("--checkpoint", required=True)
+    tune32 = sub.add_parser("tune-32-postprocess", help="仅在验证集上为 32 views 校准召回优先的后处理参数")
+    tune32.add_argument("--checkpoint", required=True)
     quality = sub.add_parser("cache-audit",help="核查现有缓存HU分布与可选DICOM padding")
     quality.add_argument("--with-dicom",action="store_true")
     quality.add_argument("--output")
     cv_init = sub.add_parser("cv-init",help="保留原始划分为fold_0，生成五折协议")
     cv_init.add_argument("--base-split")
     cv_init.add_argument("--output")
-    cv_train = sub.add_parser("cv-train",help="各折从头训练，不访问外层测试")
+    cv_train = sub.add_parser("cv-train",help="各折独立训练或从同折权重微调，不访问外层测试")
     cv_train.add_argument("--folds",required=True)
     cv_train.add_argument("--only",nargs="+",type=int)
     cv_eval = sub.add_parser("cv-evaluate",help="各折仅推理本折外层测试患者")
@@ -46,6 +49,10 @@ def main():
     cv_eval.add_argument("--only",nargs="+",type=int)
     cv_eval.add_argument("--checkpoint-name",default="best.pt")
     cv_eval.add_argument("--no-export",action="store_true")
+    cv_tune32 = sub.add_parser("cv-tune-32-postprocess", help="各折只用本折验证集校准 32 views 后处理")
+    cv_tune32.add_argument("--folds", required=True)
+    cv_tune32.add_argument("--only", nargs="+", type=int)
+    cv_tune32.add_argument("--checkpoint-name", default="best.pt")
     cv_summary = sub.add_parser("cv-aggregate",help="核验五折来源并汇总折外患者结果")
     cv_summary.add_argument("--folds",required=True)
     cv_summary.add_argument("--output")
@@ -74,13 +81,17 @@ def main():
         print(train(cfg, args.resume))
     elif args.command == "evaluate":
         from .evaluate import evaluate
-        evaluate(cfg, args.checkpoint, args.split, not args.no_export)
+        evaluate(cfg, args.checkpoint, args.split, not args.no_export,
+                 save_probabilities=args.save_probabilities)
     elif args.command == "infer":
         from .infer import infer_nifti
         infer_nifti(cfg, args.checkpoint, args.input, args.views, args.output, args.sinogram, args.reproject_fbp)
     elif args.command == "tune-postprocess":
         from .evaluate import tune_postprocess
         tune_postprocess(cfg, args.checkpoint, "val")
+    elif args.command == "tune-32-postprocess":
+        from .evaluate import tune_32_postprocess
+        tune_32_postprocess(cfg, args.checkpoint, "val")
     elif args.command == "cache-audit":
         from .cache_quality import inspect_cache
         inspect_cache(cfg,args.output,args.with_dicom)
@@ -94,6 +105,9 @@ def main():
     elif args.command == "cv-evaluate":
         from .crossval import evaluate_folds
         evaluate_folds(cfg,args.folds,args.only,args.checkpoint_name,not args.no_export)
+    elif args.command == "cv-tune-32-postprocess":
+        from .crossval import tune_32_folds
+        tune_32_folds(cfg, args.folds, args.only, args.checkpoint_name)
     elif args.command == "cv-aggregate":
         from .crossval import aggregate_folds
         aggregate_folds(cfg,args.folds,args.output)

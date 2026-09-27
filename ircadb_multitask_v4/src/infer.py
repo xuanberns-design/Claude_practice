@@ -84,7 +84,8 @@ def infer_nifti(cfg, checkpoint, input_path, view, output, sinogram=None, reproj
     dest = Path(output)
     dest.mkdir(parents=True, exist_ok=True)
     params, params_source = load_postprocess_parameters(cfg, checkpoint)
-    liver, tumor = postprocess_volume(probability, (float(spacing[2]), float(spacing[1]), float(spacing[0])), cfg, params)
+    liver, tumor = postprocess_volume(probability, (float(spacing[2]), float(spacing[1]), float(spacing[0])),
+                                      cfg, params, view)
     volumes = {"restored_hu": restored, "liver": liver.astype(np.uint8), "tumor": tumor.astype(np.uint8)}
     for name, volume in volumes.items():
         out = nib.Nifti1Image(volume.transpose(2, 1, 0), img.affine)

@@ -14,16 +14,66 @@ from torch.utils.data import DataLoader
 import yaml
 from tqdm import tqdm
 from .common import read_json, write_json, seed_all, device_for, digest
-from .config import config_dict, split_file
+from .config import Config, config_dict, prepare_signature, split_file
 from .dataset import TrainDataset
 from .model import JointUNet
 from .losses import joint_loss
 from .prepare import verify_cache
 from .split import validate_split
 from .evaluate import (evaluate_patients, validation_score, load_checkpoint, reconstruction_score,
-                       reconstruction_eligibility, tune_postprocess)
+                       reconstruction_eligibility, segmentation_eligibility, tune_postprocess,
+                       tune_32_postprocess)
 
 TRAINING_PROTOCOL = "v4"
+
+# Starting a new segmentation experiment may change sampling, loss and selection
+# settings, but must not silently reinterpret the source checkpoint's image
+# normalization or network weights. Cache provenance is checked separately.
+FINETUNE_MODEL_KEYS = (
+    "window_min", "window_max", "base_channels", "context_slices",
+    "reconstruction_mode", "reconstruction_backbone", "reconstruction_upsample",
+    "reconstruction_dilated_bottleneck", "sino_dense_views", "sino_base_channels",
+    "sino_angle_pad", "sino_data_consistency", "seg_backbone", "seg_base_channels",
+    "seg_wide_window", "seg_deep_supervision_weight",
+)
+
+
+def load_finetune_source(path, cfg, model, fingerprint, audit_fingerprint):
+    """Load weights into a fresh run only after data and architecture checks."""
+    source = Path(path).resolve()
+    checkpoint = torch.load(source, map_location="cpu", weights_only=True, mmap=True)
+    if checkpoint.get("training_protocol") != TRAINING_PROTOCOL:
+        raise ValueError("分割微调需要 V4 checkpoint；旧版协议不能作为此入口的初始化权重")
+    saved_cfg = Config(**checkpoint["config"]).validate()
+    if prepare_signature(saved_cfg) != prepare_signature(cfg):
+        raise ValueError("微调checkpoint与当前缓存的准备参数/标签定义不一致")
+    old, new = config_dict(saved_cfg), config_dict(cfg)
+    mismatches = [key for key in FINETUNE_MODEL_KEYS if old[key] != new[key]
+                  and not (isinstance(old[key], (list, tuple)) and list(old[key]) == list(new[key]))]
+    if mismatches:
+        raise ValueError(f"微调checkpoint与当前模型结构或输入窗不一致: {mismatches}")
+    if checkpoint.get("split_fingerprint") != fingerprint or checkpoint.get("audit_fingerprint") != audit_fingerprint:
+        raise ValueError("微调checkpoint的患者划分或数据审计指纹与当前实验不一致")
+    if saved_cfg.segmentation_weight <= 0:
+        raise ValueError("微调来源checkpoint未训练分割分支")
+    model.load_state_dict(checkpoint["model"], strict=True)
+    return {"checkpoint": str(source), "source_epoch": int(checkpoint["epoch"]) + 1,
+            "split_fingerprint": fingerprint, "audit_fingerprint": audit_fingerprint}
+
+
+def reconstructed_input_fraction(cfg, epoch):
+    """Fraction of reconstructed CT fed to segmentation during clean pretraining."""
+    if not cfg.seg_pretrain_clean or epoch >= cfg.warmup_epochs:
+        return 1.0
+    mix_epochs = getattr(cfg, "seg_pretrain_mix_epochs", 0)
+    if mix_epochs <= 0:
+        return 0.0
+    return min(1.0, max(0.0, (epoch - (cfg.warmup_epochs - mix_epochs) + 1) / mix_epochs))
+
+
+def gradient_norm(parameters, reference):
+    norms = [p.grad.float().norm() for p in parameters if p.grad is not None]
+    return torch.linalg.vector_norm(torch.stack(norms)) if norms else reference.new_zeros(())
 
 
 def lr_lambda(cfg):
@@ -64,6 +114,15 @@ def model_inputs(batch):
 def train(cfg, resume=None):
     if cfg.segmentation_weight > 0 and cfg.epochs <= cfg.warmup_epochs:
         raise ValueError("联合训练必须 epochs > warmup_epochs")
+    source_path = getattr(cfg, "seg_finetune_checkpoint", None)
+    frozen_reconstruction = getattr(cfg, "freeze_reconstructor", False)
+    if frozen_reconstruction and not (source_path or resume):
+        raise ValueError("冻结重建器前必须指定 seg_finetune_checkpoint")
+    if source_path and (cfg.segmentation_weight <= 0 or cfg.seg_pretrain_clean or cfg.warmup_epochs != 0
+                        or cfg.ramp_epochs != 0):
+        raise ValueError("从checkpoint微调分割须启用分割、关闭clean预训练并令warmup/ramp为0")
+    if frozen_reconstruction and cfg.reconstruction_weight != 0:
+        raise ValueError("冻结重建器时 reconstruction_weight 必须为0")
     seed_all(cfg.seed, cfg.cpu_threads)
     device = device_for(cfg)
     root = Path(cfg.run_dir)
@@ -83,7 +142,15 @@ def train(cfg, resume=None):
     loader = DataLoader(dataset, batch_size=cfg.batch_size, shuffle=False, num_workers=cfg.num_workers,
                         pin_memory=device.type == "cuda", persistent_workers=False)
     model = JointUNet(cfg).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    source_info = None
+    if source_path and not resume:
+        source_info = load_finetune_source(source_path, cfg, model, fingerprint, manifest["fingerprint"])
+    if frozen_reconstruction:
+        for parameter in model.reconstructor.parameters():
+            parameter.requires_grad_(False)
+        model.reconstructor.eval()
+    optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad),
+                                  lr=cfg.lr, weight_decay=cfg.weight_decay)
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(cfg))
     use_amp = cfg.amp and device.type == "cuda"
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
@@ -97,7 +164,12 @@ def train(cfg, resume=None):
             raise ValueError("旧版本checkpoint的学习率调度/EMA协议不同，不能续训；请另建run从头训练")
         if "model_raw" in checkpoint:
             model.load_state_dict(checkpoint["model_raw"])
-        optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+        if frozen_reconstruction:
+            for parameter in model.reconstructor.parameters():
+                parameter.requires_grad_(False)
+            model.reconstructor.eval()
+        optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad),
+                                      lr=cfg.lr, weight_decay=cfg.weight_decay)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda(cfg))
         if checkpoint["split_fingerprint"] != fingerprint or checkpoint["audit_fingerprint"] != manifest["fingerprint"]:
             raise ValueError("恢复训练的数据/患者划分指纹发生变化")
@@ -108,6 +180,7 @@ def train(cfg, resume=None):
         best, best_rec, stale = checkpoint["best"], checkpoint["best_rec"], checkpoint["stale"]
         history = checkpoint["history"]
         best_candidate = checkpoint["best_candidate"]
+        source_info = checkpoint.get("finetune_source")
         if cfg.ema_decay > 0:
             ema = EMA(model, cfg.ema_decay)
             ema.model.load_state_dict(checkpoint["model"])
@@ -122,6 +195,8 @@ def train(cfg, resume=None):
     for epoch in range(start, cfg.epochs):
         dataset.epoch = epoch
         model.train()
+        if frozen_reconstruction:
+            model.reconstructor.eval()
         total, rec_total, seg_total, count = 0., 0., 0., 0
         rec_grad_total, seg_grad_total = 0., 0.
         extra_totals = {}
@@ -131,7 +206,10 @@ def train(cfg, resume=None):
             with torch.autocast(device_type=device.type, enabled=use_amp):
                 if cfg.seg_pretrain_clean and epoch < cfg.warmup_epochs:
                     restored = model.restore(batch["input"], batch["view"], **model_inputs(batch))
-                    logits = model.segment(batch["target"], batch["view"])
+                    mix = reconstructed_input_fraction(cfg, epoch)
+                    seg_restored = restored.detach() + cfg.seg_to_recon_scale * (restored - restored.detach())
+                    seg_input = (1 - mix) * batch["target"] + mix * seg_restored
+                    logits = model.segment(seg_input, batch["view"])
                 else:
                     restored, logits = model(batch["input"], batch["view"], **model_inputs(batch))
                 loss, parts = joint_loss(restored, logits, batch, cfg, epoch, model.reconstruction_aux(),
@@ -140,9 +218,19 @@ def train(cfg, resume=None):
                 raise FloatingPointError("训练损失非有限值，停止以避免保存损坏模型")
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
-            rec_norm = torch.linalg.vector_norm(torch.stack([p.grad.float().norm() for p in model.reconstructor.parameters() if p.grad is not None]))
-            seg_norm = torch.linalg.vector_norm(torch.stack([p.grad.float().norm() for p in model.segmenter.parameters() if p.grad is not None]))
-            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip, error_if_nonfinite=True)
+            nonfinite = False
+            for p in model.parameters():
+                if p.grad is not None and not torch.isfinite(p.grad).all():
+                    nonfinite = True
+                    break
+            if nonfinite:
+                optimizer.zero_grad(set_to_none=True)
+                scaler.update()
+                print("Skip non-finite gradient batch", flush=True)
+                continue
+            rec_norm = gradient_norm(model.reconstructor.parameters(), loss)
+            seg_norm = gradient_norm(model.segmenter.parameters(), loss)
+            torch.nn.utils.clip_grad_norm_((p for p in model.parameters() if p.requires_grad), cfg.grad_clip)
             scaler.step(optimizer)
             scaler.update()
             if ema is not None:
@@ -161,7 +249,9 @@ def train(cfg, resume=None):
         record = {"epoch": epoch+1, "loss": total/count, "reconstruction_loss": rec_total/count,
                   "segmentation_loss": seg_total/count, "seg_ramp": parts["seg_ramp"], "lr": optimizer.param_groups[0]["lr"],
                   "reconstructor_grad_norm":rec_grad_total/count,"segmenter_grad_norm":seg_grad_total/count,
-                  "phase":"clean_seg_pretrain" if cfg.seg_pretrain_clean and epoch<cfg.warmup_epochs else "joint",
+                  "phase":("segmentation_finetune" if source_info and frozen_reconstruction else
+                           "clean_seg_pretrain" if cfg.seg_pretrain_clean and epoch<cfg.warmup_epochs else "joint"),
+                  "seg_reconstructed_input_fraction": reconstructed_input_fraction(cfg, epoch),
                   **{f"{k}_loss": v/count for k, v in extra_totals.items()}}
         eval_model = ema.model if ema is not None else model
         improved, improved_rec, improved_candidate = False, False, False
@@ -170,6 +260,7 @@ def train(cfg, resume=None):
             score = validation_score(summary, cfg)
             rec_score = reconstruction_score(summary,cfg)
             eligibility = reconstruction_eligibility(summary,cfg)
+            seg_eligibility = segmentation_eligibility(summary, cfg)
             if rec_score > best_rec:
                 best_rec, improved_rec = rec_score, True
             # 联合分割未开始前不参与best.pt选模/早停计数。
@@ -178,13 +269,14 @@ def train(cfg, resume=None):
                 improved_candidate = score > best_candidate
                 if improved_candidate:
                     best_candidate = score
-                improved = score > best and eligibility["eligible"]
+                improved = score > best and eligibility["eligible"] and seg_eligibility["eligible"]
                 if improved:
                     best, stale = score, 0
                 else:
                     stale += 1
             record.update({"validation_score": score, "validation_reconstruction_score": rec_score,
-                           "reconstruction_eligibility":eligibility})
+                           "reconstruction_eligibility": eligibility,
+                           "segmentation_eligibility": seg_eligibility})
         history.append(record)
         write_json(root / "history.json", history)
         ckpt = {"schema": 3, "training_protocol": TRAINING_PROTOCOL, "epoch": epoch, "model": eval_model.state_dict(),
@@ -193,6 +285,7 @@ def train(cfg, resume=None):
                 "scheduler": scheduler.state_dict(), "scaler": scaler.state_dict(), "config": config_dict(cfg),
                 "split_fingerprint": fingerprint, "audit_fingerprint": manifest["fingerprint"],
                 "best": best, "best_rec": best_rec, "best_candidate":best_candidate, "stale": stale, "history": history,
+                "finetune_source": source_info,
                 "rng_cpu": torch.get_rng_state(), "rng_cuda": torch.cuda.get_rng_state_all() if device.type == "cuda" else []}
         saves = [("last.pt", True), ("best.pt", improved), ("best_candidate.pt",improved_candidate), ("best_reconstruction.pt", improved_rec)]
         if cfg.save_every_epochs > 0 and (epoch+1) % cfg.save_every_epochs == 0:
@@ -215,4 +308,6 @@ def train(cfg, resume=None):
         print("未产生满足验证重建门槛的best.pt。保留best_candidate.pt供诊断；请查看selection_report.json。",flush=True)
     elif cfg.postprocess and cfg.auto_tune_postprocess and cfg.segmentation_weight > 0:
         tune_postprocess(cfg, str(selected), "val")
+        if cfg.selection_32_lesion_priority:
+            tune_32_postprocess(cfg, str(selected), "val")
     return str(selected) if selected.exists() else None

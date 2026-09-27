@@ -29,8 +29,8 @@ class Config:
     fbp_filter: str = "ramp"
     photons_per_ray: float = 0.0
     readout_noise_std: float = 0.0
-    # 目标类别按用户指定的目录定义：tumor、livertumor、livertumors、livertumor01 等。
-    # 不包含 adrenaltumor；其中 tumor 可能是肝外病灶，需在结果中注明。
+    # 读取候选肿瘤目录后，仅保留与专家肝脏标注重叠的肝内部分。
+    # 7号的 tumor 目录需审计，但其肾上腺病灶不属于本任务目标。
     liver_pattern: str = r"(?i)^liver$"
     tumor_pattern: str = r"(?i)^(?:tumor|livertumor(?:s|[0-9]+)?)$"
     # 肝内占比低于此阈值的“肿瘤”视为非肝肿瘤（肝内体素/原始肿瘤体素），用于剔除如7号肾上腺病灶。
@@ -40,8 +40,7 @@ class Config:
     strict_official_counts: bool = True
     # None 与 strict_official_counts 同步；可对非标准数据显式关闭目录清单校验。
     strict_official_mask_inventory: bool | None = None
-    # 对当前目标类别，7号的 tumor 目录必须读取，不能沿用“无肝内肿瘤”名单。
-    # 其余无肝内肿瘤病例若存在目标目录，仍以实际非零 mask 为准。
+    # 7号的 tumor 目录必须读取以审计肝内占比；不能靠名单静默忽略原标签。
     known_tumor_negative: tuple = (5, 11, 14, 20)
     split_counts: tuple = (14, 3, 3)
     split_search_trials: int = 30000
@@ -158,12 +157,25 @@ class Config:
     auto_tune_postprocess: bool = False
     tune_tumor_thresholds: tuple = (0.3, 0.4, 0.5, 0.6, 0.7)
     tune_min_tumor_ml: tuple = (0.0, 0.05, 0.2, 0.5)
+    # 32视角召回优先校准；只用验证集选择，64/128保持原参数。
+    tune_32_thresholds: tuple = (0.10, 0.15, 0.20, 0.25, 0.30)
+    tune_32_min_ml: tuple = (0.0, 0.05, 0.2)
+    tune_32_liver_margins: tuple = (5.0, 10.0, None)
+    max_negative_fp_ml: float = 5.0
     # ---------------- V4：优化 ----------------
     ema_decay: float = 0.0
     lr_warmup_epochs: int = 0
     # best.pt 从该 epoch 起才参与选模/早停计数；null=warmup_epochs（V3行为）。
     # V3 的 best.pt 出现在分割刚满权重约10轮时（epoch 69），分割欠训练；V4 设为 warmup+ramp。
     selection_start_epoch: int | None = None
+    # 新实验的32视角病灶召回优先选模；默认保持V4历史行为。
+    selection_32_lesion_priority: bool = False
+    # 独立的新run从已有权重初始化；resume仍只恢复同一run。
+    seg_finetune_checkpoint: str | None = None
+    freeze_reconstructor: bool = False
+    lesion_balanced_sampling: bool = False
+    # clean预训练末期逐步混入重建图，0为不混入。
+    seg_pretrain_mix_epochs: int = 0
 
     def validate(self):
         if self.image_size < 32 or self.image_size % 16:
@@ -288,6 +300,20 @@ class Config:
             raise ValueError("最小肿瘤体积不可为负")
         if self.tumor_liver_margin_mm is not None and self.tumor_liver_margin_mm < 0:
             raise ValueError("tumor_liver_margin_mm 必须非负或 null")
+        if not self.tune_32_thresholds or any(not 0 < t < 1 for t in self.tune_32_thresholds):
+            raise ValueError("tune_32_thresholds 必须是(0,1)内的非空列表")
+        if not self.tune_32_min_ml or any(v < 0 for v in self.tune_32_min_ml):
+            raise ValueError("tune_32_min_ml 必须是非负的非空列表")
+        if not self.tune_32_liver_margins or any(v is not None and v < 0 for v in self.tune_32_liver_margins):
+            raise ValueError("tune_32_liver_margins 必须是非负毫米数或 null 的非空列表")
+        if self.max_negative_fp_ml < 0:
+            raise ValueError("max_negative_fp_ml 不可为负")
+        if self.seg_pretrain_mix_epochs < 0 or self.seg_pretrain_mix_epochs > self.warmup_epochs:
+            raise ValueError("seg_pretrain_mix_epochs 必须在[0,warmup_epochs]内")
+        if self.freeze_reconstructor and not self.seg_finetune_checkpoint:
+            raise ValueError("固定重建器需要 seg_finetune_checkpoint")
+        if self.seg_finetune_checkpoint and self.segmentation_weight <= 0:
+            raise ValueError("分割微调需要 segmentation_weight > 0")
         if self.selection_start_epoch is not None and not 0 <= self.selection_start_epoch < self.epochs:
             raise ValueError("selection_start_epoch 必须在[0, epochs)")
         if not 0 <= self.ema_decay < 1 or self.lr_warmup_epochs < 0:

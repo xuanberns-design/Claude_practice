@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "created_utc": "2026-09-27T12:05:28.738829+00:00",
+  "description": "32 views 分割改进代码包；不含患者数据、旧结果或模型权重",
+  "files": [
+    {
+      "path": ".gitignore",
+      "size": 60,
+      "sha256": "de2f90fb99284d0edeac5ff5154a245aa517f709c45d7ee5d5f479e997bfae68"
+    },
+    {
+      "path": "README_中文.md",
+      "size": 14022,
+      "sha256": "fa7f787168dcb1cd6db0071d8d3f6fec1c937e1d222efc55cbdfe8feafc598b8"
+    },
+    {
+      "path": "configs/default.yaml",
+      "size": 2618,
+      "sha256": "dc4b8fda6aefcd8fa0ffdfffadaf1107480a44a1489edf21986d21722e46fbc2"
+    },
+    {
+      "path": "configs/enhanced_256_low_memory.yaml",
+      "size": 2523,
+      "sha256": "52fc6dd954717250c4f6d38976b35e7ed3c54616154f5fe7020e3ba497e92ced"
+    },
+    {
+      "path": "configs/enhanced_native512.yaml",
+      "size": 2645,
+      "sha256": "52fb341863ff187dcafbad09e3d446a0096070450be4ac94f7f40957223de345"
+    },
+    {
+      "path": "configs/low_memory.yaml",
+      "size": 2637,
+      "sha256": "98884712ee7ad6894792a62dafc3424885c88d34255181fc2a77bbc8d33d1992"
+    },
+    {
+      "path": "configs/native512_patch256.yaml",
+      "size": 2634,
+      "sha256": "ed5256cf060d64c2e466c1f89b0ca1a5f28226f355ff352ee7343d1d94536398"
+    },
+    {
+      "path": "configs/noisy.yaml",
+      "size": 2619,
+      "sha256": "a578f42bda0100c4bf6ba81f697d29d8d83759d5cd6f9b857eb964d786e69968"
+    },
+    {
+      "path": "configs/reconstruction_only.yaml",
+      "size": 2655,
+      "sha256": "19acf40dc44f914ee737b2da782245e90344e04c6330a71df5c8315bd2e5ccd0"
+    },
+    {
+      "path": "configs/v4_32_joint_combined.yaml",
+      "size": 3596,
+      "sha256": "ea8f7800b4ae9bf18fa466906e5d622cf7c9b202975af77f12aee6455c5262ad"
+    },
+    {
+      "path": "configs/v4_32_schedule_ablation.yaml",
+      "size": 3568,
+      "sha256": "b8ddc78312eb8cf5d262ca0ccf5c67da1962d884440649f796e291c05e77a199"
+    },
+    {
+      "path": "configs/v4_32_seg_finetune.yaml",
+      "size": 3853,
+      "sha256": "12f96abc5fe34459c8e78ad6f0c3d16d162a9a65242fc21b95c21d961f9ade38"
+    },
+    {
+      "path": "configs/v4_dualdomain_256.yaml",
+      "size": 3790,
+      "sha256": "6dc53f8086d59cd784d890db2777431cc26107e7918d7f3faa61ca729fc6a68b"
+    },
+    {
+      "path": "configs/v4_dualdomain_256_low_memory.yaml",
+      "size": 3372,
+      "sha256": "35d5b34e47b768ca8fe681158008593536d2a7de92f0a2a5acf2feb8d276835c"
+    },
+    {
+      "path": "configs/v4_dualdomain_native512.yaml",
+      "size": 3504,
+      "sha256": "aac8d78a4b776c3fd6f4aea1af4de9185938400114c1764c3cb55d7748c8262f"
+    },
+    {
+      "path": "docs/32views改进路径.md",
+      "size": 7060,
+      "sha256": "c0f9f982747eea175843c66f270366c8445f85d1d1caaab36897ffb96a47969a"
+    },
+    {
+      "path": "docs/Python文件索引.md",
+      "size": 6539,
+      "sha256": "9ece8edb377c1102595f756f7e3d1d43f235337eb88516fed7aee39044c7853f"
+    },
+    {
+      "path": "docs/V4优化说明.md",
+      "size": 12331,
+      "sha256": "16c2f8b81a39d806540b9101e860c3ca6258c48048686352252353a8dc8dc454"
+    },
+    {
+      "path": "docs/参数说明.md",
+      "size": 18378,
+      "sha256": "42efe12160f530c38cf98fd995a0b59e0c5374c1206c1dcd2ca2a14f077b8e27"
+    },
+    {
+      "path": "docs/结果诊断与改动依据.md",
+      "size": 4869,
+      "sha256": "48c55ddf5234f3ebd85fcfc205c818eb36d54e5c75a071fd66b9e94f8a37a768"
+    },
+    {
+      "path": "docs/验证记录.md",
+      "size": 4512,
+      "sha256": "ae96fc32f97452dd140ee8eb7c9cb54c0a876697fabc09ca367dad35c947b605"
+    },
+    {
+      "path": "requirements.txt",
+      "size": 250,
+      "sha256": "09d5ab717d5cb4b6e75b40d1bf12309c30e02356856f9afe4f890e90cf985399"
+    },
+    {
+      "path": "scripts/__init__.py",
+      "size": 49,
+      "sha256": "63e627da9c49853f9cdd5e2829fd844b474ec0b1d0e47ea2ea161ed841b9caa6"
+    },
+    {
+      "path": "scripts/package_code.py",
+      "size": 3287,
+      "sha256": "10dbf521bdaa822d2f83fbb171eaa15dab790ac62c29a39b2f75754974ba5bed"
+    },
+    {
+      "path": "scripts/package_delivery.py",
+      "size": 8636,
+      "sha256": "ade8697f94d2cb948579c6d995d7ba0e7c3eeb88b67dbf52120119b66cd021b0"
+    },
+    {
+      "path": "src/__init__.py",
+      "size": 68,
+      "sha256": "c8755c8f28859708df320928127431b42b04f3719dedd23b5a65b30aa779f46e"
+    },
+    {
+      "path": "src/cache_quality.py",
+      "size": 12638,
+      "sha256": "69ca6ecb3b208dee3c9d31ec096d304b713ab96aa6a0b4eefcb952366f13b2ee"
+    },
+    {
+      "path": "src/cli.py",
+      "size": 6797,
+      "sha256": "c4f5a0e4fec7b6a03fcae6fee1b123613fe2f54a42eaf928a70b2c312e141d44"
+    },
+    {
+      "path": "src/common.py",
+      "size": 1456,
+      "sha256": "fca7a1a49e50fcb8260d764cc60728b87d4d7d881c7c37570e1e035831bb6764"
+    },
+    {
+      "path": "src/config.py",
+      "size": 20162,
+      "sha256": "74ec1067816ecf49578fc8f8320ffcd8ed223b2bee505807a132573985e04cc1"
+    },
+    {
+      "path": "src/crossval.py",
+      "size": 22975,
+      "sha256": "975d122707d6ae61739da7170a0be1b8cbdcab31291b0991129e1a743a38060d"
+    },
+    {
+      "path": "src/ct_ops.py",
+      "size": 10847,
+      "sha256": "1c71a1d0ec4034fea75d51702f1e6705e655f134eb32f727ff51b4db6c14d9c7"
+    },
+    {
+      "path": "src/dataset.py",
+      "size": 9142,
+      "sha256": "d99f4e2cf6b3bcd7de8a7107a5e09fdce62f0a55f4de5eaa52347fe929eeb367"
+    },
+    {
+      "path": "src/dicom_io.py",
+      "size": 14525,
+      "sha256": "9502c408cb97bdcc901a56fe02b8ab6ec58a377b9b8b324b2b6a8cb5a6380d16"
+    },
+    {
+      "path": "src/evaluate.py",
+      "size": 29187,
+      "sha256": "f18d2081e6b3222c1846bbfe429b5b8e9a93c1c2616020998867e55c059bf58a"
+    },
+    {
+      "path": "src/infer.py",
+      "size": 5708,
+      "sha256": "3988c99ff9ee7ec1314950d8dffa9b6e79a5e35598a589ec318cbb1ae62e5f83"
+    },
+    {
+      "path": "src/losses.py",
+      "size": 11591,
+      "sha256": "8c026d0ab36d98ce9ad6d81587f69b1f7bfb220f703324dd946246a8fd082ead"
+    },
+    {
+      "path": "src/metrics.py",
+      "size": 8097,
+      "sha256": "e67d531fb711579171a560c4a4f12dccaf677da9de1f5862f3bb9c5a338a796d"
+    },
+    {
+      "path": "src/model.py",
+      "size": 14847,
+      "sha256": "6e3221288bd1c7c7d5c86d4b9d4a2be29ddd9f79194dacb06b7a564197d18797"
+    },
+    {
+      "path": "src/official.py",
+      "size": 1744,
+      "sha256": "bb7ffd8018083eb00259bce84477b80b387b6d8ccd5a3e65d2ad7f823a5850fc"
+    },
+    {
+      "path": "src/postprocess.py",
+      "size": 13903,
+      "sha256": "d0f2bba3dd5e88cc58b6f3fb39ba99824c99759b36e943c87b52fae8848ca96a"
+    },
+    {
+      "path": "src/predict.py",
+      "size": 2913,
+      "sha256": "94c824cffa3d6f2b402165b1535394c3453056c352e2f3f576ffdcfa6e4eb1f6"
+    },
+    {
+      "path": "src/prepare.py",
+      "size": 8618,
+      "sha256": "993a7e17eb56fdf5145b84053153259ca11bae5f46bf2a9e61643833b7c72dce"
+    },
+    {
+      "path": "src/projection.py",
+      "size": 3056,
+      "sha256": "2cf5bd9be4df27dcf4f54ba2e5d9c513b12e3cc149840336817024fce9c38e8c"
+    },
+    {
+      "path": "src/split.py",
+      "size": 5691,
+      "sha256": "8142b8f108176deb85754b9ef160a2f06debd8f206a7d4e70cfff344a86cc95e"
+    },
+    {
+      "path": "src/train.py",
+      "size": 17917,
+      "sha256": "743a4c8150d8eb35d3fb49b07fb66e1905bcd9b57adf4fe0402a36da67baa097"
+    },
+    {
+      "path": "src/visualize.py",
+      "size": 6765,
+      "sha256": "d4d61ac5e8bf84cb563c467f6368955873237656c1fb4278fdc9a5777bdeb3b4"
+    },
+    {
+      "path": "tests/__init__.py",
+      "size": 58,
+      "sha256": "fc5d37eb5b2ac9db7db593d3ade07de3a909c76f13593df7d4fc7165a2c91f95"
+    },
+    {
+      "path": "tests/benchmark_dual_vs_image.py",
+      "size": 7375,
+      "sha256": "7a411066f54612f626a127021e8ce21a2aecefdf2cc05529c51b56a1ded60dc5"
+    },
+    {
+      "path": "tests/phantom.py",
+      "size": 2554,
+      "sha256": "accdde4ee0194533aced0f390fd365beba2969773081394cba7053727dd3e74c"
+    },
+    {
+      "path": "tests/smoke_crossval.py",
+      "size": 2629,
+      "sha256": "b53dad8341f6deac2baf0c25506eff0c1d0419228453806a96109a804dcbd85e"
+    },
+    {
+      "path": "tests/smoke_pipeline.py",
+      "size": 4726,
+      "sha256": "eff9dd466000a9982c115775ca0b29c58e26ba180bd3114be86d9640a622b8cb"
+    },
+    {
+      "path": "tests/test_32views_upgrade.py",
+      "size": 6026,
+      "sha256": "40ce3afcc97e795b66aaefc438522c1ba969af39d4a875d0f8f1ce06a8fb8109"
+    },
+    {
+      "path": "tests/test_cache_quality.py",
+      "size": 10198,
+      "sha256": "cad8adb6c71444f2caecb393ceda27da7471babc8c4c19c5940476957f615c0b"
+    },
+    {
+      "path": "tests/test_core.py",
+      "size": 8306,
+      "sha256": "89b9cd7206d6e137f07d763c1f5e5ca94dd2e3ce908f6e953b46ce6093e06da3"
+    },
+    {
+      "path": "tests/test_crossval.py",
+      "size": 15056,
+      "sha256": "a4134e21968a5c0f9986602ead12b2b17a2af195494f07cb31e6d5f10d6aa981"
+    },
+    {
+      "path": "tests/test_model_optimization.py",
+      "size": 3280,
+      "sha256": "1708f16663c676df271c415d1e24fab5dbbfd16f5b54b3670227cc63ae27f98b"
+    },
+    {
+      "path": "tests/test_package_delivery.py",
+      "size": 3726,
+      "sha256": "78baf109b2c78a7ba5bdee27c26a4a7652579f1626107007c03c5e67e4062c8d"
+    },
+    {
+      "path": "tests/test_patch_integration.py",
+      "size": 8735,
+      "sha256": "115e89abcfa9efd62d2517abec12263c66affa2916ac8644420d94e1a9d3d4e4"
+    },
+    {
+      "path": "tests/test_revision.py",
+      "size": 5207,
+      "sha256": "3708951d608b10cb66abc0417c6ddd35b83578abeb7719743a4d0172c0a7267e"
+    },
+    {
+      "path": "tests/test_v4_dual_domain.py",
+      "size": 9796,
+      "sha256": "f63df6101fac0e5a2ed6967f4c94bb86b25c188d2171d6dbe598726cca7b8c6b"
+    },
+    {
+      "path": "tests/test_visualization.py",
+      "size": 6869,
+      "sha256": "0d83e87cd7c14d8628db1314c9e4075f679a3d09fe58a9799b062b10832870a5"
+    }
+  ]
+}

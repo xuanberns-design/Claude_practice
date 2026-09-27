@@ -67,20 +67,21 @@ def surface_distance_metrics(pred, truth, spacing):
 
 
 def lesion_detection(pred, truth):
-    """病灶级检出：GT 连通域被预测覆盖的比例（召回）与预测连通域命中 GT 的比例（精确率）。"""
+    """26 邻域病灶一对一匹配；一个预测连通域不能同时检出多个真值病灶。"""
+    from .postprocess import one_to_one_lesion_counts
     structure = np.ones((3, 3, 3), dtype=bool)
     gt_labels, gt_count = ndimage.label(truth, structure=structure)
-    pr_labels, pr_count = ndimage.label(pred, structure=structure)
-    recall = (len(np.unique(gt_labels[pred & (gt_labels > 0)])) / gt_count) if gt_count else None
-    precision = (len(np.unique(pr_labels[truth & (pr_labels > 0)])) / pr_count) if pr_count else None
+    matched, pr_count = one_to_one_lesion_counts(pred, gt_labels, gt_count)
+    recall = matched / gt_count if gt_count else None
+    precision = matched / pr_count if pr_count else None
     return recall, precision, int(gt_count), int(pr_count)
 
 
-def segmentation_metrics(probability, truth, spacing, cfg, params=None, surface=True):
+def segmentation_metrics(probability, truth, spacing, cfg, params=None, surface=True, view=None):
     """主列为后处理结果（postprocess=false 时与 V3 相同的纯阈值结果），*_raw 为纯阈值对照。"""
     from .postprocess import postprocess_volume
     raw = probability >= cfg.segmentation_threshold
-    liver, tumor = postprocess_volume(probability, spacing, cfg, params)
+    liver, tumor = postprocess_volume(probability, spacing, cfg, params, view)
     t = truth.astype(bool)
     voxel_ml = float(np.prod(spacing) / 1000)
     result = {"liver_Dice": dice_score(liver, t[:, 0]), "tumor_Dice": dice_score(tumor, t[:, 1]),

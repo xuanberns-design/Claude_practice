@@ -2,7 +2,7 @@
 from pathlib import Path
 import numpy as np
 import torch
-from scipy.ndimage import binary_erosion
+from scipy.ndimage import binary_erosion, find_objects, label as connected_components
 from torch.utils.data import Dataset
 from .common import read_json
 from .ct_ops import (mask_unmeasured, rotate_image_np, flip_image_np, rotate_sinogram_np, flip_sinogram_np)
@@ -46,6 +46,37 @@ class TrainDataset(Dataset):
         self.cfg, self.ids, self.epoch = cfg, list(ids), 0
         self.meta = [read_json(Path(cfg.cache_dir) / p / "meta.json") for p in ids]
         self.opened = {}
+        self.lesions = (self._lesion_inventory() if getattr(cfg, "lesion_balanced_sampling", False)
+                        else None)
+
+    def _lesion_inventory(self):
+        """Index each 3D liver-tumor component once, keeping only its occupied pixels.
+
+        A patient is still drawn uniformly. Within a tumor-positive patient, this
+        index lets a small lesion receive the same sampling probability as a large
+        one instead of weighting lesions by their slice or voxel count.
+        """
+        inventory = []
+        structure = np.ones((3, 3, 3), dtype=bool)
+        for pid in self.ids:
+            tumor = np.load(Path(self.cfg.cache_dir) / pid / "masks.npy", mmap_mode="r")[:, 1]
+            labels, count = connected_components(tumor, structure=structure)
+            patient_lesions = []
+            for number, box in enumerate(find_objects(labels), start=1):
+                if box is None:
+                    continue
+                coordinates = np.argwhere(labels[box] == number)
+                if not len(coordinates):
+                    continue
+                coordinates += np.asarray([axis.start for axis in box])
+                slices, inverse = np.unique(coordinates[:, 0], return_inverse=True)
+                points = [coordinates[inverse == i, 1:].astype(np.int32, copy=False)
+                          for i in range(len(slices))]
+                patient_lesions.append((slices.astype(np.int32), points))
+            if len(patient_lesions) != count:
+                raise ValueError(f"{pid}: cached tumor component inventory is inconsistent")
+            inventory.append(patient_lesions)
+        return inventory
 
     def __len__(self):
         return self.cfg.samples_per_epoch
@@ -57,8 +88,16 @@ class TrainDataset(Dataset):
         p = int(rng.integers(len(self.ids)))
         pid, meta = self.ids[p], self.meta[p]
         positives = meta["tumor_slices"]
+        lesion_anchor = None
         if positives and rng.random() < cfg.tumor_sample_probability:
-            z = int(rng.choice(positives))
+            lesions = self.lesions[p] if self.lesions is not None else []
+            if lesions:
+                slices, points = lesions[int(rng.integers(len(lesions)))]
+                local_z = int(rng.integers(len(slices)))
+                z = int(slices[local_z])
+                lesion_anchor = points[local_z]
+            else:
+                z = int(rng.choice(positives))
         else:
             z = int(rng.integers(meta["n_slices"]))
         v = int(rng.choice(cfg.views, p=np.asarray(cfg.view_weights) / sum(cfg.view_weights)))
@@ -74,12 +113,12 @@ class TrainDataset(Dataset):
             foreground = label[1] > 0
             if not foreground.any():
                 foreground = label[0] > 0
-            points = np.argwhere(foreground)
-            if len(points) and rng.random() < cfg.patch_foreground_probability:
+            points = lesion_anchor if lesion_anchor is not None else np.argwhere(foreground)
+            if len(points) and (lesion_anchor is not None or rng.random() < cfg.patch_foreground_probability):
                 # 旧版均匀选肿瘤内部，易漏学边界；一部分裁剪改为锚定肿瘤边缘。
                 if (label[1] > 0).any() and rng.random() < getattr(cfg, "tumor_boundary_sample_probability", 0):
                     boundary = foreground & ~binary_erosion(foreground, structure=np.ones((3, 3), dtype=bool))
-                    boundary_points = np.argwhere(boundary)
+                    boundary_points = points[boundary[points[:, 0], points[:, 1]]]
                     if len(boundary_points):
                         points = boundary_points
                 cy, cx = points[int(rng.integers(len(points)))]

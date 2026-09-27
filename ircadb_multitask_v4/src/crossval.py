@@ -8,7 +8,7 @@ fold_0 的 train/val/test 列表及顺序完全保留；其余患者均匀分到
 患者中选取。切片数、阳性/阴性、log(1+肿瘤体素数)与性别用于基线平衡。
 
 共享 cache_dir 只读，fold split/config/checkpoint/result 保存在独立目录。
-保持缓存生成 seed 不变；每折调用一次全新 train，禁止用其他折权重续训。
+保持缓存生成 seed 不变；每折从头训练，或只从同折权重初始化微调。
 默认训练不访问外层测试集。先冻结超参数、完成训练，再 evaluate_folds。
 aggregate_folds 检查五折真实划分、checkpoint、统一训练/推理参数与指标
 协议，以及推理出处后拼接患者级
@@ -19,8 +19,8 @@ aggregate_folds 检查五折真实划分、checkpoint、统一训练/推理参�
 K_FOLDS = 5
 SPLIT_NAMES = ("train", "val", "test")
 # 必须与 evaluate.py 写入 provenance 的指标口径版本一致。
-EXPECTED_METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v4"
-FOLD_SPECIFIC_CONFIG_KEYS = {"run_dir", "split_path", "split_counts"}
+EXPECTED_METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v5_one_to_one_lesions"
+FOLD_SPECIFIC_CONFIG_KEYS = {"run_dir", "split_path", "split_counts", "seg_finetune_checkpoint"}
 
 import copy
 import csv
@@ -113,6 +113,8 @@ def make_folds(cfg, base_split=None, output=None):
     output accepts a JSON filename or directory; default: run_dir/crossval/folds.json.
     Existing protocols are never overwritten. Run a new protocol in a new directory.
     """
+    if cfg.seg_finetune_checkpoint and "{fold}" not in cfg.seg_finetune_checkpoint:
+        raise ValueError("五折分割微调需要 seg_finetune_checkpoint 包含 {fold}，每折只能加载本折来源权重")
     cache = Path(cfg.cache_dir).resolve()
     audit = read_json(cache / "audit.json")
     source = Path(base_split or getattr(cfg, "split_path", None) or cache / "splits.json").resolve()
@@ -158,9 +160,12 @@ def make_folds(cfg, base_split=None, output=None):
             raise ValueError(f"fold_{f} 验证集没有肿瘤阳性，现有联合选模无法运行；不能擅改原fold0")
         folder = path.parent / f"fold_{f}"
         split_file, config_file = folder / "splits.json", folder / "config.yaml"
+        source_checkpoint = (cfg.seg_finetune_checkpoint.format(fold=f)
+                             if cfg.seg_finetune_checkpoint else None)
         fold_cfg = replace(cfg, cache_dir=str(cache), data_root=str(Path(cfg.data_root).resolve()),
                            run_dir=str(folder / "run"), split_path=str(split_file),
-                           split_counts=tuple(len(split[k]) for k in SPLIT_NAMES))
+                           split_counts=tuple(len(split[k]) for k in SPLIT_NAMES),
+                           seg_finetune_checkpoint=source_checkpoint)
         entries.append({"fold": f, "split_path": str(split_file), "config_path": str(config_file),
                         "run_dir": fold_cfg.run_dir, "config_fingerprint": digest(config_dict(fold_cfg)),
                         "split_fingerprint": split["fingerprint"], "patients": _parts(split),
@@ -236,7 +241,7 @@ def _selected(folds):
 
 
 def run_folds(cfg, folds_path, folds=None, evaluate_after=False):
-    """Train requested folds from scratch; test evaluation is opt-in, never implicit."""
+    """Train each fold independently; fine-tuning sources must match that fold's split."""
     from .train import train
     protocol, configs = _load_protocol(cfg, folds_path)
     selected = _selected(folds)
@@ -245,7 +250,8 @@ def run_folds(cfg, folds_path, folds=None, evaluate_after=False):
             raise FileExistsError(f"fold_{f} 已有checkpoint；禁止覆盖或用其他折权重初始化")
     results = {}
     for f in selected:
-        print(f"开始 fold_{f}，从头训练；外层测试患者不参与训练或选模")
+        mode = "从本折权重微调" if configs[f].seg_finetune_checkpoint else "从头训练"
+        print(f"开始 fold_{f}，{mode}；外层测试患者不参与训练或选模")
         results[f] = train(configs[f], resume=None)
     if evaluate_after:
         evaluate_folds(cfg, folds_path, selected)
@@ -271,6 +277,21 @@ def _check_checkpoint(path, entry, protocol):
     if digest(ckpt.get("config")) != entry["config_fingerprint"]:
         raise ValueError("checkpoint 实际训练配置与冻结折配置不一致")
     return _sha256(path)
+
+
+def tune_32_folds(cfg, folds_path, folds=None, checkpoint_name="best.pt"):
+    """Calibrate each fold on its own validation patients before outer-test evaluation."""
+    from .evaluate import tune_32_postprocess
+    if Path(checkpoint_name).name != checkpoint_name or not checkpoint_name.endswith(".pt"):
+        raise ValueError("checkpoint_name 必须是折 run_dir 内的 .pt 文件名")
+    protocol, configs = _load_protocol(cfg, folds_path)
+    results = {}
+    for f in _selected(folds):
+        entry = protocol["folds"][f]
+        path = Path(entry["run_dir"]) / checkpoint_name
+        _check_checkpoint(path, entry, protocol)
+        results[f] = tune_32_postprocess(configs[f], path, "val")
+    return results
 
 
 def evaluate_folds(cfg, folds_path, folds=None, checkpoint_name="best.pt", export=True):

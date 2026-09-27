@@ -1,6 +1,6 @@
 """完整患者体积推理与逐视角评估；所有病例等权汇总，禁止切片级伪重复。"""
 # 必须与 crossval.EXPECTED_METRIC_PROTOCOL 一致；V4 分割主列为（可选）3D后处理结果并新增表面距离/病灶检出。
-METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v4"
+METRIC_PROTOCOL = "rawHU_unclipped_global_v1_plus_explicit_regions_v2_seg_postprocess_v5_one_to_one_lesions"
 from pathlib import Path
 import hashlib
 from shutil import copyfile
@@ -8,9 +8,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import nibabel as nib
+from scipy import ndimage
 from .dataset import PatientCache, view_channel
 from .ct_ops import mask_unmeasured
-from .postprocess import tumor_grid_counts, choose_parameters
+from .postprocess import (tumor_grid_counts, choose_parameters, choose_32_parameters,
+                          effective_parameters, postprocess_volume)
 from .projection import denormalize
 from .metrics import reconstruction_metrics, segmentation_metrics, finite_summary, paired_bootstrap, regional_metrics
 from .common import read_json, write_json, write_csv, device_for, digest
@@ -23,7 +25,8 @@ from .split import validate_split
 # 只影响推理/后处理、不影响已训练权重的参数：可对已有 checkpoint（含V3权重）直接开启后处理或TTA。
 INFERENCE_ONLY_KEYS = {"postprocess", "tumor_threshold", "postprocess_keep_largest_liver", "postprocess_fill_holes",
                        "tumor_liver_margin_mm", "min_tumor_ml", "auto_tune_postprocess", "tune_tumor_thresholds",
-                       "tune_min_tumor_ml", "seg_tta", "inference_tta"}
+                       "tune_min_tumor_ml", "tune_32_thresholds", "tune_32_min_ml",
+                       "tune_32_liver_margins", "max_negative_fp_ml", "seg_tta", "inference_tta"}
 
 
 @torch.inference_mode()
@@ -113,7 +116,8 @@ def summarize(reconstruction, segmentation, cfg):
             "liver_Dice": finite_summary([r["liver_Dice"] for r in rows]),
             "tumor_Dice_all": finite_summary([r["tumor_Dice"] for r in rows]),
             "tumor_Dice_positive_only": finite_summary([r["tumor_Dice"] for r in rows if r["tumor_positive"]]),
-            "tumor_FP_ml_negative_only": finite_summary([r["tumor_false_positive_ml"] for r in rows if not r["tumor_positive"]])}
+            "tumor_FP_ml_negative_only": finite_summary([r["tumor_false_positive_ml"] for r in rows if not r["tumor_positive"]]),
+            "tumor_FP_lesions_negative_only": finite_summary([r.get("tumor_lesions_predicted") for r in rows if not r["tumor_positive"]])}
         extra = {"liver_Dice_raw": "liver_Dice_raw", "tumor_Dice_positive_only_raw": "tumor_Dice_raw",
                  "tumor_lesion_recall": "tumor_lesion_recall", "tumor_lesion_precision": "tumor_lesion_precision",
                  "liver_HD95_mm": "liver_HD95_mm", "liver_ASSD_mm": "liver_ASSD_mm",
@@ -125,11 +129,14 @@ def summarize(reconstruction, segmentation, cfg):
     return summary
 
 
-def evaluate_patients(model, ids, cfg, device, output=None, export=False, params=None, surface=None):
+def evaluate_patients(model, ids, cfg, device, output=None, export=False, params=None, surface=None,
+                      save_probabilities=False):
     """params：验证集选出的肿瘤后处理参数；surface：是否计算HD95/ASSD（训练期验证默认关闭以省时）。"""
+    if save_probabilities and output is None:
+        raise ValueError("保存概率体时必须提供 output 目录")
     surface = export if surface is None else surface
     model.eval()
-    rec_rows, seg_rows, region_rows = [], [], []
+    rec_rows, seg_rows, region_rows, diagnostic_rows, lesion_diagnostic_rows = [], [], [], [], []
     quality_path = Path(cfg.cache_dir)/"quality_audit.json"
     quality = read_json(quality_path) if quality_path.exists() else None
     for pid in ids:
@@ -165,20 +172,64 @@ def evaluate_patients(model, ids, cfg, device, output=None, export=False, params
                         for region,values in regional_metrics(image,target,regions,cfg).items():
                             region_rows.append({"patient":pid,"view":view,"reference":reference,"method":method,"region":region,**values})
             seg_rows.append({"patient": pid, "view": view, **segmentation_metrics(
-                probs, truth_masks, p.meta["spacing_zyx"], cfg, params, surface)})
-            if output and export:
+                probs, truth_masks, p.meta["spacing_zyx"], cfg, params, surface, view=view)})
+            if output and (export or save_probabilities):
                 dest = Path(output) / "volumes" / pid / str(view)
                 dest.mkdir(parents=True, exist_ok=True)
-                save_nifti(dest / "restored_hu.nii.gz", restored, p.meta)
-                save_nifti(dest / "fbp_hu.nii.gz", fbp, p.meta)
-                from .postprocess import postprocess_volume
-                binary = postprocess_volume(probs, p.meta["spacing_zyx"], cfg, params)
-                for name, volume in zip(("liver", "tumor"), binary):
-                    save_nifti(dest / f"{name}.nii.gz", volume.astype(np.uint8), p.meta)
-                # 可视化使用与指标相同的最终二值结果。
-                shown = np.stack(binary, axis=1).astype(np.float32)
-                export_slice_figures(truth_hu, fbp, restored, truth_masks, shown, cfg, dest,
-                                     patient=pid, view=view)
+                if save_probabilities:
+                    save_nifti(dest / "liver_probability.nii.gz", probs[:, 0], p.meta)
+                    save_nifti(dest / "tumor_probability.nii.gz", probs[:, 1], p.meta)
+                stages = None
+                if save_probabilities and view == 32:
+                    liver, tumor, stages = postprocess_volume(probs, p.meta["spacing_zyx"], cfg, params, view,
+                                                               return_stages=True)
+                    for name, volume in (("tumor_before_liver_gate", stages["before_gate"]),
+                                         ("tumor_after_liver_gate", stages["after_gate"])):
+                        save_nifti(dest / f"{name}.nii.gz", volume.astype(np.uint8), p.meta)
+                    truth_tumor = truth_masks[:, 1].astype(bool)
+                    voxel_ml = float(np.prod(p.meta["spacing_zyx"]) / 1000)
+                    positive_probs = probs[:, 1][truth_tumor]
+                    diagnostic_rows.append({"patient": pid, "view": view,
+                        **stages["effective_parameters"],
+                        "tumor_positive": bool(truth_tumor.any()),
+                        "tumor_gt_probability_max": float(positive_probs.max()) if len(positive_probs) else None,
+                        "tumor_gt_probability_p95": float(np.percentile(positive_probs, 95)) if len(positive_probs) else None,
+                        "gt_voxels_before_gate": int(np.count_nonzero(stages["before_gate"] & truth_tumor)),
+                        "gt_voxels_after_gate": int(np.count_nonzero(stages["after_gate"] & truth_tumor)),
+                        "gt_voxels_final": int(np.count_nonzero(tumor & truth_tumor)),
+                        "fp_ml_before_gate": float(np.count_nonzero(stages["before_gate"] & ~truth_tumor) * voxel_ml),
+                        "fp_ml_after_gate": float(np.count_nonzero(stages["after_gate"] & ~truth_tumor) * voxel_ml),
+                        "fp_ml_final": float(np.count_nonzero(tumor & ~truth_tumor) * voxel_ml)})
+                    truth_labels, truth_count = ndimage.label(truth_tumor, structure=np.ones((3, 3, 3), bool))
+                    for lesion_id, box in enumerate(ndimage.find_objects(truth_labels), start=1):
+                        if box is None:
+                            continue
+                        lesion = truth_labels[box] == lesion_id
+                        lesion_probs = probs[:, 1][box][lesion]
+                        lesion_diagnostic_rows.append({
+                            "patient": pid, "view": view, "lesion_id": lesion_id,
+                            "lesions_truth": int(truth_count), "gt_volume_ml": float(lesion.sum() * voxel_ml),
+                            "slice_start": int(box[0].start), "slice_end_exclusive": int(box[0].stop),
+                            "tumor_probability_max": float(lesion_probs.max()),
+                            "tumor_probability_p95": float(np.percentile(lesion_probs, 95)),
+                            "gt_voxels_probability_ge_0p10": int(np.count_nonzero(lesion_probs >= 0.10)),
+                            "gt_voxels_probability_ge_0p30": int(np.count_nonzero(lesion_probs >= 0.30)),
+                            "gt_voxels_before_gate": int(np.count_nonzero(stages["before_gate"][box] & lesion)),
+                            "gt_voxels_after_gate": int(np.count_nonzero(stages["after_gate"][box] & lesion)),
+                            "gt_voxels_final": int(np.count_nonzero(tumor[box] & lesion)),
+                        })
+                    binary = liver, tumor
+                else:
+                    binary = postprocess_volume(probs, p.meta["spacing_zyx"], cfg, params, view)
+                if export:
+                    save_nifti(dest / "restored_hu.nii.gz", restored, p.meta)
+                    save_nifti(dest / "fbp_hu.nii.gz", fbp, p.meta)
+                    for name, volume in zip(("liver", "tumor"), binary):
+                        save_nifti(dest / f"{name}.nii.gz", volume.astype(np.uint8), p.meta)
+                    # 可视化使用与指标相同的最终二值结果。
+                    shown = np.stack(binary, axis=1).astype(np.float32)
+                    export_slice_figures(truth_hu, fbp, restored, truth_masks, shown, cfg, dest,
+                                         patient=pid, view=view)
     result = summarize(rec_rows, seg_rows, cfg)
     if output:
         output = Path(output)
@@ -187,6 +238,10 @@ def evaluate_patients(model, ids, cfg, device, output=None, export=False, params
         write_json(output / "summary.json", result)
         if region_rows:
             write_csv(output/"reconstruction_regions_per_patient.csv",region_rows)
+        if diagnostic_rows:
+            write_csv(output/"postprocess_diagnostics_32.csv", diagnostic_rows)
+        if lesion_diagnostic_rows:
+            write_csv(output/"postprocess_lesion_diagnostics_32.csv", lesion_diagnostic_rows)
     return result
 
 
@@ -224,6 +279,17 @@ def validation_score(summary, cfg):
     rec_score = reconstruction_score(summary,cfg)
     if cfg.segmentation_weight == 0:
         return rec_score
+    if getattr(cfg, "selection_32_lesion_priority", False):
+        if 32 not in cfg.views:
+            raise ValueError("32 views 病灶优先选模需要 cfg.views 包含 32")
+        s = summary["segmentation"]["32"]
+        recall = s["tumor_lesion_recall"]["mean"]
+        dice = s["tumor_Dice_positive_only"]["mean"]
+        liver = s["liver_Dice"]["mean"]
+        if recall is None or dice is None or liver is None:
+            raise ValueError("32 views 病灶优先选模需要阳性肿瘤病例和完整分割指标")
+        # 重建退化与阴性假阳性由 eligibility 两个硬约束另行检查。
+        return float(.75 * recall + .20 * dice + .025 * liver + .025 * rec_score)
     seg = []
     for v in cfg.views:
         s = summary["segmentation"][str(v)]
@@ -239,9 +305,25 @@ def validation_score(summary, cfg):
     return float(weight*rec_score+(1-weight)*np.mean(seg))
 
 
+def segmentation_eligibility(summary, cfg):
+    """32 views 阴性患者假阳性体积硬约束；训练选模应与重建约束同时使用。"""
+    if not getattr(cfg, "selection_32_lesion_priority", False) or cfg.segmentation_weight == 0:
+        return {"eligible": True, "guard_enabled": False, "violations": []}
+    if 32 not in cfg.views:
+        raise ValueError("32 views 病灶优先选模需要 cfg.views 包含 32")
+    negative_fp = summary["segmentation"]["32"]["tumor_FP_ml_negative_only"]["mean"]
+    violations = ([f"32/tumor_FP_ml_negative_only: {negative_fp} > {cfg.max_negative_fp_ml}"]
+                  if negative_fp is not None and negative_fp > cfg.max_negative_fp_ml else [])
+    return {"eligible": not violations, "guard_enabled": True, "violations": violations,
+            "negative_fp_ml_mean": negative_fp, "negative_fp_available": negative_fp is not None,
+            "limit_ml": cfg.max_negative_fp_ml}
+
+
 def load_checkpoint(path, cfg, device):
     # 只加载本实验生成/可信的 checkpoint；weights_only 阻止任意 pickle 类。
-    ckpt = torch.load(path, map_location=device, weights_only=True)
+    # Checkpoints also contain optimizer/EMA states; map them lazily so CPU
+    # inference does not eagerly allocate the whole training checkpoint.
+    ckpt = torch.load(path, map_location="cpu", weights_only=True, mmap=True)
     saved_cfg = Config(**ckpt["config"]).validate()
     ignored = {"data_root", "cache_dir", "run_dir", "device", "cpu_threads", "num_workers", "batch_size", "bootstrap_repeats",
                "split_path", "save_slice_every", *INFERENCE_ONLY_KEYS}
@@ -255,7 +337,7 @@ def load_checkpoint(path, cfg, device):
     return model, ckpt
 
 
-def evaluate(cfg, checkpoint, split="test", export=True):
+def evaluate(cfg, checkpoint, split="test", export=True, save_probabilities=False):
     splits = read_json(split_file(cfg))
     audit = read_json(Path(cfg.cache_dir) / "audit.json")
     validate_split(splits, [r["id"] for r in audit["patients"]])
@@ -268,8 +350,10 @@ def evaluate(cfg, checkpoint, split="test", export=True):
     verify_cache(cfg, splits[split])
     output = Path(cfg.run_dir) / f"evaluation_{split}"
     params, params_source = load_postprocess_parameters(cfg, checkpoint)
-    result = evaluate_patients(model, splits[split], cfg, device, output, export, params, surface=True)
+    result = evaluate_patients(model, splits[split], cfg, device, output, export, params, surface=True,
+                               save_probabilities=save_probabilities)
     result["postprocess"] = {"enabled": cfg.postprocess, "parameters": params, "source": params_source}
+    result["raw_probabilities_exported"] = bool(save_probabilities)
     result["segmentation_training_enabled"] = cfg.segmentation_weight > 0
     result["checkpoint_after_segmentation_warmup"] = ckpt["epoch"] >= cfg.warmup_epochs
     write_json(output / "summary.json", result)
@@ -280,6 +364,7 @@ def evaluate(cfg, checkpoint, split="test", export=True):
                                            "checkpoint_sha256":hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
                                            "postprocess": {"enabled": cfg.postprocess, "parameters": params,
                                                            "source": params_source},
+                                           "raw_probabilities_exported": bool(save_probabilities),
                                            "metric_protocol": METRIC_PROTOCOL})
     return result
 
@@ -334,4 +419,55 @@ def tune_postprocess(cfg, checkpoint, split="val"):
               "note": "仅用验证集选择；测试集评估直接套用，不能再按测试结果修改。"}
     write_json(Path(cfg.run_dir) / "postprocess.json", result)
     print(f"验证集选出的后处理参数: {parameters}", flush=True)
+    return result
+
+
+def tune_32_postprocess(cfg, checkpoint, split="val"):
+    """仅在冻结验证集上校准 32 views；64/128 views 继续使用旧顶层参数。"""
+    if split != "val":
+        raise ValueError("32 views 后处理参数只能在验证集上选择")
+    if not cfg.postprocess:
+        raise ValueError("请先在配置中开启 postprocess: true")
+    if 32 not in cfg.views:
+        raise ValueError("32 views 校准需要 cfg.views 包含 32")
+    splits = read_json(split_file(cfg))
+    audit = read_json(Path(cfg.cache_dir) / "audit.json")
+    validate_split(splits, [r["id"] for r in audit["patients"]])
+    device = device_for(cfg)
+    model, ckpt = load_checkpoint(checkpoint, cfg, device)
+    if ckpt["split_fingerprint"] != digest({k: splits[k] for k in ("train", "val", "test")}):
+        raise ValueError("调参划分不同于训练时冻结的划分")
+    if ckpt["audit_fingerprint"] != audit["fingerprint"]:
+        raise ValueError("调参数据审计指纹不同于训练时数据")
+    verify_cache(cfg, splits["val"])
+    old_params, old_source = load_postprocess_parameters(cfg, checkpoint)
+    legacy = {k: old_params[k] for k in ("tumor_threshold", "min_tumor_ml", "tumor_liver_margin_mm")
+              if k in old_params}
+    baseline = effective_parameters(cfg, legacy, 32)
+    model.eval()
+    cases, baseline_cases = [], []
+    for pid in splits["val"]:
+        print(f"Tune 32 views postprocess {pid}", flush=True)
+        p = PatientCache(cfg, pid)
+        truth = p.get("native_masks")[:, 1]
+        _, probs = predict_volume(model, p, 32, cfg, device)
+        probs = native_resize(probs, truth.shape[-2:])
+        spacing = p.meta["spacing_zyx"]
+        cases.append(tumor_grid_counts(
+            probs, truth, spacing, cfg, thresholds=cfg.tune_32_thresholds,
+            min_ml_options=cfg.tune_32_min_ml, margins=cfg.tune_32_liver_margins))
+        baseline_cases.append(tumor_grid_counts(
+            probs, truth, spacing, cfg, thresholds=(baseline["tumor_threshold"],),
+            min_ml_options=(baseline["min_tumor_ml"],), margins=(baseline["tumor_liver_margin_mm"],)))
+    selected, table, selection = choose_32_parameters(cases, baseline_cases, baseline, cfg)
+    parameters = dict(legacy)
+    parameters["per_view"] = {"32": selected}
+    result = {"schema": 2, "split": "val", "patients": splits["val"],
+              "parameters": parameters, "candidates_32": table, "selection_32": selection,
+              "legacy_parameters_source": old_source,
+              "checkpoint": str(Path(checkpoint).resolve()), "checkpoint_sha256": file_sha256(checkpoint),
+              "audit_fingerprint": audit["fingerprint"], "split_fingerprint": ckpt["split_fingerprint"],
+              "note": "32 views 只用验证集校准；测试集与 64/128 views 不参与选择。"}
+    write_json(Path(cfg.run_dir) / "postprocess.json", result)
+    print(f"验证集选出的 32 views 参数: {selected} ({selection['status']})", flush=True)
     return result
