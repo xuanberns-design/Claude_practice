@@ -1,0 +1,7 @@
+*.aux
+*.log
+*.out
+*.toc
+build/
+src/main.pdf
+*.listing

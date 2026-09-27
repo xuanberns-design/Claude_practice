@@ -1,0 +1,606 @@
+% ================================================================
+%  答案速查 + 详细解析（A 组、B 组、C 组）
+%  所有答案均经 g++ 实际编译 / 运行核对
+% ================================================================
+\clearpage
+\usection{全部答案速查}
+\noindent{\small 只列结果，过程见后面的详细解析。所有涉及代码的答案均已用 g++（C++17，64 位 Linux）编译或运行核对。}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\noindent\begin{tabularx}{\linewidth}{@{}p{2.6cm}Y@{}}
+\toprule
+\rowcolor{lightc}\multicolumn{2}{@{}l}{\sffamily\bfseries\color{mainc} A 组 基础巩固} \\
+单选 1--10 & 1.\,B\quad 2.\,A\quad 3.\,B\quad 4.\,B\quad 5.\,C\quad 6.\,C\quad 7.\,B\quad 8.\,B\quad 9.\,B\quad 10.\,B \\
+多选 11--15 & 11.\,ABC\quad 12.\,ABD\quad 13.\,AB\quad 14.\,ABC\quad 15.\,AC \\
+填空 16--20 & 16.\ 100，100\quad 17.\ 8，4\quad 18.\ 24，6\quad 19.\ \cc{0x100C}，3\quad 20.\ 4，3，10 \\
+解答 21--25 & 21.\ 输出 \cc{30 40 40}\quad 22.\ \ci{①}\xmark\ \ci{②}\cmark\ \ci{③}\cmark\ \ci{④}\xmark\ \ci{⑤}\xmark\ \ci{⑥}\cmark\quad 23.\ 输出 \cc{a=10 b=20}；改为 \cc{swap\_p(\&a,\&b)}\quad 24.\ \cc{2 4 6 8}；\cc{p} 指向 \cc{arr+4}，不能解引用；改为 \cc{i < len}\quad 25.\ 第 1 轮末 \cc{2 6 4 1 8}；第 2 轮末 \cc{2 4 1 6 8} \\
+\midrule
+\rowcolor{lightc}\multicolumn{2}{@{}l}{\sffamily\bfseries\color{mainc} B 组 中等偏下提升} \\
+单选 26--28 & 26.\,B\quad 27.\,B\quad 28.\,A \\
+多选 29--30 & 29.\,ABD\quad 30.\,ABC \\
+填空 31--33 & 31.\ \cc{\{10,25,26,40\}}，2\quad 32.\ 15，0，15\quad 33.\ \cc{0x2018}，3，8 \\
+综合 34--35 & 34.\ \cc{mn = 1}，\cc{mx = 9}\quad 35.\ 改 \cc{n-j-1}$\to$\cc{n-i-1}、补 \cc{if} 括号；各轮后依次为 [\cc{3 7 9 5 1 12}] [\cc{3 7 5 1 9 12}] [\cc{3 5 1 7 9 12}] [\cc{3 1 5 7 9 12}] [\cc{1 3 5 7 9 12}]；比较 15 次，加标志后 5 次 \\
+\midrule
+\rowcolor{lightc}\multicolumn{2}{@{}l}{\sffamily\bfseries\color{mainc} C 组 跨学科迁移} \\
+36--38 & 36.\,B\quad 37.\,ACD\quad 38.\ 9，\cc{0x3009}，9，\cc{0x3024} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ================================================================
+\usection{A 组详细解析}
+% ================================================================
+\needspace{12\baselineskip}\subsection*{A-1\quad 单项选择题}
+
+% ---------- 1 ----------
+\sol{1}{B}{1}{K2 取地址与解引用（第二讲）}
+\step{对应知识} \cc{p = \&a} 时 \cc{*p} $\equiv$ \cc{a}；\cc{p} 的值是地址。
+\step{思路} 先分清图上的四个量：\cc{a}（框内 10）、\cc{\&a}（0x1000）、\cc{p}（框内 0x1000）、\cc{\&p}（0x2000），再逐项对照。
+\par\noindent
+\optsol{A}{0}{\cell{a}{0,0}{a}{10}\pcell[badcell]{p}{3.8,0}{p}{10}\node[bnote] at (1.9,-0.9){p 框里应是地址 0x1000，不是 10};}{\cc{p} 是指针，保存的是 \cc{a} 的\textbf{地址}，不是 \cc{a} 的值。}\hfill
+\optsol{B}{1}{\cell[hl]{a}{0,0}{a}{10}\pcell{p}{3.8,0}{p}{0x1000}\draw[ptrok] ([xshift=-4.5mm]p.west) -- node[above,gnote]{*p} (a.east);}{沿箭头解引用到达 \cc{a}，\cc{*p} 就是 \cc{a}，值为 10。}
+\par\noindent
+\optsol{C}{0}{\cell{a}{0,0}{a}{10}\addr{a}{0x1000}\pcell{p}{3.8,0}{p}{0x1000}\node[ad,text=badc] at (p.north){0x2000};\node[bnote] at (1.9,-0.8){两个方框上方的地址不同};}{\cc{\&p} 是 \cc{p} 自己的地址（0x2000），\cc{\&a} 是 0x1000，二者是两个不同变量的地址。}\hfill
+\optsol{D}{0}{\cell{a}{0,0}{a}{10}\pcell{p}{3.8,0}{p}{0x1000}\node[bnote] at (1.9,-0.8){“a 的地址”是 p 的值，\\不是 *p 的值};}{把 \cc{p} 与 \cc{*p} 混淆了：\cc{a} 的地址是 \cc{p} 的值。}
+\step{常见错误} 把“箭头起点”（\cc{p}）和“箭头终点”（\cc{*p}）搞反。
+\oneline{\cc{p} 是门牌号，\cc{*p} 是那户人家。}
+
+% ---------- 2 ----------
+\sol{2}{A}{1}{K1 内存与地址（第一讲）}
+\begin{center}\begin{tikzpicture}
+  \foreach \i in {0,...,7} \node[draw=gridc,minimum width=10mm,minimum height=7mm] (c\i) at (\i*1.0,0) {};
+  \foreach \i in {0,...,7} \node[ad] at (c\i.north) {0x100\i};
+  \node[draw=mainc,line width=0.9pt,fill=hlc,fit=(c0)(c3),inner sep=0pt,label={[font=\ttfamily\small]center:int a}] {};
+  \draw[->,draw=okc,line width=0.8pt] (-0.9,0.9) node[left,gnote]{\&a = 0x1000} -- ([yshift=3.5mm]c0.north west);
+  \foreach \i in {0,...,7} \draw[okc] ([yshift=-1mm]c\i.south) -- ++(0,-0.25);
+  \node[gnote] at (3.5,-0.95) {每个字节都有编号（A 正确）；a 占 4 个字节，但“a 的地址”只有一个（D 错误）};
+\end{tikzpicture}\figcap{解析图 2}\end{center}
+\step{逐项} (A) 正确，这正是地址的定义。(B) 错误：十六进制只是书写习惯，地址本质是整数，也可以用十进制表示。(C) 错误：变量名是源代码中的标签，地址要用 \cc{\&a} 获得。(D) 错误：变量占 4 个字节（有 4 个字节编号），但\textbf{变量的地址}规定为首字节编号，只有一个（见解析图 2 绿色箭头）。
+\oneline{每个字节一个编号，每个变量一个地址（首字节）。}
+
+% ---------- 3 ----------
+\sol{3}{B}{1}{K2 指针定义语法（第二讲）}
+\step{可视化判定} 本题考查纯语法记忆，画图不能降低难度，故不配图。
+\step{判断} 语法为“数据类型 * 指针变量名”，只有 (B) \cc{int *p;} 符合。(A) \cc{*} 位置错误；(C) \cc{*int} 不是合法类型写法；(D) \cc{int p} 是普通整数，不能保存地址（\cc{\&a} 的类型是 \cc{int*}，编译报错）。
+\step{常见错误} 写 \cc{int* p, q;} 以为定义了两个指针（见第二讲易错点）。
+\oneline{\cc{*} 紧贴变量名：\cc{int *p}。}
+
+% ---------- 4 ----------
+\sol{4}{B}{1}{K3 指针的大小（第三讲）}
+\begin{center}\begin{tikzpicture}
+  \cell{d}{0,0}{d}{3.14}\pcell{pd}{4.4,0}{pd}{\&d}
+  \draw[ptr] (pd.south) to[out=-150,in=-30] (d.south);
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=okc] (pd.north west) -- (pd.north east) node[midway,above=3pt,gnote]{8 字节：一个 64 位地址};
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=auxc] (d.north west) -- (d.north east) node[midway,above=3pt,note]{\texttt{double}：8 字节};
+  \node[note,anchor=west] at (5.7,0) {两个 8 只是巧合：\\换成 \texttt{char *pc} 也是 8};
+\end{tikzpicture}\figcap{解析图 4}\end{center}
+\step{判断} 64 位程序中任何数据指针都是 8 字节（第三讲推导：$64\div8=8$），选 (B)。(A) 是 32 位程序的结果；(C) 无依据；(D) 指针大小与所指对象的值、甚至类型都无关。
+\step{常见错误} 看到 \cc{double} 是 8 字节，就以为“\cc{double*} 是 8 字节是因为 \cc{double} 是 8 字节”。
+\oneline{指针多大只看地址多宽。}
+
+% ---------- 5 ----------
+\sol{5}{C}{1}{K4 空指针（第四讲）}
+\par\noindent
+\optsol{A}{0}{\cell[badcell]{a}{0,0}{a}{?}\pcell{p}{3.8,0}{p}{0}\draw[ptrbad] ([xshift=-4.5mm]p.west) -- (a.east);\node[bnote] at (1.9,-1.0){这条箭头并不存在};}{空指针的定义就是“不指向任何对象”。}\hfill
+\optsol{B}{0}{\node[draw=badc,fill=redbg,minimum width=15mm,minimum height=7mm,font=\ttfamily\small] (z) at (0,0) {100};\node[ad] at (z.north){0x0000};\pic at (z.center) {forbid};\pcell{p}{3.8,0}{p}{0}\draw[ptrbad] ([xshift=-4.5mm]p.west) -- (z.east);}{解引用空指针是未定义行为，常见系统上会段错误。}
+\par\noindent
+\optsol{C}{1}{\pcell{p}{3.8,0}{p}{0}\node[draw=gridc,dashed,minimum width=15mm,minimum height=7mm] (z) at (0,0) {};\node[gnote] at (0,-0.7){没有目标};}{正是空指针的定义与注意事项（笔记 §7.4）。}\hfill
+\optsol{D}{0}{\node[pcell,minimum width=40mm] (p) at (2.2,0) {0};\node[vn] at (p.west){p};\draw[decorate,decoration={brace,mirror,amplitude=3pt},draw=badc] (p.south west) -- (p.south east) node[midway,below=3pt,bnote]{仍占 8 字节};}{\cc{p} 的\textbf{值}为空，但 \cc{p} 这个变量本身照样占 8 字节。}
+\step{常见错误} 把“值为空”误解为“不占空间”；或以为 \cc{*p} 会读出 0。
+\oneline{空指针：有变量、有值（空），没有目标。}
+
+% ---------- 6 ----------
+\sol{6}{C}{1}{K5 野指针（第四讲）}
+\par\noindent
+\optsol{A}{0}{\cell{a}{0,0}{a}{5}\pcell{p}{3.8,0}{p}{\&a}\draw[ptrok] ([xshift=-4.5mm]p.west) -- (a.east);}{指向已定义的变量，合法。}\hfill
+\optsol{B}{0}{\pcell{p}{3.8,0}{p}{nullptr}\node[gnote] at (1.4,0){明确“无指向”};}{空指针不是野指针：它的值是确定的、可检查的。}
+\par\noindent
+\optsol{C}{1}{\pcell[badcell]{p}{3.8,0}{p}{?}\node[draw=gridc,dashed,minimum width=12mm,minimum height=7mm] (u) at (0,0) {???};\draw[ptrbad] ([xshift=-4.5mm]p.west) -- (u.east);\node[bnote] at (1.8,0.35){随机地址};}{局部指针未初始化，值不确定，指向未知位置——典型野指针。}\hfill
+\optsol{D}{0}{\arr{r}{-0.6,0}{1,2,3}{arr}\pcell{p}{3.8,0}{p}{arr}\draw[ptrok] (p.south) to[out=-150,in=-60] ([yshift=-3mm]r-0.south);}{数组名转换为首元素地址，指向合法数组元素。}
+\step{补充} 笔记中的另一个来源 \cc{int *p = (int*)0x0010;} 也是野指针，此外还有越界。
+\oneline{“定义了却没给值”的指针就是野的。}
+
+% ---------- 7 ----------
+\sol{7}{B}{1}{K6 const 修饰指针（第五讲）}
+\par\noindent
+\optsol{A}{0}{\cell{a}{0,0}{a}{10}\pic at ([xshift=-1mm,yshift=-1mm]a.north east){lock};\pcell{p}{3.8,0}{p}{\&a}\draw[ptr] ([xshift=-4.5mm]p.west) -- (a.east);\node[bnote] at (1.9,-1.0){const 在 * 左：值被锁};}{\cc{*p} 的类型是 \cc{const int}，不能赋值。}\hfill
+\optsol{B}{1}{\cell{a}{0,0}{a}{10}\cell{b}{1.9,0}{b}{20}\pcell{p}{4.1,-0.2}{p}{\&b}\draw[ptrok] (p.west) -- (b.east);\node[gnote] at (2.8,-0.9){\texttt{p} 本身没被锁，可改指向};}{\cc{p} 的类型是 \cc{const int*}，最外层无 const，可以改指向。}
+\step{C、D} 由上，只有 B 合法，所以 C、D 都错。
+\step{三步法} 找 \cc{*} $\to$ const 在左 $\to$ 锁值；A 改的是值（\xmark{}），B 改的是指向（\cmark{}）。
+\oneline{const 在 * 左边：锁值不锁指向。}
+
+% ---------- 8 ----------
+\sol{8}{B}{1}{K6 const 修饰指针（第五讲）}
+\par\noindent
+\optsol{A}{0}{\cell{a}{0,0}{a}{10}\cell{b}{1.9,0}{b}{20}\pcell{p}{4.1,-0.2}{p}{\&a}\pic at ([xshift=-1mm,yshift=1mm]p.south east){lock};\draw[ptrbad] (p.west) -- (b.east);}{const 在 * 右边，\cc{p} 本身是常量，不能改指向。}\hfill
+\optsol{B}{1}{\cell[hl]{a}{0,0}{a}{20}\pcell{p}{3.8,0}{p}{\&a}\draw[ptrok] ([xshift=-4.5mm]p.west) -- (a.east);\node[gnote] at (1.9,-1.0){a 被改为 20};}{\cc{*p} 类型为普通 \cc{int}，可以赋值。}
+\par\noindent
+\optsol{C}{0}{\arr{r}{-0.6,0}{a,?}{}\pcell{p}{3.8,0}{p}{\&a}\pic at ([xshift=-1mm,yshift=1mm]p.south east){lock};\draw[ptrbad] (p.south) to[out=-150,in=-60] ([yshift=-3mm]r-1.south);}{\cc{p++} 也是修改 \cc{p} 自己，与 A 同理被禁止（g++ 实测报错）。}\hfill
+\optsol{D}{0}{\node[note] at (2,0){B 合法，所以“都不能”错误};}{—}
+\oneline{const 在 * 右边：锁指向不锁值；\cc{p++}、\cc{p = ...} 都算改指向。}
+
+% ---------- 9 ----------
+\sol{9}{B}{1}{K7 指针算术（第六讲）}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{1,2,3,4,5}{arr}
+  \foreach \k/\h in {0/00,1/04,2/08,3/0C,4/10} \node[adt] at (A-\k.north) {0x10\h};
+  \pcell{p0}{0,-1.6}{p}{0x1000}\draw[ptr,dashed] (p0.north) -- ([yshift=-3mm]A-0.south);
+  \pcell[hl]{p1}{3.6,-1.6}{p}{0x1004}\draw[ptrok] (p1.north) to[out=90,in=-70] ([yshift=-3mm]A-1.south);
+  \node[gnote,anchor=west] at (4.6,-1.6) {\texttt{p++} 后地址 $+4$，指向 \texttt{arr[1]}};
+\end{tikzpicture}\figcap{解析图 9\quad 虚线：执行前；绿色：执行后}\end{center}
+\step{判断} \cc{p++} 使 \cc{p} 前进一个 \cc{int}（4 字节），指向 \cc{arr[1]}，\cc{*p} = 2，选 (B)。(A) 是 \cc{p++} 之前的值；(C) 混淆了“指针值”与“解引用的值”，且步长也不是 1；(D) 是最后一个元素。
+\oneline{\cc{p++} 走到“下一个元素”。}
+
+% ---------- 10 ----------
+\sol{10}{B}{1}{K8 值传递（第七讲）}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=38mm,minimum height=17mm] (M) at (0,0) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell{a}{0.3,0.05}{a}{10}\cell{b}{0.3,-0.55}{b}{20}
+  \node[frame,minimum width=38mm,minimum height=17mm,fill=warmc] (S) at (5.2,0) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (S.north west) {swap 的副本};
+  \cell[hl]{sa}{5.5,0.05}{a}{20}\cell[hl]{sb}{5.5,-0.55}{b}{10}
+  \draw[->,draw=auxc,dashed,line width=0.8pt] (M.east) -- node[above,note]{复制} (S.west);
+  \node[gnote] at (0,-1.25) {未变：输出 a=10 b=20};\node[bnote] at (5.2,-1.25) {只交换了副本};
+\end{tikzpicture}\figcap{解析图 10}\end{center}
+\step{判断} 形参是实参的拷贝，交换的是副本（第七讲定理），输出 \cc{a=10 b=20}，选 (B)。程序语法正确，故 C 错；行为确定，故 D 错。
+\oneline{值传递改不了实参。}
+
+\needspace{12\baselineskip}\subsection*{A-2\quad 多项选择题}
+
+% ---------- 11 ----------
+\sol{11}{ABC}{1}{K2 \texttt{\&} 与 \texttt{*}（第二讲）}
+\par\noindent
+\optsol{A}{1}{\cell[hl]{a}{0,0}{a}{5}\pcell{p}{3.8,0}{p}{0x1000}\draw[ptrok] ([xshift=-4.5mm]p.west) -- (a.east);}{\cc{*p}：从 \cc{p} 顺箭头到 \cc{a}，值 5。}\hfill
+\optsol{B}{1}{\cell[hl]{a}{0,0}{a}{5}\node[gnote] at (2.2,0){直接读 a};}{\cc{a} 本身就是 5。}
+\par\noindent
+\optsol{C}{1}{\cell[hl]{a}{0,0}{a}{5}\addr{a}{0x1000}\draw[ptrok] (a.north east) to[out=30,in=90] node[above,gnote]{先 \& 得地址} (3,0.2) to[out=-90,in=-30] node[below,gnote]{再 * 回到 a} (a.south east);}{\cc{*\&a} $\equiv$ \cc{a}（第二讲三条关系之一）。}\hfill
+\optsol{D}{0}{\cell{a}{0,0}{a}{5}\pcell[hl]{p}{3.8,0}{p}{0x1000}\draw[ptr] ([xshift=-4.5mm]p.west) -- (a.east);\node[bnote] at (3.8,0.5){结果回到这里：地址};}{\cc{\&*p} = \cc{p}，值是地址 0x1000，不是 5。}
+\step{正确答案} ABC。
+\oneline{\cc{*} 和 \cc{\&} 相互抵消：\cc{*\&a} 是变量，\cc{\&*p} 是地址。}
+
+% ---------- 12 ----------
+\sol{12}{ABD}{1}{K4 K5 空指针与野指针（第四讲）}
+\begin{center}\begin{tikzpicture}
+  \node[draw=badc,fill=redbg,minimum width=26mm,minimum height=8mm,font=\sffamily\scriptsize] (z) at (0,0) {地址 0 附近};
+  \node[draw=gridc,minimum width=26mm,minimum height=8mm,font=\sffamily\scriptsize] (o) at (2.8,0) {不属于本程序};
+  \node[draw=mainc,fill=lightc,minimum width=30mm,minimum height=8mm,font=\sffamily\scriptsize] (m) at (5.9,0) {本程序申请的空间};
+  \pcell{np}{0.3,-1.6}{p}{nullptr}\draw[ptrbad] (np.north) -- (z.south);\pic at ($(np.north)!0.5!(z.south)+(0.3,0)$) {forbid};
+  \pcell{wp}{3.4,-1.6}{q}{0x0010}\draw[ptrbad] (wp.north) -- (o.south);\pic at ($(wp.north)!0.5!(o.south)+(0.3,0)$) {forbid};
+  \node[bnote] at (0.3,-2.35) {(C) 错：解引用非法};
+  \node[bnote] at (3.4,-2.35) {(B) 对：野指针指向“别人的”内存};
+\end{tikzpicture}\figcap{解析图 12}\end{center}
+\step{逐项} (A) 正确：笔记“用途：初始化指针变量”。(B) 正确：笔记红字总结。(C) 错误：解引用空指针是未定义行为，不会“安全地得到 0”（解析图中红叉）。(D) 正确：推荐的良好习惯。
+\oneline{空指针用来“占位”和“检查”，不用来访问。}
+
+% ---------- 13 ----------
+\sol{13}{AB}{1}{K6 const 修饰指针（第五讲）}
+\par\noindent
+\optsol{A}{1}{\cell{a}{0,0}{a}{10}\cell{b}{1.9,0}{b}{20}\pcell{p}{4.1,-0.2}{p}{\&a}\pic at ([xshift=-1mm,yshift=1mm]p.south east){lock};\draw[ptrbad] (p.west) -- (b.east);}{不能通过编译（右边有 const，锁指向）。}\hfill
+\optsol{B}{1}{\cell{a}{0,0}{a}{10}\pic at ([xshift=-1mm,yshift=-1mm]a.north east){lock};\pcell{p}{3.8,0}{p}{\&a}\draw[ptr] ([xshift=-4.5mm]p.west) -- (a.east);}{不能通过编译（左边有 const，锁值）。}
+\par\noindent
+\optsol{C}{0}{\cell[hl]{a}{0,0}{a}{10}\pcell{p}{3.8,0}{p}{\&a}\draw[ptrok] ([xshift=-4.5mm]p.west) -- node[above,gnote]{只读，允许} (a.east);}{只是读取 \cc{*p}，可以编译。本题问“不能”，故不选。}\hfill
+\optsol{D}{0}{\cell[hl]{a}{0,0}{a}{10}\pcell{p}{3.8,0}{p}{\&a}\draw[ptrok] ([xshift=-4.5mm]p.west) -- node[above,gnote]{读出 10 再加 1} (a.east);}{同样只读，\cc{x} 为 11，可以编译。}
+\step{正确答案} AB（题目问“不能通过编译”）。
+\oneline{const 只禁止“写”，从不禁止“读”。}
+
+% ---------- 14 ----------
+\sol{14}{ABC}{1}{K7 数组与指针（第六讲）}
+\par\noindent
+\optsol{A}{1}{\arrx{r}{-0.6,0}{10,20,30,40,50}{}{99}{2}{-1}\draw[ptrok] (-0.6,-0.9) node[left,gnote]{p} -- node[below,gnote]{+2} ([yshift=-1mm]r-2.south);}{\cc{p+2} 指向 \cc{arr[2]}，解引用得 30。}\hfill
+\optsol{B}{1}{\arrx{r}{-0.6,0}{10,20,30,40,50}{}{99}{2}{-1}\node[gnote] at (1.2,-0.8){\texttt{p[2]} $\equiv$ \texttt{*(p+2)}};}{下标运算的定义，与 A 相同。}
+\par\noindent
+\optsol{C}{1}{\arrx{r}{-0.6,0}{10,20,30,40,50}{}{99}{2}{-1}\node[gnote] at (1.2,-0.8){直接下标};}{\cc{arr[2]} = 30。}\hfill
+\optsol{D}{0}{\arrx{r}{-0.6,0}{10,20,30,40,50}{}{99}{0}{-1}\node[bnote] at (1.2,-0.8){先取 *p = 10，再 +2 = 12};}{\cc{*} 的优先级高于 \cc{+}：\cc{*p + 2} = 12。}
+\oneline{括号决定先移动还是先取值：\cc{*(p+2)} $\neq$ \cc{*p+2}。}
+
+% ---------- 15 ----------
+\sol{15}{AC}{1}{K3 K9 sizeof 与数组传参（第三、八讲）}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{,,,,,}{arr}
+  \draw[decorate,decoration={brace,amplitude=4pt},draw=okc] ([yshift=5mm]A-0.north west) -- ([yshift=5mm]A-5.north east) node[midway,above=4pt,gnote]{main 中 \texttt{sizeof(arr)} = 24，$24\div4=6$（C 对）};
+  \node[frame,fill=warmc,minimum width=36mm,minimum height=10mm] (F) at (2.2,-1.8) {};
+  \pcell{pa}{2.6,-1.8}{f 中的 a}{\&arr[0]}
+  \draw[decorate,decoration={brace,mirror,amplitude=3pt},draw=badc] (pa.south west) -- (pa.south east) node[midway,below=3pt,bnote]{\texttt{sizeof(a)} = 8，$8\div4=2$（D 错）};
+  \draw[->,draw=auxc] ([yshift=-3mm]A-1.south) -- (F.north);
+\end{tikzpicture}\figcap{解析图 15}\end{center}
+\step{逐项} (A) 正确：所有指针同样大（8 字节）。(B) 错误：指针大小与所指的值无关。(C) 正确：在定义数组处，\cc{sizeof(arr)} 为整个数组字节数。(D) 错误：形参 \cc{a} 是指针，\cc{sizeof(a)} = 8，结果为 2。
+\oneline{数组一旦传进函数，就只剩一个指针。}
+
+\needspace{12\baselineskip}\subsection*{A-3\quad 填空题}
+
+% ---------- 16 ----------
+\sol{16}{100；100}{1}{K2 解引用修改变量}
+\begin{center}\begin{tikzpicture}
+  \cell[hl]{a}{0,0}{a}{100}\pcell{p}{4.2,0}{p}{\&a}\draw[ptrok] (p.south) to[out=-150,in=-30] node[below,gnote]{\texttt{*p = 100} 顺箭头写入 a} (a.south);
+\end{tikzpicture}\figcap{解析图 16}\end{center}
+\step{推理} \cc{*p} $\equiv$ \cc{a}，所以 \cc{*p = 100} 就是 \cc{a = 100}；之后 \cc{*p} 读的仍是 \cc{a}，也是 100。\quad\step{易错} 以为只有 \cc{*p} 变了、\cc{a} 没变——它们是同一个变量。
+
+% ---------- 17 ----------
+\sol{17}{8；4}{1}{K3 指针的大小}
+\step{推理} 64 位地址 $=64\div8=8$ 字节；32 位地址 $=32\div8=4$ 字节（第三讲推导）。对照题图 17：长条的宽度就是答案。\quad\step{易错} “32/64 位”指程序的目标平台，而非操作系统（原图纠错\ci{⑥}）。
+
+% ---------- 18 ----------
+\sol{18}{24；6}{1}{K9 sizeof 求数组长度}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{3,7,9,12,5,1}{arr}
+  \foreach \k in {0,...,5} \node[adt] at (A-\k.north) {4B};
+  \draw[decorate,decoration={brace,mirror,amplitude=4pt},draw=okc] ([yshift=-4mm]A-0.south west) -- ([yshift=-4mm]A-5.south east) node[midway,below=4pt,gnote]{$6\times4=24$ 字节；$24\div4=6$ 个元素};
+\end{tikzpicture}\figcap{解析图 18}\end{center}
+\step{推理} 6 个 \cc{int}，每个 4 字节，\cc{sizeof(arr)} = 24；\cc{sizeof(arr[0])} = 4，相除得 6。\quad\step{等价答案} “24 字节”“6 个”均可。
+
+% ---------- 19 ----------
+\sol{19}{\texttt{0x100C}；3}{1}{K1 K7 地址计算}
+\begin{center}\begin{tikzpicture}
+  \arrx{A}{0,0}{,,,,}{arr}{99}{3}{-1}
+  \foreach \k/\h in {0/00,1/04,2/08,3/0C,4/10} \node[adt] at (A-\k.north) {0x10\h};
+  \pcell{p}{0,-1.5}{p}{0x1000}\draw[ptr] (p.north) -- ([yshift=-1mm]A-0.south);
+  \draw[ptrok] (p.east) to[out=0,in=-90] node[right,gnote]{\ $p+3$：$+3\times4=12$ 字节} ([yshift=-1mm]A-3.south);
+\end{tikzpicture}\figcap{解析图 19}\end{center}
+\step{公式} 地址$(p+3)=\texttt{0x1000}+3\times\texttt{sizeof(int)}=\texttt{0x1000}+12=\texttt{0x100C}$（十进制 12 = 十六进制 C）；\cc{*(p+3)} $\equiv$ \cc{arr[3]}。\quad\step{易错} 写成 \cc{0x1003}（忘记乘 4）或 \cc{0x1012}（把十进制 12 直接接在后面）。
+
+% ---------- 20 ----------
+\sol{20}{4；3；10}{1}{K10 冒泡排序循环}
+\begin{center}\begin{tikzpicture}
+  \foreach \i/\m in {0/4,1/3,2/2,3/1} {
+    \foreach \k in {0,...,4} {\pgfmathtruncatemacro{\fx}{\k>4-\i ? 1 : 0}
+      \ifnum\fx=1 \node[acell,fill=greenbg,draw=okc] at (\k*0.9,-\i*0.8) {}; \else \node[acell] at (\k*0.9,-\i*0.8) {}; \fi}
+    \node[vn,font=\sffamily\scriptsize\bfseries] at (-0.45,-\i*0.8) {i=\i};
+    \node[note,anchor=west] at (4.3,-\i*0.8) {比较 \m\ 次（\texttt{j < \pgfmathparse{int(4-\i)}\pgfmathresult}）};}
+\end{tikzpicture}\figcap{解析图 20\quad 绿色为已就位的元素}\end{center}
+\step{推理} 外层 \cc{i < n-1} $=4$ 轮；\cc{i=1} 时内层 \cc{j < 5-1-1 = 3}，比较 3 次；总数 $4+3+2+1=10=\frac{5\times4}{2}$。
+
+\needspace{12\baselineskip}\subsection*{A-4\quad 解答题}
+
+% ---------- 21 ----------
+\sol{21}{输出 \texttt{30 40 40}}{1}{K2 定义、赋值与解引用}
+\step{题意分析} 指针先指向 \cc{a}，改一次；再改指向 \cc{b}，再改一次。关键是每次 \cc{*p} 此刻指向谁。
+\step{使用关系} \cc{p = \&x} 时 \cc{*p} $\equiv$ \cc{x}（第二讲）。
+\begin{center}\begin{tikzpicture}
+  \foreach \k/\t/\av/\bv/\pv/\tg in {0/{\texttt{int *p = \&a;}}/10/20/\&a/a,1/{\texttt{*p = 30;}}/30/20/\&a/a,2/{\texttt{p = \&b;}}/30/20/\&b/b,3/{\texttt{*p = 40;}}/30/40/\&b/b} {
+    \begin{scope}[xshift=\k*4.15cm]
+      \node[font=\sffamily\bfseries\small,text=mainc] at (1.2,0.95) {\t};
+      \cell{a\k}{0.45,0}{a}{\av}\cell{b\k}{2.45,0}{b}{\bv}
+      \pcell{p\k}{1.45,-1.35}{p}{\pv}
+      \draw[ptr] (p\k.north) -- (\tg\k.south);
+    \end{scope}}
+  \node[acell,fill=hlc,minimum width=15mm] at (4.15+0.45,0) {30};
+  \node[acell,fill=hlc,minimum width=15mm] at (3*4.15+2.45,0) {40};
+  \foreach \x in {3.55,7.7,11.85} \draw[gridc,dashed] (\x,1.2) -- (\x,-1.8);
+\end{tikzpicture}\figcap{解析图 21\quad 第 2--5 行执行后的四个状态（黄色为刚被修改的变量）}\end{center}
+\step{第一步} 第 3 行：\cc{p} 指向 \cc{a}，\cc{*p = 30} 使 \cc{a = 30}。
+\step{第二步} 第 4 行：\cc{p} 改为指向 \cc{b}，\cc{a}、\cc{b} 都不变。
+\step{第三步} 第 5 行：\cc{*p = 40} 使 \cc{b = 40}。最后 \cc{*p} 即 \cc{b}。
+\step{结果} 输出 \cc{30 40 40}（已运行核对）。\quad\step{检查} \cc{a} 只被改过一次（30），\cc{b} 只被改过一次（40），与图一致。
+\step{易错点} 以为第 4 行会把 \cc{a} 的值“带到” \cc{b}——改指向不会改任何变量的值。
+\step{同类题以后怎么做} 每执行一行，就在图上更新“箭头”或“箭头终点的值”，二者只会变一个。
+
+% ---------- 22 ----------
+\sol{22}{\ci{①}\xmark\ \ci{②}\cmark\ \ci{③}\cmark\ \ci{④}\xmark\ \ci{⑤}\xmark\ \ci{⑥}\cmark}{1}{K6 const 三种情况}
+\begin{center}\begin{tikzpicture}
+  \cell{a}{2.2,0}{a}{1}\cell{b}{6.7,0}{b}{2}
+  \pcell{p1}{-0.2,-1.6}{p1}{\&a}\pcell{p2}{2.8,-1.6}{p2}{\&a}\pcell{p3}{5.8,-1.6}{p3}{\&a}
+  \foreach \q in {p1,p2,p3} \draw[ptr] (\q.north) -- (a.south);
+  \pic at ([xshift=-1mm,yshift=1mm]p2.south east) {lock};
+  \pic at ([xshift=-1mm,yshift=1mm]p3.south east) {lock};
+  \node[bnote] at (-0.2,-2.55) {\texttt{const int *}：\\锁值};
+  \node[bnote] at (2.8,-2.55) {\texttt{int * const}：\\锁指向（锁在 p2 上）};
+  \node[bnote] at (5.8,-2.55) {\texttt{const int * const}：\\锁值 + 锁指向};
+  \node[note] at (4.5,0.5) {a 本身没有 const};
+\end{tikzpicture}\figcap{解析图 22\quad 锁画在指针上表示“指针不可改”；p1、p3 的“值锁”只作用于通过它们的访问}\end{center}
+\begin{center}\small
+\begin{tabular}{@{}cllll@{}}
+\toprule
+\rowcolor{lightc}序号 & 语句 & 改的是 & 对应一侧有无 const & 结论 \\
+\midrule
+\ci{①} & \cc{*p1 = 5;} & 值 & 有（\cc{*} 左） & \xmark\ 编译错误 \\
+\ci{②} & \cc{p1 = \&b;} & 指向 & 无 & \cmark \\
+\ci{③} & \cc{*p2 = 5;} & 值 & 无 & \cmark \\
+\ci{④} & \cc{p2 = \&b;} & 指向 & 有（\cc{*} 右） & \xmark\ 编译错误 \\
+\ci{⑤} & \cc{*p3 = 5;} & 值 & 有 & \xmark\ 编译错误 \\
+\ci{⑥} & \cc{a = 5;} & 变量 \cc{a} 本身 & \cc{a} 未声明为 const & \cmark \\
+\bottomrule
+\end{tabular}
+\end{center}
+\step{说明} 六条结论均经 g++ 逐条编译验证。\ci{⑥}是第五讲“边界情况 (1)”：常量指针只限制“通过指针修改”，\cc{a} 自己仍可改。
+\step{同类题以后怎么做} 用“三步法”：找 \cc{*} $\to$ 看 const 在哪侧 $\to$ 看语句改哪侧。
+
+% ---------- 23 ----------
+\sol{23}{\texttt{a=10 b=20}；\texttt{swap\_p(\&a, \&b)}}{1}{K8 值传递与地址传递}
+\step{(1)} 输出 \cc{a=10 b=20}。原因见解析图 10：形参是新变量，函数只交换了副本，\cc{main} 中的变量从未被写（第七讲定理及证明）。
+\step{(2) 改写}
+\begin{code}
+void swap_p(int *p1, int *p2) { int temp = *p1; *p1 = *p2; *p2 = temp; }
+// 调用：swap_p(&a, &b);   输出 a=20 b=10
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=38mm,minimum height=19mm] (M) at (0,0) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell[hl]{a}{0.3,0.05}{a}{20}\cell[hl]{b}{0.3,-0.6}{b}{10}
+  \node[frame,minimum width=44mm,minimum height=19mm,fill=warmc] (S) at (5.6,0) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (S.north west) {swap\_p};
+  \pcell{p1}{5.6,0.05}{p1}{\&a}\pcell{p2}{5.6,-0.6}{p2}{\&b}
+  \draw[ptrok] ([xshift=-6mm]p1.west) -- (a.east);\draw[ptrok] ([xshift=-6mm]p2.west) -- (b.east);
+\end{tikzpicture}\figcap{解析图 23\quad 形参保存的是地址，\texttt{*p1}、\texttt{*p2} 就是 main 的 a、b}\end{center}
+\step{为什么能交换} 传入的是地址的拷贝，拷贝来的地址仍指向原变量，由 \cc{*p} $\equiv$ \cc{x}，对 \cc{*p1}、\cc{*p2} 赋值就是对 \cc{a}、\cc{b} 赋值。
+\step{易错点} 调用时忘写 \cc{\&}（编译错误），或在函数中交换 \cc{p1}、\cc{p2} 本身（无效）。
+
+% ---------- 24 ----------
+\sol{24}{\texttt{2 4 6 8}；越界}{1}{K5 K7 指针遍历与越界}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{2,4,6,8}{arr}
+  \node[acell,badcell,dashed] (A-4) at (3.6,0) {?};\node[idx] at (A-4.south) {[4]};
+  \foreach \k in {0,...,3} \node[gnote] at ([yshift=3mm]A-\k.north) {第\k 次};
+  \pcell{p}{3.6,-1.6}{p}{arr+4}\draw[ptrbad] (p.north) -- ([yshift=-3mm]A-4.south);
+  \node[bnote,anchor=west] at (4.6,-1.6) {循环结束：指向最后一个元素的\\下一个位置，只能“指”，不能“取”};
+\end{tikzpicture}\figcap{解析图 24}\end{center}
+\step{(1)} 每次输出 \cc{*p} 再后移，依次输出 \cc{2 4 6 8}（已运行核对）。
+\step{(2)} 共执行 4 次 \cc{p++}，\cc{p} = \cc{arr + 4}，即最后一个元素的下一个位置。它可以作为“终点标记”比较，但\textbf{不能}解引用，\cc{cout << *p} 是越界读取（未定义行为）。
+\step{(3)} 数组 5 个元素却循环 10 次，后 5 次读取数组以外的内存（原图纠错\ci{①}）。改为 \cc{int len = sizeof(arr)/sizeof(arr[0]);} 并用 \cc{i < len}。
+\step{同类题以后怎么做} 遍历前先问：“一共几个元素？”循环次数必须等于它。
+
+% ---------- 25 ----------
+\sol{25}{第 1 轮末 \texttt{2 6 4 1 8}；第 2 轮末 \texttt{2 4 1 6 8}}{1}{K10 冒泡排序过程}
+\begin{center}\begin{tikzpicture}
+  \arrx{r0}{0,0}{6,2,8,4,1}{初始}{99}{0}{1}
+  \arrx{r1}{0,-0.9}{2,6,8,4,1}{j=0 后}{99}{1}{2}
+  \arrx{r2}{0,-1.8}{2,6,8,4,1}{j=1 后}{99}{2}{3}
+  \arrx{r3}{0,-2.7}{2,6,4,8,1}{j=2 后}{99}{3}{4}
+  \arrx{r4}{0,-3.6}{2,6,4,1,8}{j=3 后}{4}{-1}{-1}
+  \arrx{r5}{0,-4.7}{2,4,1,6,8}{第 2 轮后}{3}{-1}{-1}
+  \node[note,anchor=west] at (4.6,0) {6>2，交换};
+  \node[note,anchor=west] at (4.6,-0.9) {6<8，不交换};
+  \node[note,anchor=west] at (4.6,-1.8) {8>4，交换};
+  \node[note,anchor=west] at (4.6,-2.7) {8>1，交换};
+  \node[gnote,anchor=west] at (4.6,-3.6) {第 1 轮结束，8 就位};
+  \node[gnote,anchor=west,align=left] at (4.6,-4.7) {第 2 轮：2<6 不换；6>4 换；6>1 换；6 就位};
+\end{tikzpicture}\figcap{解析图 25\quad 黄色为下一次要比较的一对，绿色为已就位}\end{center}
+\step{(1)} 各次比较后：\cc{2 6 8 4 1}，\cc{2 6 8 4 1}，\cc{2 6 4 8 1}，\cc{2 6 4 1 8}。
+\step{(2)} 第 2 轮（\cc{j = 0,1,2}）后：\cc{2 4 1 6 8}。以上均由程序实际运行核对。
+\step{结果检查} 每轮末尾就位的元素依次是 8、6，恰为最大、次大，符合第八讲的正确性定理。
+
+% ================================================================
+\usection{B 组详细解析}
+% ================================================================
+\needspace{12\baselineskip}\subsection*{B-1\quad 单项选择题}
+
+% ---------- 26 ----------
+\sol{26}{B}{2}{K7 K2 指针偏移}
+\begin{center}\begin{tikzpicture}
+  \arrx{A}{0,0}{1,2,3,4,5}{arr}{99}{3}{-1}
+  \node[pcell] (p) at (0.9,-1.5) {arr+1};\node[vn] at (p.west){p};
+  \draw[ptr] (p.north) -- ([yshift=-1mm]A-1.south);
+  \draw[ptrok] (p.east) to[out=0,in=-90] node[right,gnote]{\ $+2$} ([yshift=-1mm]A-3.south);
+\end{tikzpicture}\figcap{解析图 26\quad 两次偏移：先 $+1$ 到 arr[1]，再 $+2$ 到 arr[3]}\end{center}
+\step{知识链} 数组名 $\to$ 首元素地址 $\to$ 指针算术 $\to$ 解引用。\cc{p} = \cc{arr+1} 指向 \cc{arr[1]}；\cc{p+2} = \cc{arr+3}，\cc{*(p+2)} = \cc{arr[3]} = 4。
+\step{逐项} (A) 3 是 \cc{*(arr+2)}，漏算了 \cc{p} 的初始偏移；(C) 5 多算一格；(D) 2 是 \cc{*p}。
+\oneline{偏移可以叠加：\cc{(arr+1)+2 = arr+3}。}
+
+% ---------- 27 ----------
+\sol{27}{B}{2}{K8 K2 指针形参也是拷贝}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=44mm,minimum height=19mm] (M) at (0,0) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell[hl]{a}{-0.4,-0.2}{a}{10}\pcell{p}{1.5,-0.2}{p}{\&a}
+  \draw[ptrok] (p.north) |- ([yshift=2mm]a.north) -- (a.north);
+  \node[frame,minimum width=38mm,minimum height=19mm,fill=warmc] (S) at (5.3,0) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (S.north west) {f 中的 q（p 的副本）};
+  \pcell[hl]{q}{5.6,-0.2}{q}{nullptr}
+  \node[bnote] at (5.3,-1.3) {第 3 行只把副本 q 置空};
+  \node[gnote] at (0,-1.3) {第 2 行通过 q 把 a 改成 10};
+\end{tikzpicture}\figcap{解析图 27\quad 函数结束时的状态}\end{center}
+\step{第一步为什么} 调用 \cc{f(p)} 时，\cc{q} 是 \cc{p} 的拷贝，值同为 \cc{\&a}（指针也是值传递）。
+\step{第二步} \cc{*q = *q * 2} 顺箭头修改 \cc{a}：$5\times2=10$。
+\step{第三步} \cc{q = nullptr} 只修改副本 \cc{q}，\cc{main} 中的 \cc{p} 不受影响，仍指向 \cc{a}。
+\step{逐项} (A) 错在以为改 \cc{q} 会影响 \cc{p}；(C) 两处都错；(D) 忽略了 \cc{*q} 修改的是 \cc{a}。已运行核对：\cc{a=10}，\cc{p==\&a} 为真。
+\oneline{改 \cc{*q} 影响外部，改 \cc{q} 不影响外部。}
+
+% ---------- 28 ----------
+\sol{28}{A}{2}{K6 K7 常量指针在数组上}
+\par\noindent
+\optsol{A}{1}{\arrx{r}{-0.6,0}{1,2,3}{}{99}{1}{-1}\pic at ([xshift=-1mm,yshift=-1mm]r-2.north east){lock};\pcell{p}{3.8,-0.1}{p}{arr+1}\draw[ptrok] (p.south) to[out=-150,in=-60] ([yshift=-3mm]r-1.south);}{\cc{p} 本身无 const，可以 \cc{p++}；随后只读 \cc{*p}（值 2），合法。}\hfill
+\optsol{B}{0}{\arrx{r}{-0.6,0}{1,2,3}{}{99}{0}{-1}\pic at ([xshift=-1mm,yshift=-1mm]r-0.north east){lock};\node[bnote] at (3.6,0){写 \texttt{*p}：被锁};}{通过常量指针写，编译错误。}
+\par\noindent
+\optsol{C}{0}{\arrx{r}{-0.6,0}{1,2,3}{}{99}{1}{-1}\pic at ([xshift=-1mm,yshift=-1mm]r-1.north east){lock};\node[bnote] at (3.6,0){\texttt{p[1]} 即 \texttt{*(p+1)}：被锁};}{下标写法本质也是 \cc{*(p+1)}，同样禁止写。}\hfill
+\optsol{D}{0}{\arrx{r}{-0.6,0}{1,2,3}{}{99}{1}{-1}\pic at ([xshift=-1mm,yshift=-1mm]r-1.north east){lock};\node[bnote] at (3.6,0){同 C};}{与 C 完全等价，编译错误。}
+\step{说明} 四个选项均经 g++ 编译核对：仅 A 通过。
+\oneline{\cc{const int *p} 在数组上：可以“走”，只能“看”。}
+
+\needspace{12\baselineskip}\subsection*{B-2\quad 多项选择题}
+
+% ---------- 29 ----------
+\sol{29}{ABD}{2}{K3 K9 数组传参后的 sizeof}
+\begin{center}\begin{tikzpicture}
+  \foreach \k in {0,...,9} \node[acell,minimum width=6mm] (m\k) at (\k*0.6,0) {};
+  \node[vn] at (m0.west) {arr};
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=okc] ([yshift=1mm]m0.north west) -- ([yshift=1mm]m9.north east) node[midway,above=3pt,gnote]{A：$10\times4=40$};
+  \pcell{a}{8.2,0}{show 中的 a}{\&arr[0]}
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=okc] ([yshift=1mm]a.north west) -- ([yshift=1mm]a.north east) node[midway,above=3pt,gnote]{B：8};
+  \draw[->,draw=auxc] (m9.east) -- node[below,note]{只传首地址} ([xshift=-17mm]a.west);
+  \node[bnote] at (8.2,-0.85) {C：$8\div4=2\neq10$};
+\end{tikzpicture}\figcap{解析图 29}\end{center}
+\step{逐项} (A) 正确，整个数组 40 字节（已运行：输出 40）。(B) 正确，形参是指针，输出 8。(C) 错误，结果为 2。(D) 正确，这正是笔记中 \cc{BubbleSort(int *arr, int n)} 需要参数 \cc{n} 的原因。
+\step{哪个条件导致成立/不成立} 关键条件是“\cc{sizeof} 作用在数组上还是指针上”：同一个名字 \cc{arr}，在 main 中是数组，在函数中已是指针。
+
+% ---------- 30 ----------
+\sol{30}{ABC}{2}{K10 K5 冒泡排序边界}
+\begin{center}\begin{tikzpicture}
+  \arrx{w}{0,0}{3,7,9,12,5,1}{每轮}{99}{-1}{-1}
+  \foreach \a/\b in {0/1,1/2,2/3} \draw[okc,line width=1pt] ([yshift=1mm]w-\a.north) to[out=60,in=120] node[above,gnote]{j=\a} ([yshift=1mm]w-\b.north);
+  \foreach \a/\b in {3/4,4/5} \draw[badc,line width=1pt,dashed] ([yshift=1mm]w-\a.north) to[out=60,in=120] ([yshift=1mm]w-\b.north);
+  \node[bnote,anchor=west] at (5.6,0.2) {$j<6-1-j\iff j\le2$：\\红色两对永远不比较};
+\end{tikzpicture}\figcap{解析图 30\quad 与第八讲图 8.4 相同的机制}\end{center}
+\step{逐项} (B) 正确：条件 $j<n-j-1$ 即 $2j<5$，$j\in\{0,1,2\}$，与 $i$ 无关。(A) 正确：前 4 个数 3、7、9、12 本已递增，比较的 3 对都不交换，数组不变（已运行核对）。(C) 正确：改正后输出 \cc{1 3 5 7 9 12}。(D) 错误：$j$ 最大为 2，\cc{arr[j+1]} 最远到 \cc{arr[3]}，没有越界——这个错误的危害是“排不好”，而不是“越界”。
+\oneline{循环边界写错，可能不报错也不崩溃，只是结果悄悄错了。}
+
+\needspace{12\baselineskip}\subsection*{B-3\quad 填空题}
+
+% ---------- 31 ----------
+\sol{31}{\texttt{\{10, 25, 26, 40\}}；2}{2}{K7 指针与数组综合}
+\begin{center}\begin{tikzpicture}
+  \arrx{s1}{0,0}{10,25,30,40}{第 3 行后}{99}{1}{-1}
+  \arrx{s2}{0,-1.1}{10,25,30,40}{第 4 行后}{99}{-1}{-1}
+  \arrx{s3}{0,-2.2}{10,25,26,40}{第 5 行后}{99}{2}{-1}
+  \draw[ptr] (4.2,-1.1) node[right,note]{p} -- (s2-3.east);
+  \draw[ptr] (4.2,-1.1) to[out=180,in=-60] ([yshift=-1mm]s2-2.south);
+  \node[note,anchor=west] at (4.2,0) {\texttt{*(p+1) += 5}：arr[1] 由 20 变 25};
+  \node[note,anchor=west] at (4.6,-1.1) {\texttt{p += 2}：p 指向 arr[2]};
+  \node[note,anchor=west] at (4.2,-2.2) {\texttt{*p = *(p-1)+1}：arr[2] = 25+1};
+\end{tikzpicture}\figcap{解析图 31}\end{center}
+\step{推理} 第 3 行 \cc{arr[1] = 25}；第 4 行 \cc{p} 指向 \cc{arr[2]}；第 5 行 \cc{*(p-1)} 即 \cc{arr[1]} = 25，\cc{arr[2] = 26}。最终 \cc{\{10,25,26,40\}}，\cc{p} 指向 \cc{arr[2]}（已运行核对）。
+\step{易错} 第 5 行误用原来的 20，得到 21——必须使用第 3 行修改后的值。
+
+% ---------- 32 ----------
+\sol{32}{15；0；15}{2}{K10 比较与交换次数}
+\step{比较次数} 按笔记的写法，比较次数只与 $n$ 有关：$\frac{6\times5}{2}=15$，与数据无关（图 8.3）。
+\step{升序时} 每次比较都满足 \cc{arr[j] <= arr[j+1]}，一次也不交换：0。
+\step{逆序时} 每次比较都满足 \cc{arr[j] > arr[j+1]}（因为每轮参与比较的部分始终保持逆序），每次都交换：15。以上三个数均由程序计数核对。
+\begin{center}\begin{tikzpicture}
+  \arrx{A}{0,0}{6,5,4,3,2,1}{逆序}{99}{0}{1}\node[bnote,anchor=west] at (5.2,0) {每一对都“前大后小”$\Rightarrow$ 次次交换};
+  \arrx{B}{0,-0.9}{1,2,3,4,5,6}{升序}{99}{0}{1}\node[gnote,anchor=west] at (5.2,-0.9) {每一对都“前小后大”$\Rightarrow$ 从不交换};
+\end{tikzpicture}\figcap{解析图 32}\end{center}
+
+% ---------- 33 ----------
+\sol{33}{\texttt{0x2018}；3；8}{2}{K1 K3 K7 地址与步长}
+\begin{center}\begin{tikzpicture}
+  \arrx{A}{0,0}{,,,}{arr}{99}{3}{-1}
+  \foreach \k/\h in {0/00,1/08,2/10,3/18} \node[adt] at (A-\k.north) {0x20\h};
+  \pcell{q}{2.7,-1.5}{q}{0x2018}\draw[ptrok] (q.north) -- ([yshift=-1mm]A-3.south);
+  \draw[decorate,decoration={brace,mirror,amplitude=3pt},draw=auxc] (q.south west) -- (q.south east) node[midway,below=3pt,note]{\texttt{sizeof(q)} = 8};
+  \node[note,anchor=west] at (4,0) {每格 8 字节（\texttt{double}）};
+\end{tikzpicture}\figcap{解析图 33}\end{center}
+\step{推理} \cc{\&arr[3]} = $\texttt{0x2000}+3\times8=\texttt{0x2000}+24=\texttt{0x2018}$（24 = 0x18）；\cc{q - arr} 是相隔的\emph{元素}个数 3（不是 24 字节）；\cc{q} 是指针，64 位下 8 字节。
+\step{易错} 按 \cc{int} 的 4 字节计算得到 \cc{0x200C}；或把 \cc{q - arr} 写成 24。
+
+\needspace{12\baselineskip}\subsection*{B-4\quad 综合大题}
+
+% ---------- 34 ----------
+\sol{34}{\texttt{mn = 1}，\texttt{mx = 9}}{2}{K6 K8 K9 用指针“返回”两个结果}
+\step{1. 题目到底在问什么} 需要一个函数把\textbf{两个}结果交给调用者，而 \cc{return} 只能带回一个。
+\step{2. 已知条件整理} 数组 \cc{\{4,9,1,7\}}、长度 4；\cc{mn}、\cc{mx} 在 main 中，调用前未赋值。
+\step{3. 知识链} 地址传递可修改实参（第七讲）$\to$ 数组传参只传首地址、需另传 \cc{n}（第八讲）$\to$ const 保护只读数据（第五讲）。
+\step{4. 第 (1) 问} \cc{pmin}、\cc{pmax} 是 main 中 \cc{mn}、\cc{mx} 的地址，函数通过 \cc{*pmin = ...} 直接写入调用者的变量，相当于“带回”了两个结果；若用普通 \cc{int}，只能改副本。\cc{arr} 加 \cc{const} 是因为函数只需读数组，加上后若误写 \cc{arr[i] = ...} 编译器会报错。
+\step{5. 第 (2) 问}
+\begin{code}
+void minmax(const int *arr, int n, int *pmin, int *pmax)
+{
+    *pmin = arr[0];                 // 先假设第一个元素既是最小也是最大
+    *pmax = arr[0];
+    for (int i = 1; i < n; i++)
+    {
+        if (arr[i] < *pmin) *pmin = arr[i];
+        if (arr[i] > *pmax) *pmax = arr[i];
+    }
+}
+\end{code}
+\step{6. 第 (3) 问}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=58mm,minimum height=33mm] (M) at (1.9,-0.35) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \arr{A}{0.6,0.6}{4,9,1,7}{a}
+  \cell[hl]{mn}{3.3,-0.45}{mn}{1}
+  \cell[hl]{mx}{3.3,-1.3}{mx}{9}
+  \node[frame,fill=warmc,minimum width=46mm,minimum height=33mm] (F) at (9.0,-0.35) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (F.north west) {minmax};
+  \pcell{pa}{9.1,0.6}{arr}{\&a[0]}\node[font=\ttfamily\scriptsize,anchor=west] at (pa.east) {\ n = 4};
+  \pcell{pn}{9.1,-0.45}{pmin}{\&mn}
+  \pcell{px}{9.1,-1.3}{pmax}{\&mx}
+  \draw[ptr] ([xshift=-7mm]pa.west) -- (A-3.east);
+  \draw[ptrok] ([xshift=-9mm]pn.west) -- (mn.east);
+  \draw[ptrok] ([xshift=-9mm]px.west) -- (mx.east);
+\end{tikzpicture}\figcap{解析图 34\quad 函数即将返回时：三个指针形参分别指向 main 中的数组、mn、mx}\end{center}
+\noindent 循环过程：初值 \cc{*pmin = *pmax = 4}；$i=1$：9 > 4，\cc{*pmax = 9}；$i=2$：1 < 4，\cc{*pmin = 1}；$i=3$：7 不改变。所以 \cc{mn = 1}，\cc{mx = 9}（已运行核对）。
+\step{7. 结果合理性检查} 1 和 9 确实是数组中的最小、最大值；原数组未被修改（const 保证）。
+\step{8. 最容易卡在哪里} 调用时写成 \cc{minmax(a, 4, mn, mx)}（漏 \cc{\&}），或函数内写成 \cc{pmin = arr[i]}（漏 \cc{*}）。
+\step{9. 如果条件变化} 若数组为空（$n=0$），\cc{arr[0]} 越界——实际应用中需先判断 \cc{n > 0}。
+\step{变式思考} 如果还想“返回”平均值，应再加一个什么类型的参数？（\cc{double *pavg}）
+
+% ---------- 35 ----------
+\sol{35}{两处改正；15 次 / 5 次}{2}{K9 K10 排序函数的调试与改进}
+\step{1. 题目到底在问什么} 找错—验证—优化三步。
+\step{2. 知识链} 循环边界推导（第八讲）$\to$ 正确性定理 $\to$ 比较次数公式。
+\step{3. 第 (1) 问} \ci{①} 内层条件 \cc{j < n - j - 1} 应为 \cc{j < n - i - 1}（第八讲推导：第 $i$ 轮末尾 $i$ 个已就位）；\ci{②} \cc{if arr[j] > arr[j+1]} 缺少括号，应为 \cc{if (arr[j] > arr[j+1])}，否则无法编译。
+\step{4. 第 (2) 问} 每轮结束后的数组（程序运行核对）：
+\begin{center}\begin{tikzpicture}
+  \arrx{s0}{0,0}{3,7,9,12,5,1}{初始}{99}{-1}{-1}
+  \arrx{s1}{0,-0.85}{3,7,9,5,1,12}{第1轮}{5}{-1}{-1}
+  \arrx{s2}{0,-1.7}{3,7,5,1,9,12}{第2轮}{4}{-1}{-1}
+  \arrx{s3}{0,-2.55}{3,5,1,7,9,12}{第3轮}{3}{-1}{-1}
+  \arrx{s4}{0,-3.4}{3,1,5,7,9,12}{第4轮}{2}{-1}{-1}
+  \arrx{s5}{0,-4.25}{1,3,5,7,9,12}{第5轮}{0}{-1}{-1}
+  \foreach \i/\c in {1/5,2/4,3/3,4/2,5/1} \node[note,anchor=west] at (5.5,-\i*0.85) {比较 \c\ 次};
+\end{tikzpicture}\figcap{解析图 35\quad 绿色区域每轮向左扩展一格}\end{center}
+\step{5. 第 (3) 问} 改正后的函数比较次数只与 $n$ 有关：$\frac{6\times5}{2}=15$ 次，即使数组本来有序。加标志的写法：
+\begin{code}
+for (int i = 0; i < n - 1; i++)
+{
+    bool swapped = false;
+    for (int j = 0; j < n - i - 1; j++)
+        if (arr[j] > arr[j + 1])
+        { int temp = arr[j]; arr[j] = arr[j + 1]; arr[j + 1] = temp; swapped = true; }
+    if (!swapped) break;        // 本轮没有交换，说明已经有序
+}
+\end{code}
+对 \cc{\{1,2,3,4,5,6\}}：第 1 轮比较 5 次、没有交换，立即结束，共 \textbf{5 次}（程序计数核对）。
+\step{6. 为什么“一轮不交换”就说明有序} 一轮中每一对相邻元素都满足 \cc{arr[j] <= arr[j+1]}，由不等式的传递性，整个参与部分已经递增；而末尾部分由正确性定理已就位且不小于前面，所以整个数组有序。
+\step{7. 结果合理性检查} 第 5 轮后与 \cc{std::sort} 结果一致。
+\step{8. 最容易卡在哪里} 第 (2) 问中把“一次比较后的状态”和“一轮结束后的状态”混在一起。
+\step{变式思考} 若要降序排列，只需改动哪一个符号？（把 \cc{>} 改为 \cc{<}。）
+
+% ================================================================
+\usection{C 组详细解析（跨学科迁移）}
+% ================================================================
+% ---------- 36 ----------
+\sol{36}{B}{3}{K2 × 数据结构}
+\begin{center}\begin{tikzpicture}
+  \foreach \n/\x/\v/\nx in {n1/0/1/\&n2,n2/3.6/2/\&n3,n3/7.2/3/nullptr} {
+    \node[acell,minimum width=10mm] (\n v) at (\x,0) {\v};
+    \node[acell,fill=formc,minimum width=16mm,anchor=west] (\n n) at (\n v.east) {\nx};
+    \node[vn,anchor=north] at ([yshift=-1mm]\n v.south) {\n};}
+  \node[acell,fill=hlc,minimum width=10mm] at (3.6,0) {2};
+  \draw[ptr] (n1n.east) -- (n2v.west); \draw[ptr] (n2n.east) -- (n3v.west);
+  \pcell{p0}{0,-1.8}{p}{\&n1}\draw[ptr,dashed] (p0.north) -- ([yshift=-5mm]n1v.south);
+  \pcell[hl]{p1}{3.6,-1.8}{p}{\&n2}\draw[ptrok] (p1.north) -- ([yshift=-5mm]n2v.south);
+  \node[gnote,anchor=west] at (4.8,-1.8) {\texttt{p = p->next}：p 取得 n1 中保存的 \&n2};
+\end{tikzpicture}\figcap{解析图 36\quad 虚线为执行前，绿色为执行后}\end{center}
+\step{推理} \cc{p->next} 即 \cc{(*p).next}：解引用 \cc{p} 得到 \cc{n1}，取其 \cc{next}，值为 \cc{\&n2}；赋给 \cc{p} 后 \cc{p} 指向 \cc{n2}，\cc{p->val} = 2（已运行核对）。
+\step{逐项} (A) 是执行前的结果；(C) 需要再走一步；(D) 代码合法。
+\step{当前专题知识} 解引用、“指针保存地址并可被重新赋值”（第二讲）。
+\step{借用的外部情境} 数据结构课程中的单向链表。
+\step{为什么不算超纲} 题干给出了结点的含义和 \cc{->} 的等价写法，不需要预先学过结构体或链表。
+\step{迁移点} “\cc{p = \&b} 让指针改指向”这一关系，被搬到了“沿着链表走一步”的场景中：链表遍历就是反复执行 \cc{p = p->next}。
+
+% ---------- 37 ----------
+\sol{37}{ACD}{3}{K2 K5 × 嵌入式系统}
+\par\noindent
+\optsol{A}{1}{\pcell{p}{0.3,0}{reg}{0x40020014}\pcell{q}{3.9,0}{p}{0x0010}\node[gnote] at (2.1,-0.8){都是“整数地址 $\to$ 指针”};}{形式与笔记 \cc{(int*)0x0010} 完全相同。}\hfill
+\optsol{B}{0}{\node[draw=badc,fill=redbg,minimum width=24mm,minimum height=7mm,font=\sffamily\scriptsize] (z) at (0.6,0) {电脑：不属于程序};\pcell{q}{4.0,0}{p}{0x0010}\draw[ptrbad] (q.west) -- (z.east);}{在电脑程序中这是野指针，访问是未定义行为。}
+\par\noindent
+\optsol{C}{1}{\node[draw=okc,fill=greenbg,minimum width=24mm,minimum height=7mm,font=\sffamily\scriptsize] (r) at (0.6,0) {芯片手册保证可访问};\pcell{q}{4.3,0}{reg}{0x4002..}\draw[ptrok] ([xshift=-7mm]q.west) -- (r.east);}{合法与否不看写法，看地址是否属于可合法访问的空间。}\hfill
+\optsol{D}{1}{\node[draw=mainc,fill=hlc,minimum width=24mm,minimum height=7mm,font=\ttfamily\small] (r) at (0.6,0) {1};\pcell{q}{4.3,0}{reg}{0x4002..}\draw[ptrok] ([xshift=-7mm]q.west) -- node[above,gnote]{*reg = 1} (r.east);}{对 \cc{reg} 解引用并赋值，把 1 写进该地址。}
+\step{当前专题知识} 强制类型转换得到的指针、解引用写内存、野指针的本质（第二、四讲）。
+\step{借用的外部情境} 嵌入式系统中的内存映射寄存器。
+\step{为什么不算超纲} 题干给出了“地址由芯片手册规定”“写 1 点亮 LED”“\cc{volatile} 可忽略”等全部背景。
+\step{迁移点} 笔记红字“空指针和野指针都不是我们申请的空间，因此不要访问”的反面：\textbf{只要空间是合法可访问的，按地址访问就是正当的}——判断标准始终是“这块内存是不是你的”。
+
+% ---------- 38 ----------
+\sol{38}{9；\texttt{0x3009}；9；\texttt{0x3024}}{3}{K1 K7 × 图像处理}
+\begin{center}\begin{tikzpicture}
+  \foreach \r in {0,1,2} \foreach \c in {0,...,3} {
+    \pgfmathtruncatemacro{\id}{\r*4+\c}
+    \ifnum\id=9 \node[draw=mainc,fill=hlc,minimum size=7mm,font=\ttfamily\tiny] at (\c*0.75,-\r*0.75) {(\r,\c)};
+    \else \node[draw=gridc,minimum size=7mm,font=\ttfamily\tiny,text=auxc] at (\c*0.75,-\r*0.75) {(\r,\c)};\fi}
+  \foreach \k in {0,...,11} {
+    \ifnum\k=9 \node[draw=mainc,fill=hlc,minimum width=6mm,minimum height=7mm,font=\ttfamily\tiny] (e\k) at (4.6+\k*0.6,-0.75) {\k};
+    \else \node[draw=mainc,minimum width=6mm,minimum height=7mm,font=\ttfamily\tiny] (e\k) at (4.6+\k*0.6,-0.75) {\k};\fi}
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=auxc] ([yshift=1mm]e0.north west) -- ([yshift=1mm]e3.north east) node[midway,above=2pt,note]{第 0 行};
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=auxc] ([yshift=1mm]e4.north west) -- ([yshift=1mm]e7.north east) node[midway,above=2pt,note]{第 1 行};
+  \draw[decorate,decoration={brace,amplitude=3pt},draw=auxc] ([yshift=1mm]e8.north west) -- ([yshift=1mm]e11.north east) node[midway,above=2pt,note]{第 2 行};
+  \node[gnote] at (8,-1.55) {$2\times4+1=9$：跳过前 2 整行（8 个），再走 1 个};
+\end{tikzpicture}\figcap{解析图 38}\end{center}
+\step{推理} 下标 $=r\times W+c=2\times4+1=9$；\cc{unsigned char} 每个 1 字节，地址 $=\texttt{0x3000}+9\times1=\texttt{0x3009}$，写作 \cc{*(img + 9)}。若用 \cc{int} 存放，步长为 4：$\texttt{0x3000}+9\times4=\texttt{0x3000}+36=\texttt{0x3024}$（36 = 0x24）。
+\step{当前专题知识} 数组连续存放、指针算术 $p+k$ 的地址公式（第一、六讲）。
+\step{借用的外部情境} 图像处理中二维图像的“按行存储”。
+\step{为什么不算超纲} 下标公式 $r\times W+c$ 和每像素字节数都已在题干给出。
+\step{迁移点} “地址 $=$ 首地址 $+ k\times\texttt{sizeof(T)}$”这一关系被用于二维数据：先把二维位置换算成一维下标 $k$，再用同一个公式算地址。同样的 9，换成 \cc{int} 后地址不同——再次说明“类型决定步长”。

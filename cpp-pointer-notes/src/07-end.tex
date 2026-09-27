@@ -1,0 +1,87 @@
+% ================================================================
+%  易错总表 · 解题步骤 · 概念总对比 · 后续课程 · 参考资料
+% ================================================================
+\usection{高频易错点总表}
+\begin{center}\small
+\noindent\begin{tabularx}{\linewidth}{@{}p{0.5cm}p{4.6cm}Yp{2.3cm}@{}}
+\toprule
+\rowcolor{redbg}& 错误写法 / 想法 & 正确理解 & 见 \\
+\midrule
+1 & \cc{p} 的值就是 \cc{a} 的值 & \cc{p} 存地址，\cc{*p} 才是 \cc{a} & 第二讲，1 \\
+2 & \cc{int* p, q;} 定义了两个指针 & 只有 \cc{p} 是指针，\cc{q} 是 \cc{int} & 第二讲 \\
+3 & \cc{double*} 占 8 字节是因为 \cc{double} 占 8 字节 & 指针大小只由地址宽度决定 & 第三讲，4 \\
+4 & \cc{sizeof(p)} 与 \cc{sizeof(*p)} 相同 & 前者是指针大小，后者是所指对象大小 & 第三讲 \\
+5 & 空指针解引用会得到 0 / 一定报段错误 & 未定义行为，不得访问；应先判断 & 第四讲，5，12 \\
+6 & 程序没崩溃就说明没越界 & 越界可能“看起来正常” & 第四、六讲 \\
+7 & 只记“常量指针/指针常量”的名字 & 看 const 在 * 左（锁值）还是右（锁指向） & 第五讲，7，8 \\
+8 & \cc{const int *p} 使 \cc{a} 成为常量 & 只是不能\emph{通过 p} 修改 & 第五讲，22 \\
+9 & \cc{p++} 使地址加 1 & 加 \cc{sizeof(T)} 字节 & 第六讲，9，19 \\
+10 & \cc{*p+2} 等于 \cc{*(p+2)} & \cc{*} 优先于 \cc{+}，前者是值加 2 & 第六讲，14 \\
+11 & 遍历次数随手写（笔记 \cc{i<10}） & 用 \cc{sizeof(arr)/sizeof(arr[0])} & 纠错\ci{①}，24 \\
+12 & 传了指针，函数改 \cc{p} 就能改外部 & 只有改 \cc{*p} 才影响外部 & 第七讲，27 \\
+13 & 在函数内用 \cc{sizeof(arr)} 求长度 & 形参是指针，结果是 8 & 第八讲，15，29 \\
+14 & 冒泡内层写 \cc{j < n-j-1} & 应为 \cc{j < n-i-1} & 纠错\ci{②}，30，35 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\usection{基础解题步骤总结}
+\begin{summarybox}[四类题的通用做法]
+\begin{description}[leftmargin=0pt,style=nextline,itemsep=2pt,font=\sffamily\bfseries\color{okc}]
+  \item[读程序写结果（\& 与 *）] 画出每个变量的方框 $\to$ 逐行执行：遇到 \cc{p = ...} 改箭头，遇到 \cc{*p = ...} 改箭头终点的值 $\to$ 最后按图读出输出。
+  \item[判断 const 语句是否合法] 找 \cc{*} $\to$ 看 const 在左/右 $\to$ 看语句改的是 \cc{*p} 还是 \cc{p} $\to$ 对应一侧有锁则非法。“读”永远合法。
+  \item[数组与指针计算] 先确定元素类型大小 $s$ $\to$ 地址$(p+k)=$ 地址$(p)+k\cdot s$ $\to$ 注意十六进制加法 $\to$ 检查是否越界。
+  \item[函数能否修改实参] 看形参是不是指针 $\to$ 是指针时再看函数改的是 \cc{*p}（影响外部）还是 \cc{p}（不影响）。
+  \item[冒泡排序过程] 第 $i$ 轮比较 $j=0\sim n-i-2$ $\to$ 每比较一对写一次状态 $\to$ 每轮末检查“最大者是否到了第 $n-1-i$ 位”。
+\end{description}
+\end{summarybox}
+
+\usection{相近概念总对比}
+\begin{center}\small
+\noindent\begin{tabularx}{\linewidth}{@{}p{4.2cm}p{3.6cm}Y@{}}
+\toprule
+\rowcolor{lightc}概念 A / 概念 B & 本质区别 & 判断方法 \\
+\midrule
+\cc{p} / \cc{*p} & 地址 / 对象 & 箭头起点 / 箭头终点 \\
+\cc{\&a} / \cc{\&p} & 两个不同变量的地址 & 看方框上方的小字 \\
+声明中的 \cc{*} / 表达式中的 \cc{*} & 类型的一部分 / 解引用 & 是否跟在类型名后面 \\
+空指针 / 野指针 & 确定的“无指向” / 非法的指向 & 能否用 \cc{== nullptr} 检查 \\
+\cc{const int *p} / \cc{int * const p} & 锁值 / 锁指向 & const 在 * 左 / 右 \\
+\cc{p + 1} / 整数 \cc{+ 1} & 走一个元素 / 加 1 & 看左边是不是指针 \\
+\cc{sizeof(arr)} 在 main 中 / 在函数中 & 整个数组 / 一个指针 & 看 \cc{arr} 是数组还是形参 \\
+值传递 / 地址传递 & 拷贝值 / 拷贝地址 & 形参是否为指针，函数是否改 \cc{*p} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\usection{后续课程连接}
+\begin{connectionbox}[本章知识以后在哪里还会出现]
+\begin{itemize}
+  \item \textbf{C++ 后续章节}：引用（\cc{int \&}，更安全的“别名”）、结构体指针与 \cc{->}（C 组第 36 题已接触）、动态内存 \cc{new/delete}（指针指向“没有名字”的内存）、智能指针。
+  \item \textbf{数据结构}：链表、树、图的结点通过指针连接；本章的“遍历”“越界”“空指针检查”会反复出现。
+  \item \textbf{计算机组成原理}：地址宽度与寻址空间（第三讲的 $2^{32}$ 字节）、内存按字节编址。
+  \item \textbf{操作系统}：虚拟内存与内存保护——段错误的真正来源（第四讲）。
+  \item \textbf{嵌入式系统}：内存映射寄存器（C 组第 37 题）。
+  \item \textbf{算法设计与分析}：冒泡排序的 $n(n-1)/2$ 次比较是“时间复杂度”这一概念的第一个例子（图 8.3）。
+\end{itemize}
+\end{connectionbox}
+
+\usection{参考资料}
+\subsection*{原始教学依据}
+\begin{itemize}
+  \item 课堂手写笔记，C++ 第七章“指针”，笔记页 378--393，2026 年 9 月 25--27 日（本讲义的专题边界与全部原始内容来源）。
+\end{itemize}
+\subsection*{核心定义与语言规则核验}
+\begin{itemize}
+  \item ISO/IEC 14882，\emph{Programming languages --- C++}（C++ 国际标准；下标运算 \cc{E1[E2]} 定义为 \cc{*((E1)+(E2))}、数组到指针的转换、未定义行为等条款）。
+  \item cppreference.com：\emph{Pointer declaration}、\emph{nullptr, the pointer literal (since C++11)}、\emph{cv (const and volatile) type qualifiers}、\emph{Array-to-pointer conversion}、\emph{sizeof operator}。\url{https://en.cppreference.com/}
+  \item Stanley B. Lippman, Josée Lajoie, Barbara E. Moo.\ \emph{C++ Primer}（第 5 版），第 2.3.2 节“指针”、第 2.4.2 节“指针和 const”、第 3.5.3 节“指针和数组”。
+  \item 实测环境：g++（C++17），x86-64 Linux；讲义中全部程序输出、编译错误信息与 38 道练习的答案均在此环境中实际编译运行核对。
+\end{itemize}
+\subsection*{学科史与科普资料}
+\begin{itemize}
+  \item Dennis M. Ritchie.\ \emph{The Development of the C Language}. ACM HOPL-II, 1993.（BCPL、B 到 C 的演变；数组名转换为指针的设计动机。）
+  \item Bjarne Stroustrup.\ \emph{A History of C++: 1979--1991}. ACM HOPL-II, 1993.（C with Classes 始于 1979 年，1983 年改名 C++。）
+  \item Bjarne Stroustrup.\ \emph{C++11 FAQ}（\cc{nullptr} 的引入）。
+  \item Tony Hoare.\ \emph{Null References: The Billion Dollar Mistake}. QCon London 演讲，2009.（1965 年在 ALGOL W 中引入空引用的回顾。）
+\end{itemize}

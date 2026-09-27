@@ -1,0 +1,439 @@
+% ================================================================
+%  第一讲 ～ 第四讲
+% ================================================================
+
+% ================================================================
+\section{内存与地址：指针要保存的到底是什么}\label{sec:mem}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 变量在内存里是什么样子？\ci{②} “地址”是什么，为什么常用十六进制？\ci{③} 为什么要有一种专门保存地址的变量？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 内存按字节编号 $\to$ 变量占一段连续字节 $\to$ 变量的地址 = 首字节编号 $\to$ 把地址存进变量 = 指针\par
+\noindent{\sffamily\color{auxc}学科坐标：}\ C++ 程序设计第 7 章 §7.1｜前置：变量、数据类型｜后续：指针定义、数组、函数传参｜相关课程：计算机组成原理、操作系统
+
+\subsection{它解决什么问题}
+笔记开篇第一句话是：“\textbf{作用：通过指针间接访问内存}”。“间接”是相对于“直接”而言的：
+
+\begin{itemize}
+  \item \textbf{直接访问}：写 \cpp{a = 20;}，编译器知道 \cc{a} 在哪儿，直接去改；
+  \item \textbf{间接访问}：先拿到“\cc{a} 在哪儿”这个信息（地址），再\emph{按这个位置}去改。
+\end{itemize}
+为什么要绕这个弯？因为很多时候，写代码的地方\textbf{看不到变量的名字}。比如第七讲的交换函数：\cc{swap} 函数内部根本不知道 \cc{main} 里有个叫 \cc{a} 的变量，但只要把 \cc{a} 的\emph{地址}交给它，它就能找到并修改 \cc{a}。要理解这一点，先要弄清“地址”是什么。
+
+\subsection{先看直观图像：内存是一排带编号的小格子}
+\begin{center}
+\begin{tikzpicture}
+  \foreach \i in {0,...,11} {
+    \node[draw=gridc,minimum width=11mm,minimum height=8mm,font=\ttfamily\scriptsize] (b\i) at (\i*1.1,0) {};
+    \pgfmathsetmacro{\hx}{\i}
+  }
+  \foreach \i/\h in {0/00,1/01,2/02,3/03,4/04,5/05,6/06,7/07,8/08,9/09,10/0A,11/0B}
+     \node[font=\ttfamily\scriptsize,text=auxc,rotate=0] at ([yshift=3.2mm]b\i.north) {10\h};
+  \node[font=\ttfamily\scriptsize,text=auxc,anchor=east] at ([xshift=-1mm,yshift=3.2mm]b0.north west) {0x};
+  % a 占 0x1000~0x1003
+  \node[draw=mainc,fill=hlc,line width=0.9pt,fit=(b0)(b3),inner sep=0pt] (A) {};
+  \node[font=\ttfamily\small] at (A) {10};
+  \node[draw=mainc,fill=formc,line width=0.9pt,fit=(b4)(b11),inner sep=0pt] (D) {};
+  \node[font=\ttfamily\small] at (D) {3.14};
+  \draw[decorate,decoration={brace,mirror,amplitude=4pt},draw=mainc] ([yshift=-1mm]b0.south west) -- ([yshift=-1mm]b3.south east) node[midway,below=5pt,font=\sffamily\footnotesize,text=mainc]{\texttt{int a = 10;}\ 占 4 字节};
+  \draw[decorate,decoration={brace,mirror,amplitude=4pt},draw=mainc] ([yshift=-1mm]b4.south west) -- ([yshift=-1mm]b11.south east) node[midway,below=5pt,font=\sffamily\footnotesize,text=mainc]{\texttt{double d = 3.14;}\ 占 8 字节};
+  \draw[->,draw=badc,line width=0.8pt] ([yshift=11mm]b0.north) -- ([yshift=5.5mm]b0.north) node[pos=0,above,bnote]{\&a = 0x1000（首字节编号）};
+  \draw[->,draw=badc,line width=0.8pt] ([yshift=11mm]b4.north) -- ([yshift=5.5mm]b4.north) node[pos=0,above,bnote]{\&d = 0x1004};
+\end{tikzpicture}
+\figcap{图 1.1\quad 内存按字节编号；一个变量占用一段连续字节，变量的地址就是它第一个字节的编号}
+\end{center}
+
+读图：横向每个小格是 \textbf{1 个字节}，格子上方的小字是它的编号（十六进制）。黄色大框是 \cc{int} 变量 \cc{a}，横跨 4 个格子；蓝色大框是 \cc{double} 变量 \cc{d}，横跨 8 个格子。红色箭头指出：\textbf{一个变量的地址只记它第一个字节的编号}。
+
+\subsection{正式定义}
+\begin{definitionbox}[内存地址]
+计算机内存以\textbf{字节}为基本单位，每个字节都有一个唯一的编号，这个编号称为该字节的\textbf{地址}。编号从 0 开始依次递增，习惯上用十六进制书写（前缀 \cc{0x}）。
+
+一个类型为 \cc{T} 的变量在内存中占用 \cc{sizeof(T)} 个\textbf{连续}字节；这段字节中\textbf{第一个字节的地址}称为该变量的地址，可以用取地址运算符 \cc{\&} 得到。
+\end{definitionbox}
+
+\begin{formulabox}[变量占用的地址范围]
+\[
+\boxed{\;\text{变量 } x \text{ 占用的地址} \;=\; \&x,\ \ \&x+1,\ \ \dots,\ \ \&x+\texttt{sizeof}(x)-1\;}
+\]
+\small $\&x$：变量 $x$ 的首字节地址；\ \texttt{sizeof}$(x)$：$x$ 占用的字节数（\cc{int} 通常为 4，\cc{double} 通常为 8，\cc{char} 规定为 1）。\\
+使用条件：这里的“$+1$”是\textbf{按字节}加的普通整数加法——这和第六讲“指针加 1”不同，届时会专门比较。
+\end{formulabox}
+
+\begin{intuitionbox}[为什么地址习惯用十六进制]
+地址本质上只是一个整数，写成十进制也完全正确。但计算机内部用二进制，而 1 位十六进制正好是 4 位二进制，2 位十六进制正好是 1 个字节（8 位）。所以十六进制地址既比二进制短，又能一眼看出字节边界。笔记中“一般用十六进制数字表示”说的就是这件事——它是\textbf{书写习惯}，不是地址本身的性质。
+\end{intuitionbox}
+
+\begin{examplebox}[1.1\quad 计算一个变量占用的地址范围]
+\textbf{已知}：\cpp{double d;} 的地址 \cc{\&d} 为 \cc{0x1004}，\cpp{sizeof(double)} 为 8。\quad\textbf{求}：\cc{d} 占用哪些地址？紧接着存放的下一个变量最早从哪里开始？
+
+\textbf{思路}：套用“地址范围”关系，注意用十六进制做加法。
+
+\textbf{第一步}：最后一个字节地址 $=\texttt{0x1004}+8-1=\texttt{0x1004}+7=\texttt{0x100B}$（十进制 11 写作 B）。\\
+\textbf{第二步}：\cc{d} 占 \cc{0x1004}～\cc{0x100B}，所以下一个变量最早从 \cc{0x100C} 开始。
+
+\textbf{检查}：\cc{0x100C}$-$\cc{0x1004}$=8$，恰好是 \cc{double} 的大小。\quad\textbf{本题真正想说明}：变量是“一段”字节，而地址只记“起点”；长度由类型决定。对照图 1.1 的蓝框即可看到这 8 个格子。
+\end{examplebox}
+
+\subsection{把地址存起来：指针的想法}
+既然地址是一个数，它当然也可以\textbf{存进另一个变量里}。笔记中的图示正是这个意思（红字：“可以通过指针保存一个地址”）：
+
+\begin{center}
+\begin{tikzpicture}
+  \cell[hl]{a}{0,0}{a}{10}\addr{a}{0x1000}
+  \pcell{p}{5.2,0}{p}{0x1000}\addr{p}{0x2000}
+  \draw[ptr] (p.south) to[out=-155,in=-25] node[below,note]{p 中存的是 a 的地址，所以说“p 指向 a”} (a.south);
+  \node[note,anchor=west] at (6.2,0) {p 自己也是变量，\\也有自己的地址 0x2000};
+\end{tikzpicture}
+\figcap{图 1.2\quad 笔记 §7.1 图示的重绘：普通变量存“值”，指针变量存“地址”}
+\end{center}
+
+这里有两个“地址”，一定要分清：\cc{0x1000} 是 \cc{a} 的地址，它被当作\emph{值}存放在 \cc{p} 里；\cc{0x2000} 是 \cc{p} \emph{自己}的地址。箭头只是一种画法，它的含义就是“\cc{p} 的值等于 \cc{a} 的地址”。
+
+\begin{warningbox}
+\begin{enumerate}
+  \item \textbf{把“变量名”当作地址。}变量名只存在于源代码中，是给人看的标签；程序运行时使用的是地址。\cc{a} 的地址要写成 \cc{\&a}。
+  \item \textbf{以为地址是固定的。}同一个程序每次运行，局部变量的地址通常都不一样（现代操作系统会随机化地址布局）。所以题目中不会问“\cc{\&a} 等于多少”，除非题目先给出示意地址。
+  \item \textbf{忘记变量占多个字节。}\cc{int} 变量的地址是 \cc{0x1000}，并不代表它只占 \cc{0x1000} 这一个字节。
+\end{enumerate}
+\end{warningbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item 内存的基本编址单位是什么？一个 \cc{int} 变量有几个字节、几个地址、但“它的地址”是哪一个？
+  \item \cc{0x1000} 与 \cc{0x1010} 相差多少字节？
+  \item 用一句话说明“直接访问”和“间接访问”的区别。
+  \item 图 1.2 中哪个数是 \cc{a} 的地址？哪个数是 \cc{p} 的地址？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 知道了地址就是字节编号，并且地址可以存进变量。\textbf{下一步还需要解决什么？} 在 C++ 里怎样声明这种变量、怎样拿到一个变量的地址、又怎样“顺着地址”去读写内存？这就是第二讲的 \cc{\&} 与 \cc{*}。
+
+% ================================================================
+\section{\texorpdfstring{指针变量的定义与使用：\texttt{\&} 与 \texttt{*}}{指针变量的定义与使用：& 与 *}}\label{sec:def}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 怎样定义一个指针变量？\ci{②} 怎样让它记录某个变量的地址？\ci{③} 怎样通过它读、写那个变量？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 定义 \cc{int *p} $\to$ 取地址 \cc{p = \&a} $\to$ 解引用 \cc{*p} 读写 $\to$ 三条恒等关系
+
+\subsection{正式定义}
+\begin{definitionbox}[指针变量]
+存放地址的变量称为\textbf{指针变量}（简称指针）。定义语法（笔记 §7.2）：
+\[
+\text{数据类型}\ \texttt{*}\ \text{指针变量名};\qquad\text{例如}\quad \texttt{int *p;}
+\]
+其中“数据类型”说明这个指针\textbf{将要指向的变量的类型}：\cc{int *p} 读作“\cc{p} 是指向 \cc{int} 的指针”，\cc{p} 本身的类型写作 \cc{int*}。
+\end{definitionbox}
+
+\begin{definitionbox}[取地址运算符 \texttt{\&} 与解引用运算符 \texttt{*}]
+\begin{itemize}[leftmargin=1.5em]
+  \item \cc{\&x}：得到变量 \cc{x} 的地址。若 \cc{x} 的类型是 \cc{T}，则 \cc{\&x} 的类型是 \cc{T*}。
+  \item \cc{*p}：按照 \cc{p} 中保存的地址找到那块内存，\textbf{把它当作一个 \cc{T} 类型的变量}来使用——既可以读，也可以写。这个操作叫\textbf{解引用}。
+\end{itemize}
+\end{definitionbox}
+
+\begin{center}
+\begin{tikzpicture}
+  \foreach \k/\t in {0/{\ci{①} \texttt{int a = 10;}},1/{\ci{②} \texttt{int *p;}},2/{\ci{③} \texttt{p = \&a;}},3/{\ci{④} \texttt{*p = 1000;}}}
+    \node[font=\sffamily\bfseries\small,text=mainc] at (\k*4.2+0.6,1.1) {\t};
+  \cell{a1}{0.6,0}{a}{10}\addr{a1}{0x1000}
+  \cell{a2}{4.8,0}{a}{10}
+  \pcell[badcell]{p2}{4.8,-1.5}{p}{?}
+  \node[bnote,anchor=west] at (5.6,-1.5) {未初始化\\值不确定};
+  \cell{a3}{9.0,0}{a}{10}
+  \pcell{p3}{9.0,-1.5}{p}{0x1000}
+  \draw[ptr] (p3.north) -- (a3.south);
+  \cell[hl]{a4}{13.2,0}{a}{1000}
+  \pcell{p4}{13.2,-1.5}{p}{0x1000}
+  \draw[ptr] (p4.north) -- (a4.south);
+  \foreach \x in {2.7,6.9,11.1} \draw[gridc,dashed] (\x,1.3) -- (\x,-2);
+\end{tikzpicture}
+\figcap{图 2.1\quad 四行代码的内存变化：\ci{③} 建立“指向”关系，\ci{④} 顺着箭头修改的是 a 本身}
+\end{center}
+
+图 2.1 按执行顺序画出了四个时刻。第\ci{②}步 \cc{p} 刚定义时没有初值，框里是“?”——此刻它是一个\textbf{野指针}（第四讲详谈）；第\ci{③}步 \cc{p} 中存入 \cc{a} 的地址，箭头出现；第\ci{④}步 \cc{*p = 1000} 顺着箭头找到 \cc{a}，把 \cc{a} 改成 1000，而 \cc{p} 的值\textbf{没有变}。
+
+\subsection{核心关系与推导}
+\begin{formulabox}[取地址与解引用互为“逆操作”]
+设 \cc{T x;} 是一个变量，\cc{T *p = \&x;}，则
+\[
+\boxed{\ \texttt{*p}\ \equiv\ \texttt{x}\ }\qquad
+\texttt{*\&x}\ \equiv\ \texttt{x}\qquad
+\texttt{\&*p}\ =\ \texttt{p}
+\]
+这里 “$\equiv$” 表示“是同一个变量（同一块内存）”，而不仅仅是“值相等”。\\
+{\small 使用条件：\cc{p} 必须指向一个\textbf{有效的}对象。若 \cc{p} 是空指针或野指针，\cc{*p} 本身就是非法的，三条关系都无从谈起。}
+\end{formulabox}
+
+\begin{proofbox}[推导：为什么 \texttt{*p} 就是 \texttt{x} 本身]
+\textbf{要证明}：当 \cc{p = \&x} 时，对 \cc{*p} 的读写就是对 \cc{x} 的读写。
+
+\textbf{已知}：(1) \cc{\&x} 的值是 \cc{x} 的首字节地址，记为 $A$；(2) 赋值后 \cc{p} 的值为 $A$（由赋值语句的含义）；(3) \cc{*p} 的含义是“从 \cc{p} 的值所表示的地址开始、按 \cc{T} 类型解释的那块内存”（由解引用的定义）。
+
+\textbf{思路}：只要说明 \cc{*p} 和 \cc{x} 占用的是\emph{同一段字节}，二者就是同一个变量。
+
+\textbf{详细推导}：由 (2)(3)，\cc{*p} 表示“从地址 $A$ 开始的 \cc{sizeof(T)} 个字节，按 \cc{T} 解释”。由 (1) 和第一讲的地址范围关系，\cc{x} 占用的也恰好是“从 $A$ 开始的 \cc{sizeof(T)} 个字节”，且类型同为 \cc{T}。两者起点相同、长度相同、解释方式相同，所以是同一块内存。于是写 \cc{*p = v} 就是把 $v$ 写进 \cc{x} 的那几个字节，即 \cc{x} 的值变为 $v$。
+
+同理，\cc{*\&x}：先由 \cc{\&x} 得到 $A$，再对 $A$ 解引用得到“从 $A$ 开始的 \cc{T}”，就是 \cc{x}；\cc{\&*p}：\cc{*p} 是从 $A$ 开始的对象，再取它的地址得到 $A$，即 \cc{p} 的值。
+
+\textbf{一句话直观解释}：\cc{\&} 是“问门牌号”，\cc{*} 是“按门牌号上门”；先问门牌号再上门，找到的当然还是原来那户人家。
+\end{proofbox}
+
+\subsection{同一个符号，三种身份}
+初学者最困惑的往往不是概念，而是 \cc{*} 和 \cc{\&} 在不同位置意思不同：
+
+\begin{center}
+\noindent\begin{tabularx}{\linewidth}{@{}p{3.2cm}p{3.3cm}Y@{}}
+\toprule
+\rowcolor{lightc}写法 & 出现位置 & 含义 \\
+\midrule
+\cc{int *p;} & 声明语句中 & \cc{*} 是类型的一部分：“\cc{p} 是指针”，\textbf{不是}解引用 \\
+\cc{*p = 20;} & 表达式中、放在指针前 & 解引用：“\cc{p} 指向的那个变量” \\
+\cc{a * b} & 两个数之间 & 乘法 \\
+\cc{p = \&a;} & 表达式中、放在变量前 & 取地址 \\
+\cc{int \&r = a;} & 声明语句中 & 引用（下一章内容，与指针不同，本章不展开） \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{center}
+\noindent\begin{tabularx}{\linewidth}{@{}p{1.8cm}p{2.2cm}p{2.3cm}Y@{}}
+\toprule
+\rowcolor{lightc}表达式 & 类型 & 图 1.2 中的值 & 在图上对应什么 \\
+\midrule
+\cc{a} & \cc{int} & \cc{10} & 左边白框里的数 \\
+\cc{\&a} & \cc{int*} & \cc{0x1000} & 左边白框上方的地址 \\
+\cc{p} & \cc{int*} & \cc{0x1000} & 右边蓝框里的数（箭头的起点） \\
+\cc{*p} & \cc{int} & \cc{10} & 顺着箭头走到的白框（箭头的终点） \\
+\cc{\&p} & \cc{int**} & \cc{0x2000} & 右边蓝框上方的地址 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{examplebox}[2.1\quad 笔记 §7.2 示例代码的完整版]
+\begin{code}
+#include <iostream>
+using namespace std;
+int main()
+{
+    int a = 10;
+    int *p;          // 1. 定义指针：数据类型 * 指针变量名
+    p = &a;          //    让指针记录变量 a 的地址
+    cout << "指针p为：" << p << endl;
+    cout << "p指向的值：" << *p << endl;   // 2. 解引用：找到 p 指向的内存
+    *p = 1000;       //    通过指针修改 a
+    cout << "a = " << a << endl;
+    return 0;
+}
+\end{code}
+\textbf{实际运行输出}（g++，64 位 Linux；第一行的地址每次运行都可能不同）：
+\begin{codeout}
+指针p为：0x7ffcc6ee782c
+p指向的值：10
+a = 1000
+\end{codeout}
+\textbf{本题真正想说明}：第 10 行没有出现 \cc{a}，却改变了 \cc{a}——这就是“间接访问”。对应图 2.1 的第\ci{④}步。
+\end{examplebox}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item \cpp{int* p, q;} 只定义了\textbf{一个}指针 \cc{p}，\cc{q} 是普通 \cc{int}！因为 \cc{*} 只属于紧跟它的那个名字。想要两个指针应写 \cpp{int *p, *q;}。
+  \item \textbf{类型要匹配}：\cpp{double d; int *p = &d;} 编译报错。\cc{int*} 只能保存 \cc{int} 变量的地址，因为解引用时要按 \cc{int} 解释那块内存。
+  \item \textbf{定义了指针却不初始化}就解引用（图 2.1 第\ci{②}步的状态下写 \cc{*p = 5}）——这是野指针，后果不可预料。好习惯：定义时就初始化，如 \cpp{int *p = &a;} 或 \cpp{int *p = nullptr;}。
+\end{enumerate}
+\end{warningbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item \cc{int *p = \&a;} 中的 \cc{*} 和 \cc{*p = 5;} 中的 \cc{*} 含义有何不同？
+  \item 设 \cc{int a = 3; int *p = \&a;}，写出 \cc{a}、\cc{*p}、\cc{*\&a} 的值，并说明哪些是“同一个变量”。
+  \item \cc{*p = 1000} 之后，\cc{p} 的值变了吗？为什么？
+  \item \cc{int* p, q;} 中 \cc{q} 是什么类型？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 会定义指针、取地址、解引用了。\textbf{下一步还需要解决什么？} 指针本身也是变量，它占多大内存？\cc{int*} 和 \cc{double*} 大小一样吗？
+
+% ================================================================
+\section{\texorpdfstring{指针所占的内存空间：\texttt{sizeof(p)}}{指针所占的内存空间：sizeof(p)}}\label{sec:size}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答两个问题：}\ \ci{①} 一个指针变量占几个字节？\ci{②} 为什么所有类型的指针大小都一样？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 指针存的是地址 $\to$ 地址有多少位 $\to$ 指针就要多少字节 $\to$ 与指向的类型无关
+
+\subsection{为什么需要关心指针的大小}
+第八讲要用 \cpp{sizeof(arr) / sizeof(arr[0])} 求数组长度；而一旦数组被传进函数，\cpp{sizeof(arr)} 得到的却是\emph{指针}的大小。要看懂这个“坑”，必须先知道指针有多大。
+
+\subsection{结论与推导}
+\begin{theorembox}[指针的大小]
+同一个程序中，所有（普通数据）指针的大小相同，只取决于\textbf{目标平台的地址宽度}：
+\[
+\boxed{\ \texttt{sizeof(T*)} = \frac{\text{地址位数}}{8}\ \text{字节}\ }\qquad
+\begin{cases}\text{32 位程序：通常 4 字节}\\ \text{64 位程序：通常 8 字节}\end{cases}
+\]
+与 \cc{T} 是 \cc{char}、\cc{int} 还是 \cc{double} 无关。
+\end{theorembox}
+
+\begin{proofbox}[推导：为什么 32 位地址需要 4 字节]
+\textbf{已知}：指针的值是一个地址；32 位平台上地址用 32 个二进制位表示。\\
+\textbf{第一步}：32 个二进制位能表示 $2^{32}$ 个不同的数，即可以区分 $2^{32}$ 个字节，$2^{32}\ \text{B}=4\times2^{30}\ \text{B}=4\ \text{GiB}$。这就是为什么 32 位程序最多直接使用约 4 GiB 内存。\\
+\textbf{第二步}：要把任意一个 32 位地址存下来，需要 32 个二进制位 $=32\div8=4$ 字节。\\
+\textbf{第三步}：无论指向 \cc{char} 还是 \cc{double}，要存的都是“一个地址”，所以都是 4 字节。64 位平台同理：$64\div8=8$ 字节。
+
+\textbf{直观解释}：门牌号的长度取决于“这座城市有多少户”，而不取决于“这户人家有多大”。
+\end{proofbox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[ybar,width=0.86\linewidth,height=5.2cm,bar width=16pt,
+  symbolic x coords={char,int,double,char*,int*,double*},xtick={char,int,double,char*,int*,double*},bar shift=0pt,
+  x tick label style={font=\ttfamily\small},ymin=0,ymax=10,ytick={0,2,4,6,8},
+  ylabel={字节数},ylabel style={font=\sffamily\small},
+  nodes near coords,nodes near coords style={font=\small\ttfamily},
+  axis lines*=left,ymajorgrids,grid style={gridc},enlarge x limits=0.1,
+  every axis plot/.append style={draw=mainc}]
+\addplot[fill=warmline!60] coordinates {(char,1) (int,4) (double,8)};
+\addplot[fill=auxc!70] coordinates {(char*,8) (int*,8) (double*,8)};
+\end{axis}
+\end{tikzpicture}
+\figcap{图 3.1\quad 64 位 Linux 上 g++ 实测：变量大小各不相同（左三根），指针大小全部是 8（右三根）}
+\end{center}
+图 3.1 的横轴是类型，纵轴是 \cpp{sizeof} 的结果。左边三根米色柱子高低不一——数据本身有大有小；右边三根蓝色柱子一样高——它们都只是“一个地址”。
+
+\begin{examplebox}[3.1\quad 笔记 §7.3 示例]
+\begin{code}
+int a = 10;
+int *p = &a;
+int b = sizeof(p);             // 也可写 sizeof(int*)
+cout << "int*字节数：" << b << endl;
+cout << sizeof(*p) << endl;    // 注意：*p 是 int，结果是 4
+\end{code}
+64 位程序输出 \cc{8} 和 \cc{4}。第 5 行是补充的对比：\cpp{sizeof(p)} 问的是“门牌号多大”，\cpp{sizeof(*p)} 问的是“这户人家多大”。
+\end{examplebox}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item 把 \cpp{sizeof(p)} 与 \cpp{sizeof(*p)} 混为一谈：前者是指针大小，后者是所指对象的大小。
+  \item 认为“64 位操作系统上指针一定是 8 字节”：取决于\textbf{程序}按哪个平台编译（见原图纠错\ci{⑥}）。
+\end{enumerate}
+\end{warningbox}
+
+\begin{extendbox}
+为什么 \cc{long} 在 64 位 Linux 上是 8 字节、在 64 位 Windows 上是 4 字节，而两者的指针都是 8 字节？这与“数据模型”（LP64 与 LLP64）有关，以后学习计算机组成原理和系统编程时会再遇到。
+\end{extendbox}
+
+\paragraph{到这里，我们已经解决了什么？} 知道了指针本身的大小。\textbf{下一步还需要解决什么？} 指针里存的地址如果\emph{不合法}会怎样？指针暂时没有东西可指时，应该存什么？
+
+% ================================================================
+\section{空指针与野指针：哪些地址不能碰}\label{sec:null}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 指针暂时无处可指时应该存什么？\ci{②} 什么样的指针是“野”的？\ci{③} 为什么二者都不能解引用？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 未初始化的危险 $\to$ 空指针（安全的“无指向”） $\to$ 野指针（危险的“乱指向”） $\to$ 统一原则：只访问自己申请的空间
+
+\subsection{为什么需要空指针}
+第二讲图 2.1 第\ci{②}步已经暴露了问题：\cpp{int *p;} 定义之后，\cc{p} 里是一个\emph{不确定}的值，看起来像地址，却不知道指向哪里。我们需要一个\textbf{约定好的特殊值}，表示“此刻不指向任何东西”，并且程序可以\emph{检查}它。这个值就是空指针。
+
+\begin{definitionbox}[空指针]
+值为\textbf{空指针常量}的指针称为空指针，它\textbf{不指向任何对象}。在 C++ 中可以写成：
+\begin{itemize}[itemsep=0pt]
+  \item \cc{int *p = nullptr;}\quad （C++11 起，推荐）
+  \item \cc{int *p = NULL;}\quad （笔记写法，C 风格）
+  \item \cc{int *p = 0;}
+\end{itemize}
+\textbf{用途}：初始化指针变量；表示“没有指向”，并可用 \cpp{if (p != nullptr)} 检查。\\
+\textbf{注意}：空指针不可解引用——\cc{*p} 的读和写都是非法的。
+\end{definitionbox}
+
+\begin{supplementbox}[空指针的“编号 0”和 \texttt{nullptr}]
+笔记定义为“指针变量指向内存中编号为 0 的空间”。这是一种便于理解的说法：在常见平台上，空指针的值确实就是地址 0，而操作系统通常不会把地址 0 附近的内存分配给程序，所以访问它会被拦截。更准确地说，C++ 标准规定的是“空指针不指向任何对象，解引用它是\textbf{未定义行为}”，至于它在机器里用什么数表示由实现决定。
+
+\cc{NULL} 是一个宏，通常被定义为 \cc{0}；而 \cc{nullptr} 是 C++11 引入的\textbf{专用}关键字，只能当指针用，不会被误当成整数 0。新代码建议使用 \cc{nullptr}。
+\end{supplementbox}
+
+\begin{center}
+\begin{tikzpicture}
+  % 内存地图
+  \node[draw=badc,fill=redbg,minimum width=26mm,minimum height=9mm,font=\sffamily\scriptsize,align=center] (z) at (0,0) {地址 0 附近\\不分配给程序};
+  \node[draw=gridc,fill=white,minimum width=26mm,minimum height=9mm,font=\sffamily\scriptsize,align=center] (o) at (2.8,0) {其他程序 /\\系统使用};
+  \node[draw=mainc,fill=lightc,minimum width=36mm,minimum height=9mm,font=\sffamily\scriptsize,align=center] (m) at (6.4,0) {本程序申请的空间\\（变量 a、数组 arr…）};
+  \node[draw=gridc,fill=white,minimum width=22mm,minimum height=9mm,font=\sffamily\scriptsize] (u) at (9.75,0) {$\cdots$};
+  \node[ad] at (z.north west) {0x0000};
+  % 指针
+  \pcell{np}{1.2,-2.2}{p}{0}
+  \draw[ptrbad] (np.north) -- (z.south); \pic at ($(np.north)!0.5!(z.south)+(0.3,0)$) {forbid};
+  \pcell{wp}{5.0,-2.2}{q}{0x0010}
+  \draw[ptrbad] (wp.north) -- ([xshift=4mm]z.south east); \pic at ($(wp.north)!0.5!([xshift=4mm]z.south east)+(0.3,0)$) {forbid};
+  \pcell{gp}{8.9,-2.2}{r}{0x1000}
+  \draw[ptrok] (gp.north) -- (m.south);
+  \node[bnote,text width=3.7cm] at (0.9,-3.2) {\texttt{p = nullptr}\\空指针：不指向任何对象};
+  \node[bnote,text width=3.7cm] at (4.8,-3.2) {\texttt{q = (int*)0x0010}\\野指针：指向不属于自己的内存};
+  \node[gnote,text width=3.7cm] at (8.8,-3.2) {\texttt{r = \&a}\\正常指针：指向自己申请的变量};
+\end{tikzpicture}
+\figcap{图 4.1\quad 三种指针在“内存地图”上的位置：只有指向本程序申请空间的指针才能解引用}
+\end{center}
+
+图 4.1 上方是一条简化的“内存地图”：最左边红色区域是地址 0 附近，通常不分配给程序；蓝色区域是本程序通过定义变量申请到的空间。下方三个指针中，只有 \cc{r} 的箭头（绿色实线）落在蓝色区域内。
+
+\begin{definitionbox}[野指针]
+指向\textbf{非法内存空间}（不属于本程序可以合法访问的对象）的指针称为野指针。常见来源：
+\begin{enumerate}[leftmargin=1.8em,label=(\arabic*)]
+  \item \textbf{未初始化}：\cpp{int *p;}（局部变量，值不确定）；
+  \item \textbf{随意写一个地址}：\cpp{int *p = (int*)0x0010;}（笔记示例，\cc{(int*)} 把整数强制转换成指针）；
+  \item \textbf{越界}：指针移到数组范围之外（第六讲、原图纠错\ci{①}）；
+  \item \textbf{失效}（拓展）：指向的变量已经不存在（例如函数返回后其局部变量已被销毁）。
+\end{enumerate}
+\end{definitionbox}
+
+\begin{intuitionbox}[为什么“不要访问”：未定义行为]
+笔记的红字总结非常关键：\textbf{“空指针和野指针都不是我们申请的空间，因此不要访问。”}
+
+C++ 标准把这类访问称为\textbf{未定义行为}（undefined behavior）：标准不规定结果。实际表现可能是立即崩溃（段错误）、输出一个莫名其妙的数、悄悄改坏别的数据，甚至“看起来一切正常”。最后一种最危险——程序今天没出错，不代表它是对的。
+\end{intuitionbox}
+
+\begin{examplebox}[4.1\quad 笔记 §7.4 两段示例及其运行结果]
+\begin{code}
+int *p = NULL;       // 空指针用于给指针变量初始化
+// *p = 100;         // 空指针不可访问：Linux 上通常 → Segmentation fault
+
+int *q = (int *)0x0010;     // 野指针：0x0010 不是我们申请的空间
+// cout << *q << endl;      // 同样不要访问
+\end{code}
+\textbf{安全的写法}：先判断再使用。
+\begin{code}
+int a = 5;
+int *p = nullptr;             // 暂时无处可指
+p = &a;                       // 有了合法对象再指向它
+if (p != nullptr) cout << *p; // 使用前检查
+\end{code}
+\textbf{本题真正想说明}：空指针的价值不在于“能访问”，而在于“\textbf{可以被检查}”。野指针的值看起来和正常地址没有区别，程序无法检查出来，所以更危险。
+\end{examplebox}
+
+\begin{center}
+\noindent\begin{tabularx}{\linewidth}{@{}p{2.3cm}YY@{}}
+\toprule
+\rowcolor{lightc}比较维度 & 空指针 & 野指针 \\
+\midrule
+值 & 确定的特殊值（\cc{nullptr}/\cc{NULL}/\cc{0}） & 不确定或任意的地址 \\
+是否指向对象 & 明确不指向任何对象 & “看起来”指向某处，但那里不属于你 \\
+能否检查出来 & 能：\cc{if (p == nullptr)} & 不能：程序无法判断一个地址是否“野” \\
+能否解引用 & 不能（未定义行为） & 不能（未定义行为） \\
+怎么产生 & 程序员\textbf{有意}赋值 & 通常是\textbf{疏忽}：未初始化、越界、乱写地址 \\
+地位 & 一种良好习惯 & 一种错误 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item 以为“空指针访问一定会报段错误”，于是把崩溃当作检查手段。正确做法是访问前主动判断。
+  \item 以为“程序没崩溃就说明没有越界”。越界读写可能恰好读到别的变量，程序照常运行但结果是错的。
+  \item 把“空指针”和“指向值为 0 的变量”混淆：\cc{int z = 0; int *p = \&z;} 中 \cc{p} 不是空指针，\cc{*p} 完全合法。
+\end{enumerate}
+\end{warningbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item 空指针和野指针共同点是什么？最本质的区别是什么？
+  \item 列出野指针的三种常见来源。
+  \item \cc{int z = 0; int *p = \&z;}，\cc{p} 是空指针吗？
+  \item 为什么推荐 \cc{nullptr} 而不是 \cc{NULL}？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 知道了指针可以“指向谁”、什么情况下“不能碰”。\textbf{下一步还需要解决什么？} 指针既能改“指向”，又能通过解引用改“值”，这种力量有时太大了。能不能\emph{限制}指针只做其中一件事？这就是 \cc{const} 修饰指针。

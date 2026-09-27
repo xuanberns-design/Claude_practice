@@ -1,0 +1,413 @@
+% ================================================================
+%  正式练习：A 组 25 题 · B 组 10 题 · C 组 3 题
+%  题目区图形只呈现题目已给信息，不含答案提示
+% ================================================================
+\clearpage
+\usection{正式练习}
+\noindent 全部练习共 \textbf{38 道}：A 组基础巩固 25 道、B 组中等偏下提升 10 道、C 组跨学科迁移 3 道。答案集中在练习之后，请先独立完成。除特别说明外，均假设为 \textbf{64 位程序}，\cc{int} 占 4 字节，并已包含 \cc{<iostream>} 与 \cc{using namespace std;}。题图中的地址为示意地址。
+
+% ----------------------------------------------------------------
+\needspace{12\baselineskip}\usubsection{A. 基础巩固训练（25 道）}
+\needspace{12\baselineskip}\subsubsection*{A-1\quad 单项选择题（10 道）}
+
+\q{1}{K2 取地址与解引用}
+执行 \cc{int a = 10; int *p = \&a;} 后，下列说法正确的是（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\addr{a}{0x1000}\pcell{p}{4.2,0}{p}{0x1000}\addr{p}{0x2000}
+  \draw[ptr] (p.south) to[out=-150,in=-30] (a.south);
+\end{tikzpicture}\figcap{题图 1\quad 两行代码执行后的内存}\end{center}
+\choices{\cc{p} 的值是 10}{\cc{*p} 的值是 10}{\cc{\&p} 与 \cc{\&a} 相等}{\cc{*p} 的值是 \cc{a} 的地址}
+
+\q{1}{K1 内存与地址}
+关于内存地址，下列说法正确的是（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \foreach \i in {0,...,7} \node[draw=gridc,minimum width=10mm,minimum height=7mm] (c\i) at (\i*1.0,0) {};
+  \foreach \i/\h in {0/0,1/1,2/2,3/3,4/4,5/5,6/6,7/7} \node[ad] at (c\i.north) {0x100\h};
+  \node[draw=mainc,line width=0.9pt,fit=(c0)(c3),inner sep=0pt,label={[font=\ttfamily\small]center:int a}] {};
+\end{tikzpicture}\figcap{题图 2\quad 一个 \texttt{int} 变量在字节编号的内存中}\end{center}
+\choices{内存中每个字节都有一个编号，即地址}{地址只能用十六进制表示}{变量名就是变量的地址}{\cc{int} 变量占 4 字节，所以它有 4 个“变量地址”}
+
+\q{1}{K2 指针定义语法}
+要定义一个指向 \cc{int} 的指针变量 \cc{p}，下列写法正确的是（\quad{}）
+\choices{\cc{int p*;}}{\cc{int *p;}}{\cc{*int p;}}{\cc{int p = \&a;}}
+
+\q{1}{K3 指针的大小}
+在 64 位程序中执行 \cc{double d = 3.14; double *pd = \&d;}，则 \cc{sizeof(pd)} 的值为（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{d}{0,0}{d}{3.14}\pcell{pd}{4.4,0}{pd}{\&d}
+  \draw[ptr] (pd.south) to[out=-150,in=-30] (d.south);
+  \draw[decorate,decoration={brace,mirror,amplitude=3pt},draw=auxc] (pd.south west) -- (pd.south east) node[midway,below=3pt,note]{? 字节};
+\end{tikzpicture}\figcap{题图 4}\end{center}
+\choices{4}{8}{16}{与 \cc{d} 的值有关}
+
+\q{1}{K4 空指针}
+执行 \cc{int *p = nullptr;} 后，下列说法正确的是（\quad{}）。四个选项所描述的情形分别画在下面：
+\par\noindent
+\optpanel{A}{\cell{a}{0,0}{a}{?}\pcell{p}{3.8,0}{p}{0}\draw[ptr] ([xshift=-4.5mm]p.west) -- (a.east);\node[note] at (1.9,-0.85){“p 指向某个 int 变量”};}\hfill
+\optpanel{B}{\node[draw=gridc,fill=white,minimum width=15mm,minimum height=7mm,font=\ttfamily\small] (z) at (0,0) {100};\node[ad] at (z.north){0x0000};\pcell{p}{3.8,0}{p}{0}\draw[ptr] ([xshift=-4.5mm]p.west) -- (z.east);\node[note] at (1.9,-0.85){“执行 \texttt{*p = 100;}”};}\par\noindent
+\optpanel{C}{\pcell{p}{3.8,0}{p}{0}\node[draw=gridc,dashed,minimum width=15mm,minimum height=7mm] (z) at (0,0) {};\draw[ptr,dashed] ([xshift=-4.5mm]p.west) -- (z.east);\node[note] at (1.9,-0.85){“不指向任何对象，不能解引用”};}\hfill
+\optpanel{D}{\node[pcell,minimum width=1mm] (p) at (2,0) {};\node[vn] at (p.west){p};\node[note] at (2,-0.85){“p 占用 0 字节”};}
+\choices{\cc{p} 指向某个 \cc{int} 变量}{可以执行 \cc{*p = 100;}}{\cc{p} 不指向任何对象，不能解引用}{\cc{p} 占用 0 字节}
+
+\q{1}{K5 野指针}
+设 \cc{a} 是已定义的 \cc{int} 变量，\cc{arr} 是已定义的 \cc{int} 数组，下列均为\textbf{函数内的局部定义}。会使 \cc{p} 成为野指针的是（\quad{}）
+\par\noindent
+\optpanel{A}{\cell{a}{0,0}{a}{5}\pcell{p}{3.8,0}{p}{\&a}\draw[ptr] ([xshift=-4.5mm]p.west) -- (a.east);\node[note] at (1.9,-0.85){\texttt{int *p = \&a;}};}\hfill
+\optpanel{B}{\pcell{p}{3.8,0}{p}{nullptr}\node[note] at (1.9,-0.85){\texttt{int *p = nullptr;}};}\par\noindent
+\optpanel{C}{\pcell{p}{3.8,0}{p}{?}\node[note] at (1.9,-0.85){\texttt{int *p;}};}\hfill
+\optpanel{D}{\arr{r}{-0.6,0}{1,2,3}{arr}\pcell{p}{3.8,0}{p}{arr}\node[note] at (1.9,-0.95){\texttt{int *p = arr;}};}
+\choices{\cc{int *p = \&a;}}{\cc{int *p = nullptr;}}{\cc{int *p;}}{\cc{int *p = arr;}}
+
+\q{1}{K6 const 修饰指针}
+设 \cc{int a = 10, b = 20; const int *p = \&a;}，下列语句能通过编译的是（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\cell{b}{3,0}{b}{20}\pcell{p}{0,-1.3}{p}{\&a}\draw[ptr] (p.north) -- (a.south);
+\end{tikzpicture}\figcap{题图 7\quad 声明后的初始状态}\end{center}
+\choices{\cc{*p = 20;}}{\cc{p = \&b;}}{A、B 都可以}{A、B 都不可以}
+
+\q{1}{K6 const 修饰指针}
+设 \cc{int a = 10, b = 20; int * const p = \&a;}，下列语句能通过编译的是（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\cell{b}{3,0}{b}{20}\pcell{p}{0,-1.3}{p}{\&a}\draw[ptr] (p.north) -- (a.south);
+\end{tikzpicture}\figcap{题图 8\quad 声明后的初始状态}\end{center}
+\choices{\cc{p = \&b;}}{\cc{*p = 20;}}{\cc{p++;}}{以上都不能}
+
+\q{1}{K7 指针算术}
+执行 \cc{int arr[] = \{1, 2, 3, 4, 5\}; int *p = arr; p++;} 后，\cc{*p} 的值为（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{1,2,3,4,5}{arr}\pcell{p}{0,-1.5}{p}{arr}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+  \node[note,anchor=west] at (1.2,-1.5) {执行 \texttt{p++} \textbf{之前}};
+\end{tikzpicture}\figcap{题图 9}\end{center}
+\choices{1}{2}{\cc{arr} 的地址加 1}{5}
+
+\q{1}{K8 值传递}
+下列程序的输出是（\quad{}）
+\begin{code}
+void swap(int a, int b) { int t = a; a = b; b = t; }
+int main() {
+    int a = 10, b = 20;
+    swap(a, b);
+    cout << "a=" << a << " b=" << b << endl;
+}
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=38mm,minimum height=17mm] (M) at (0,0) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell{a}{0.3,0.05}{a}{10}\cell{b}{0.3,-0.55}{b}{20}
+  \node[frame,minimum width=38mm,minimum height=17mm,fill=warmc] (S) at (5.2,0) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (S.north west) {swap(int a, int b)};
+  \draw[->,draw=auxc,line width=0.8pt] (M.east) -- node[above,note]{调用} (S.west);
+\end{tikzpicture}\figcap{题图 10\quad 调用前 main 中的变量}\end{center}
+\choices{\cc{a=20 b=10}}{\cc{a=10 b=20}}{编译错误}{输出不确定}
+
+\needspace{12\baselineskip}\subsubsection*{A-2\quad 多项选择题（5 道）}
+
+\q{1}{K2 \texttt{\&} 与 \texttt{*}}
+设 \cc{int a = 5; int *p = \&a;}，下列表达式中值\textbf{等于 5} 的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{5}\addr{a}{0x1000}\pcell{p}{4.2,0}{p}{0x1000}\addr{p}{0x2000}
+  \draw[ptr] (p.south) to[out=-150,in=-30] (a.south);
+\end{tikzpicture}\figcap{题图 11}\end{center}
+\choices{\cc{*p}}{\cc{a}}{\cc{*\&a}}{\cc{\&*p}}
+
+\q{1}{K4 K5 空指针与野指针}
+关于空指针与野指针，下列说法正确的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \node[draw=badc,fill=redbg,minimum width=26mm,minimum height=8mm,font=\sffamily\scriptsize,align=center] (z) at (0,0) {地址 0 附近};
+  \node[draw=gridc,minimum width=26mm,minimum height=8mm,font=\sffamily\scriptsize] (o) at (2.8,0) {不属于本程序};
+  \node[draw=mainc,fill=lightc,minimum width=30mm,minimum height=8mm,font=\sffamily\scriptsize] (m) at (5.9,0) {本程序申请的空间};
+\end{tikzpicture}\figcap{题图 12\quad 简化的内存地图}\end{center}
+\choices{空指针可以用来初始化指针变量}{野指针指向的内存不是程序申请的空间}{对空指针解引用是安全的，只是会得到 0}{定义指针时若暂时无处可指，应初始化为 \cc{nullptr}}
+
+\q{1}{K6 const 修饰指针}
+设 \cc{int a = 10, b = 20; const int * const p = \&a;}，下列语句中\textbf{不能}通过编译的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\cell{b}{3,0}{b}{20}\pcell{p}{0,-1.3}{p}{\&a}\draw[ptr] (p.north) -- (a.south);
+\end{tikzpicture}\figcap{题图 13}\end{center}
+\choices{\cc{p = \&b;}}{\cc{*p = 30;}}{\cc{cout << *p;}}{\cc{int x = *p + 1;}}
+
+\q{1}{K7 数组与指针}
+设 \cc{int arr[5] = \{10, 20, 30, 40, 50\}; int *p = arr;}，下列表达式中值\textbf{等于 30} 的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{10,20,30,40,50}{arr}\pcell{p}{0,-1.5}{p}{arr}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+\end{tikzpicture}\figcap{题图 14}\end{center}
+\choices{\cc{*(p + 2)}}{\cc{p[2]}}{\cc{arr[2]}}{\cc{*p + 2}}
+
+\q{1}{K3 K9 sizeof 与数组传参}
+设 64 位程序中有 \cc{int arr[6];}，并有函数 \cc{void f(int *a);}。下列说法正确的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{,,,,,}{arr}\node[note,anchor=west] at (5.3,0) {main 中定义的数组};
+  \node[frame,fill=warmc,minimum width=36mm,minimum height=10mm] (F) at (1.8,-1.6) {};
+  \node[font=\ttfamily\small,anchor=west] at (F.west) {\ f(int *a)};
+  \draw[->,draw=auxc] ([yshift=-3mm]A-3.south) -- node[right,note]{调用 \texttt{f(arr)}} ([xshift=12mm]F.north);
+\end{tikzpicture}\figcap{题图 15}\end{center}
+\choices{\cc{sizeof(int*) == sizeof(char*)}}{\cc{sizeof(p)} 的大小由 \cc{p} 所指变量的值决定}{在 main 中 \cc{sizeof(arr)/sizeof(arr[0])} 等于 6}{在 \cc{f} 中 \cc{sizeof(a)/sizeof(a[0])} 仍等于 6}
+
+\needspace{12\baselineskip}\subsubsection*{A-3\quad 填空题（5 道）}
+
+\q{1}{K2 解引用修改变量}
+执行 \cc{int a = 10; int *p = \&a; *p = 100;} 后，\cc{a} = \blank[1.5cm]，\cc{*p} = \blank[1.5cm]。
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\pcell{p}{4.2,0}{p}{\&a}\draw[ptr] (p.south) to[out=-150,in=-30] (a.south);
+  \node[note,anchor=west] at (5.2,0) {执行第三句 \textbf{之前}};
+\end{tikzpicture}\figcap{题图 16}\end{center}
+
+\q{1}{K3 指针的大小}
+在 64 位程序中 \cc{sizeof(int*)} = \blank[1.5cm] 字节；在 32 位程序中 \cc{sizeof(int*)} = \blank[1.5cm] 字节。
+\begin{center}\begin{tikzpicture}
+  \node[pcell,minimum width=40mm] (p64) at (0,0) {64 位地址}; \node[vn] at (p64.west) {64 位程序};
+  \node[pcell,minimum width=20mm] (p32) at (7,0) {32 位地址}; \node[vn] at (p32.west) {32 位程序};
+\end{tikzpicture}\figcap{题图 17\quad 指针中保存的地址宽度}\end{center}
+
+\q{1}{K9 sizeof 求数组长度}
+设 \cc{int arr[] = \{3, 7, 9, 12, 5, 1\};}，则\\ \cc{sizeof(arr)} = \blank[1.5cm]，\cc{sizeof(arr)/sizeof(arr[0])} = \blank[1.5cm]。
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{3,7,9,12,5,1}{arr}
+\end{tikzpicture}\figcap{题图 18}\end{center}
+
+\q{1}{K1 K7 地址计算}
+设 \cc{int arr[5];} 的首地址为 \cc{0x1000}，\cc{int *p = arr;}，则 \cc{p + 3} 的值为 \blank{}，\cc{*(p + 3)} 就是 \cc{arr[}\blank[1cm]\cc{]}。
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{,,,,}{arr}\node[ad] at (A-0.north) {0x1000};
+  \pcell{p}{0,-1.5}{p}{0x1000}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+\end{tikzpicture}\figcap{题图 19\quad 只标出了首元素地址}\end{center}
+
+\q{1}{K10 冒泡排序循环}
+对 5 个元素做冒泡排序（外层 \cc{i} 从 0 开始），外层最多 \blank[1.2cm] 轮；当 \cc{i = 1} 时内层比较 \blank[1.2cm] 次；全部比较次数为 \blank[1.2cm] 次。
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{,,,,}{arr}
+\end{tikzpicture}\figcap{题图 20\quad 5 个元素}\end{center}
+
+\needspace{12\baselineskip}\subsubsection*{A-4\quad 解答题（5 道）}
+
+\q{1}{K2 定义、赋值与解引用}
+阅读程序，(1) 画出每条语句执行后的内存图；(2) 写出输出结果。
+\begin{code}
+int a = 10, b = 20;
+int *p = &a;
+*p = 30;
+p = &b;
+*p = 40;
+cout << a << " " << b << " " << *p << endl;
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\addr{a}{0x1000}\cell{b}{3.4,0}{b}{20}\addr{b}{0x1004}\pcell{p}{0,-1.4}{p}{?}
+  \node[note,anchor=west] at (1.2,-1.4) {第 1 行执行后；\texttt{p} 尚未定义};
+\end{tikzpicture}\figcap{题图 21\quad 起始状态}\end{center}
+
+\q{1}{K6 const 三种情况}
+设 \cc{int a = 1, b = 2;} 且
+\begin{code}
+const int *p1 = &a;
+int * const p2 = &a;
+const int * const p3 = &a;
+\end{code}
+判断下列语句能否通过编译，并说明理由：\ci{①} \cc{*p1 = 5;}\quad \ci{②} \cc{p1 = \&b;}\quad \ci{③} \cc{*p2 = 5;}\quad \ci{④} \cc{p2 = \&b;}\quad \ci{⑤} \cc{*p3 = 5;}\quad \ci{⑥} \cc{a = 5;}
+\begin{center}\begin{tikzpicture}
+  \cell{a}{0,0}{a}{1}\cell{b}{6,0}{b}{2}
+  \pcell{p1}{-1,-1.5}{p1}{\&a}\pcell{p2}{2.2,-1.5}{p2}{\&a}\pcell{p3}{5.4,-1.5}{p3}{\&a}
+  \foreach \q in {p1,p2,p3} \draw[ptr] (\q.north) -- (a.south);
+\end{tikzpicture}\figcap{题图 22\quad 三个指针都指向 a}\end{center}
+
+\q{1}{K8 值传递与地址传递}
+(1) 写出上面第 10 题程序的输出，并画图说明 \cc{swap} 为什么没有交换 \cc{main} 中的 \cc{a}、\cc{b}；(2) 把 \cc{swap} 改写成地址传递版本 \cc{swap\_p}，写出调用语句，并说明它为什么能交换。
+
+\q{1}{K5 K7 指针遍历与越界}
+阅读程序，回答：(1) 输出是什么？(2) 循环结束后 \cc{p} 指向哪里？此时能否执行 \cc{cout << *p;}？(3) 笔记原代码数组有 5 个元素却写 \cc{i < 10}，有什么问题？应怎样修改？
+\begin{code}
+int arr[] = {2, 4, 6, 8};
+int *p = arr;
+for (int i = 0; i < 4; i++) { cout << *p << " "; p++; }
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{2,4,6,8}{arr}\pcell{p}{0,-1.5}{p}{arr}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+\end{tikzpicture}\figcap{题图 24\quad 循环开始前}\end{center}
+
+\q{1}{K10 冒泡排序过程}
+对数组 \cc{\{6, 2, 8, 4, 1\}} 进行升序冒泡排序。(1) 写出第 1 轮（\cc{i = 0}）中每一次比较后的数组状态；(2) 写出第 2 轮结束后的数组。
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{6,2,8,4,1}{arr}
+\end{tikzpicture}\figcap{题图 25}\end{center}
+
+% ----------------------------------------------------------------
+\needspace{12\baselineskip}\usubsection{B. 中等偏下提升训练（10 道）}
+\needspace{12\baselineskip}\subsubsection*{B-1\quad 单项选择题（3 道）}
+
+\q{2}{K7 K2 指针偏移}
+设 \cc{int arr[] = \{1, 2, 3, 4, 5\}; int *p = arr + 1;}，则 \cc{*(p + 2)} 的值为（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{1,2,3,4,5}{arr}
+\end{tikzpicture}\figcap{题图 26}\end{center}
+\choices{3}{4}{5}{2}
+
+\q{2}{K8 K2 指针形参也是拷贝}
+下列程序执行后，\cc{a} 的值和 \cc{p} 的状态是（\quad{}）
+\begin{code}
+void f(int *q) {
+    *q = *q * 2;
+    q = nullptr;
+}
+int main() {
+    int a = 5;
+    int *p = &a;
+    f(p);
+}
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=44mm,minimum height=18mm] (M) at (0,0) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell{a}{-0.4,-0.2}{a}{5}\pcell{p}{1.5,-0.2}{p}{\&a}
+  \draw[ptr] (p.north) |- ([yshift=2mm]a.north) -- (a.north);
+  \node[frame,minimum width=30mm,minimum height=18mm,fill=warmc] (S) at (5,0) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (S.north west) {f(int *q)};
+  \draw[->,draw=auxc] (M.east) -- node[above,note]{\texttt{f(p)}} (S.west);
+\end{tikzpicture}\figcap{题图 27\quad 调用前}\end{center}
+\choices{\cc{a = 10}，\cc{p} 变为空指针}{\cc{a = 10}，\cc{p} 仍指向 \cc{a}}{\cc{a = 5}，\cc{p} 变为空指针}{\cc{a = 5}，\cc{p} 仍指向 \cc{a}}
+
+\q{2}{K6 K7 常量指针在数组上}
+设 \cc{int arr[] = \{1, 2, 3\}; const int *p = arr;}，下列代码能通过编译的是（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{1,2,3}{arr}\pcell{p}{0,-1.5}{p}{arr}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+\end{tikzpicture}\figcap{题图 28}\end{center}
+\choices{\cc{p++; cout << *p;}}{\cc{*p = 0;}}{\cc{p[1] = 5;}}{\cc{*(p + 1) = 5;}}
+
+\needspace{12\baselineskip}\subsubsection*{B-2\quad 多项选择题（2 道）}
+
+\q{2}{K3 K9 数组传参后的 sizeof}
+64 位程序如下，下列说法正确的有（\quad{}）
+\begin{code}
+void show(int *a) { cout << sizeof(a) << endl; }
+int main() {
+    int arr[10];
+    cout << sizeof(arr) << endl;
+    show(arr);
+}
+\end{code}
+\choices{main 中输出 40}{\cc{show} 中输出 8}{在 \cc{show} 中 \cc{sizeof(a)/sizeof(a[0])} 等于 10}{因此排序函数通常需要额外传入长度 \cc{n}}
+
+\q{2}{K10 K5 冒泡排序边界}
+笔记封装版冒泡排序的内层循环误写为 \cc{for (int j = 0; j < n - j - 1; j++)}。对数组 \cc{\{3, 7, 9, 12, 5, 1\}}（$n=6$）调用该函数，下列说法正确的有（\quad{}）
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{3,7,9,12,5,1}{arr}
+\end{tikzpicture}\figcap{题图 30}\end{center}
+\choices{输出仍为 \cc{3 7 9 12 5 1}}{每一轮中 \cc{j} 只能取 0、1、2}{改为 \cc{j < n - i - 1} 后输出 \cc{1 3 5 7 9 12}}{该错误会导致 \cc{arr[j+1]} 越界访问}
+
+\needspace{12\baselineskip}\subsubsection*{B-3\quad 填空题（3 道）}
+
+\q{2}{K7 指针与数组综合}
+执行下列代码后，数组 \cc{arr} 为 \cc{\{}\blank[0.9cm]\cc{,}\blank[0.9cm]\cc{,}\blank[0.9cm]\cc{,}\blank[0.9cm]\cc{\}}，此时 \cc{p} 指向 \cc{arr[}\blank[0.8cm]\cc{]}。
+\begin{code}
+int arr[] = {10, 20, 30, 40};
+int *p = arr;
+*(p + 1) += 5;
+p += 2;
+*p = *(p - 1) + 1;
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{10,20,30,40}{arr}\pcell{p}{0,-1.5}{p}{arr}\draw[ptr] (p.north) -- ([yshift=-3mm]A-0.south);
+\end{tikzpicture}\figcap{题图 31\quad 第 2 行执行后}\end{center}
+
+\q{2}{K10 比较与交换次数}
+对 6 个元素做冒泡排序（按笔记的两层循环，不提前结束）：总比较次数为 \blank[1.2cm]；若原数组已经升序，交换次数为 \blank[1.2cm]；若原数组为 \cc{\{6,5,4,3,2,1\}}，交换次数为 \blank[1.2cm]。
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{6,5,4,3,2,1}{逆序}\arr{B}{7,0}{1,2,3,4,5,6}{升序}
+\end{tikzpicture}\figcap{题图 32}\end{center}
+
+\q{2}{K1 K3 K7 地址与步长}
+64 位程序中，\cc{double arr[4];} 的首地址为 \cc{0x2000}，\cc{double *q = \&arr[3];}。则 \cc{q} 的值为 \blank{}，\cc{q - arr} = \blank[1.2cm]，\cc{sizeof(q)} = \blank[1.2cm]。\\
+{\small{}（提示：指向同一数组的两个指针相减，结果是它们之间相隔的\textbf{元素个数}。）}
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{,,,}{arr}\node[ad] at (A-0.north) {0x2000};
+  \node[note,anchor=west] at (3.4,0) {每个元素是 \texttt{double}};
+\end{tikzpicture}\figcap{题图 33}\end{center}
+
+\needspace{12\baselineskip}\subsubsection*{B-4\quad 综合大题（2 道）}
+
+\q{2}{K6 K8 K9 用指针“返回”两个结果}
+一个函数只能 \cc{return} 一个值。现在希望一次求出数组的最小值和最大值，设计函数
+\begin{code}
+void minmax(const int *arr, int n, int *pmin, int *pmax);
+\end{code}
+(1) 为什么 \cc{pmin}、\cc{pmax} 要设计成指针？为什么 \cc{arr} 前面加 \cc{const}？\\
+(2) 补全函数体。\\
+(3) 在 \cc{main} 中执行 \cc{int a[] = \{4, 9, 1, 7\}; int mn, mx; minmax(a, 4, \&mn, \&mx);}，画出函数即将返回时的内存图，并写出 \cc{mn}、\cc{mx} 的值。
+\begin{center}\begin{tikzpicture}
+  \node[frame,minimum width=64mm,minimum height=22mm] (M) at (1.6,-0.35) {};
+  \node[font=\sffamily\small\bfseries,text=mainc,anchor=north west] at (M.north west) {main};
+  \arr{A}{0,0}{4,9,1,7}{a}\cell{mn}{0.2,-1.15}{mn}{?}\cell{mx}{3,-1.15}{mx}{?}
+  \node[frame,fill=warmc,minimum width=48mm,minimum height=22mm] (F) at (8.4,-0.35) {};
+  \node[font=\sffamily\small\bfseries,text=beigec,anchor=north west] at (F.north west) {minmax(arr, n, pmin, pmax)};
+\end{tikzpicture}\figcap{题图 34\quad 调用前}\end{center}
+
+\q{2}{K9 K10 排序函数的调试与改进}
+笔记中封装的冒泡排序如下（第 392 页原样）：
+\begin{code}
+void BubbleSort(int *arr, int n)
+{
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - j - 1; j++)
+            if arr[j] > arr[j+1]
+            { int temp = arr[j]; arr[j] = arr[j+1]; arr[j+1] = temp; }
+}
+\end{code}
+(1) 指出其中的两处错误并改正；\\
+(2) 用改正后的函数对 \cc{\{3, 7, 9, 12, 5, 1\}} 排序，写出每一轮结束后的数组；\\
+(3) 若数组本来就是 \cc{\{1, 2, 3, 4, 5, 6\}}，改正后的函数共比较几次？如果增加一个标志变量 \cc{swapped}，在某一轮没有发生任何交换时立即结束，则需要比较几次？
+\begin{center}\begin{tikzpicture}
+  \arr{A}{0,0}{3,7,9,12,5,1}{arr}
+\end{tikzpicture}\figcap{题图 35}\end{center}
+
+% ----------------------------------------------------------------
+\needspace{12\baselineskip}\usubsection{C. 跨学科迁移训练（3 道）}
+\noindent{\small\color{violetc}本组题目的背景来自其他课程，但\textbf{完成本题所需的背景信息都已在题干中给出}，真正考查的仍是本章知识。}
+
+\q{3}{K2 × 数据结构}
+\textbf{背景（数据结构 · 链表）}：链表把数据分散存放在若干“结点”中，每个结点除了保存数据 \cc{val}，还保存下一个结点的地址 \cc{next}；最后一个结点的 \cc{next} 为 \cc{nullptr}。代码中 \cc{p->val} 等价于 \cc{(*p).val}，意思是“先解引用 \cc{p} 找到结点，再取它的 \cc{val}”。
+\begin{code}
+struct Node { int val; Node *next; };
+Node n3 = {3, nullptr};
+Node n2 = {2, &n3};
+Node n1 = {1, &n2};
+Node *p = &n1;
+p = p->next;
+cout << p->val << endl;
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \foreach \n/\x/\v/\nx in {n1/0/1/\&n2,n2/3.6/2/\&n3,n3/7.2/3/nullptr} {
+    \node[acell,minimum width=10mm] (\n v) at (\x,0) {\v};
+    \node[acell,fill=formc,minimum width=16mm,anchor=west] (\n n) at (\n v.east) {\nx};
+    \node[ad] at (\n v.north) {val}; \node[ad] at (\n n.north) {next};
+    \node[vn,anchor=north] at ([yshift=-1mm]\n v.south) {\n};}
+  \draw[ptr] (n1n.east) -- (n2v.west); \draw[ptr] (n2n.east) -- (n3v.west);
+  \pcell{p}{0,-1.8}{p}{\&n1}\draw[ptr] (p.north) -- ([yshift=-5mm]n1v.south);
+\end{tikzpicture}\figcap{题图 36\quad 三个结点组成的链表（执行 \texttt{p = p->next} 之前）}\end{center}
+输出为（\quad{}）
+\choices{1}{2}{3}{编译错误}
+
+\q{3}{K2 K5 × 嵌入式系统}
+\textbf{背景（嵌入式 · 寄存器）}：某单片机的芯片手册规定，地址 \cc{0x40020014} 处是控制 LED 引脚的“输出寄存器”，向它写入 1 可以点亮 LED。程序如下（\cc{volatile} 的作用是告诉编译器每次都真实地读写这个地址，本题可以忽略它）：
+\begin{code}
+volatile unsigned int *reg = (volatile unsigned int *)0x40020014;
+*reg = 1;      // 点亮 LED
+\end{code}
+\begin{center}\begin{tikzpicture}
+  \node[draw=mainc,fill=lightc,minimum width=48mm,minimum height=8mm,font=\sffamily\small] (r) at (0,0) {LED 输出寄存器};
+  \node[ad] at (r.north) {0x40020014（芯片手册规定）};
+  \pcell{p}{5.8,0}{reg}{0x40020014}
+  \draw[ptr] (p.south) to[out=-150,in=-30] (r.south);
+\end{tikzpicture}\figcap{题图 37}\end{center}
+下列说法正确的有（\quad{}）
+\choices{这里把整数地址强制转换为指针，与笔记中 \cc{(int*)0x0010} 的写法形式相同}{在普通电脑程序中，随便写一个地址这样访问同样是安全的}{能否访问，取决于这个地址是否是程序可以合法访问的空间（这里由芯片手册保证）}{\cc{*reg = 1} 是通过解引用向该地址写入数据}
+
+\q{3}{K1 K7 × 图像处理}
+\textbf{背景（图像处理 · 像素数组）}：一张宽 $W=4$、高 $H=3$ 的灰度图片，每个像素用 1 个字节（\cc{unsigned char}）表示亮度，所有像素\textbf{按行依次}存放在一个一维数组中，第 $r$ 行第 $c$ 列（$r,c$ 都从 0 开始）的像素下标为 $r\times W+c$。
+\begin{center}\begin{tikzpicture}
+  \foreach \r in {0,1,2} \foreach \c in {0,...,3} {
+    \node[draw=gridc,minimum size=7mm,font=\ttfamily\tiny,text=auxc] at (\c*0.75,-\r*0.75) {(\r,\c)};}
+  \node[note] at (1.1,0.65) {图片（3 行 4 列）};
+  \draw[->,draw=auxc,line width=0.8pt] (3.0,-0.75) -- (4.2,-0.75) node[midway,below=2pt,note]{按行\\展开};
+  \foreach \k in {0,...,11} \node[draw=mainc,minimum width=6mm,minimum height=7mm,font=\ttfamily\tiny] (e\k) at (4.6+\k*0.6,-0.75) {\k};
+  \node[ad] at (e0.north) {0x3000};
+  \node[note] at (8,-1.5) {一维数组（框内数字为下标）};
+\end{tikzpicture}\figcap{题图 38}\end{center}
+设 \cc{unsigned char *img} 指向下标 0 的像素，地址为 \cc{0x3000}。第 2 行第 1 列的像素下标为 \blank[1.2cm]，地址为 \blank{}，可以写成 \cc{*(img +}\blank[1.2cm]\cc{)}。若改为每个像素用 4 字节的 \cc{int} 存放，\cc{int *q} 指向 \cc{0x3000}，则同一个像素的地址为 \blank{}。

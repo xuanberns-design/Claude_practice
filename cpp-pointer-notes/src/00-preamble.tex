@@ -1,0 +1,238 @@
+% ================================================================
+%  C++ 第七章 指针 —— 基础学习讲义   导言区
+%  编译方式：XeLaTeX（两次）
+% ================================================================
+\documentclass[UTF8,a4paper,11pt,fontset=none,zihao=-4]{ctexart}
+
+% ---------- 字体 ----------
+% Noto CJK 为字体集合（.ttc），索引 2 才是简体中文（SC）字形；按名称选取可能落到日文（JP）字形
+\setCJKmainfont{NotoSerifCJK-Regular.ttc}[FontIndex=2,BoldFont=NotoSansCJK-Bold.ttc,BoldFeatures={FontIndex=2},
+  ItalicFont=NotoSerifCJK-Regular.ttc,ItalicFeatures={FontIndex=2,FakeSlant=0.15}]
+\setCJKsansfont{NotoSansCJK-Regular.ttc}[FontIndex=2,BoldFont=NotoSansCJK-Bold.ttc,BoldFeatures={FontIndex=2}]
+\setCJKmonofont{NotoSansCJK-Regular.ttc}[FontIndex=2]
+\setCJKfamilyfont{hei}{NotoSansCJK-Regular.ttc}[FontIndex=2,BoldFont=NotoSansCJK-Bold.ttc,BoldFeatures={FontIndex=2}]
+\newcommand{\hei}{\CJKfamily{hei}}
+\setmonofont{DejaVu Sans Mono}[Scale=0.88]
+\newfontfamily\circfont{DejaVu Sans}[Scale=0.92]
+\newcommand{\ci}[1]{{\circfont #1}}
+
+% ---------- 版面 ----------
+\usepackage[a4paper,top=22mm,bottom=22mm,left=21mm,right=21mm,headsep=6mm,headheight=24pt,footskip=10mm]{geometry}
+\linespread{1.32}
+\setlength{\parskip}{3pt plus 1pt}
+\usepackage{microtype}
+
+% ---------- 数学 / 表格 / 列表 ----------
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,tabularx,longtable,array,multirow}
+\renewcommand{\arraystretch}{1.12}
+\newcolumntype{H}[1]{>{\leavevmode\sffamily\bfseries\color{mainc}\raggedright\arraybackslash}p{#1}}
+\newcolumntype{A}[1]{>{\leavevmode\small\color{auxc}\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\usepackage{enumitem}
+\setlist{itemsep=1pt,topsep=3pt,parsep=0pt,leftmargin=2em}
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{okc}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{badc}{\ding{55}}}
+\usepackage{needspace}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font={small,sf},labelfont={bf,color=mainc},skip=4pt}
+
+% ---------- 颜色（语义固定） ----------
+\usepackage[table]{xcolor}
+\definecolor{mainc}{HTML}{173A63}   % 深海军蓝：核心知识
+\definecolor{auxc}{HTML}{557A9E}    % 辅助蓝
+\definecolor{lightc}{HTML}{F3F6F9}  % 极浅蓝灰：定义底色
+\definecolor{formc}{HTML}{E8EFF6}   % 浅蓝：核心公式
+\definecolor{warmc}{HTML}{FAF8F4}   % 暖米白：示例 / 历史 / 科普
+\definecolor{warmline}{HTML}{C9B99A}
+\definecolor{redbg}{HTML}{FFF5F4}   % 极浅红：易错 / 纠错
+\definecolor{badc}{HTML}{B03A2E}    % 错误标记
+\definecolor{greenbg}{HTML}{F4F8F5} % 极浅绿：总结 / 自检
+\definecolor{okc}{HTML}{2E7D4F}     % 正确标记
+\definecolor{violetbg}{HTML}{F4F3F8}% 极浅灰紫：跨学科
+\definecolor{violetc}{HTML}{6B6891}
+\definecolor{beigec}{HTML}{8A7A5C}  % 提升层标签
+\definecolor{gridc}{HTML}{C8D3DE}
+\definecolor{codebg}{HTML}{F7F8FA}
+\definecolor{hlc}{HTML}{FCE9C8}     % 图中高亮（淡琥珀）
+
+% ---------- 超链接 ----------
+\usepackage[colorlinks=true,linkcolor=mainc,urlcolor=auxc,citecolor=mainc,
+  bookmarksnumbered=true,pdftitle={C++ 指针：基础学习讲义},pdfauthor={课程讲义整理}]{hyperref}
+
+% ---------- TikZ / PGFPlots ----------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.misc,decorations.pathreplacing,shapes.geometric,matrix}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{forest}
+
+% ---------- 页眉页脚 ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{auxc}C++ 第七章\enspace 指针 · 基础学习讲义}
+\fancyhead[R]{\small\sffamily\color{auxc}\leftmark}
+\fancyfoot[C]{\small\sffamily\color{mainc}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gridc}\leaders\hrule height \headrulewidth\hfill}}
+
+% ---------- 标题样式 ----------
+\ctexset{
+  section={name={第,讲},number=\chinese{section},
+    format=\color{mainc}\Large\bfseries\sffamily\raggedright,
+    beforeskip=16pt plus 4pt,afterskip=8pt,aftername=\quad},
+  subsection={format=\color{mainc}\large\bfseries\sffamily\raggedright,
+    beforeskip=11pt plus 3pt,afterskip=5pt},
+  subsubsection={format=\color{auxc}\normalsize\bfseries\sffamily\raggedright,
+    beforeskip=7pt plus 2pt,afterskip=3pt},
+  paragraph={format=\color{mainc}\bfseries\sffamily,runin=true,afterskip=0.6em},
+  contentsname={目\quad 录}
+}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+% 不编号的大模块（导读、练习、解析）也进入目录和页眉
+\newcommand{\usection}[1]{\needspace{14\baselineskip}\section*{#1}\addcontentsline{toc}{section}{#1}\markboth{#1}{}}
+\newcommand{\usubsection}[1]{\subsection*{#1}\addcontentsline{toc}{subsection}{#1}}
+
+% ---------- tcolorbox 统一信息框体系 ----------
+\usepackage[most]{tcolorbox}
+\tcbset{
+  basebox/.style={enhanced,breakable,arc=2pt,boxrule=0.5pt,left=7pt,right=7pt,top=9pt,bottom=5pt,
+    fonttitle=\sffamily\bfseries\small,before skip=7pt,after skip=7pt,
+    coltitle=white,attach boxed title to top left={xshift=6pt,yshift*=-\tcboxedtitleheight/2},
+    boxed title style={arc=1.5pt,boxrule=0pt}},
+  sidebox/.style={enhanced,breakable,frame hidden,sharp corners,borderline west={2.2pt}{0pt}{#1},
+    left=9pt,right=6pt,top=4pt,bottom=4pt,before skip=7pt,after skip=7pt,
+    fonttitle=\sffamily\bfseries\small,coltitle=#1,detach title,
+    before upper={\tcbtitle\par\smallskip}},
+}
+% 一级知识块
+\newtcolorbox{definitionbox}[1][]{basebox,colback=lightc,colframe=mainc,
+  boxed title style={colback=mainc},title={定义\ifx\relax#1\relax\else{}：#1\fi}}
+\newtcolorbox{formulabox}[1][]{basebox,colback=formc,colframe=mainc,
+  boxed title style={colback=mainc},title={核心关系\ifx\relax#1\relax\else{}：#1\fi}}
+\newtcolorbox{theorembox}[1][]{basebox,colback=lightc,colframe=mainc,
+  boxed title style={colback=mainc},title={结论\ifx\relax#1\relax\else{}：#1\fi}}
+% 二级知识块（左侧色条）
+\newtcolorbox{intuitionbox}[1][为什么 / 直观理解]{sidebox=auxc,colback=lightc,title={#1}}
+\newtcolorbox{proofbox}[1][证明 / 推导]{sidebox=mainc,colback=white,title={#1},
+  after upper={\unskip\nobreak\hfill\textcolor{mainc}{$\blacksquare$}}}
+\newtcolorbox{supplementbox}[1][]{sidebox=auxc,colback=lightc,
+  title={教学补全\ifx\relax#1\relax\else{}：#1\fi},
+  before upper={\tcbtitle\par{\footnotesize\color{auxc}原始笔记未完整展示该部分，以下按照本课程常见教材与 C++ 标准表述补充。}\par\smallskip}}
+\newtcolorbox{connectionbox}[1][学科联系]{sidebox=auxc,colback=lightc,title={#1}}
+\newtcolorbox{extendbox}{sidebox=auxc!70,colback=white,title={拓展联想},
+  before upper={\tcbtitle\par{\footnotesize\color{auxc}以下内容只用于建立知识联系，当前阶段不要求掌握。}\par\smallskip}}
+% 示例 / 历史 / 科普（暖米白）
+\newtcolorbox{examplebox}[1][]{basebox,colback=warmc,colframe=warmline,
+  boxed title style={colback=beigec},title={例题\ifx\relax#1\relax\else\enspace#1\fi}}
+\newtcolorbox{historybox}[1][]{sidebox=beigec,colback=warmc,title={#1}}
+\newtcolorbox{sciencebox}[1][]{sidebox=beigec,colback=warmc,title={#1}}
+% 易错 / 纠错（极浅红）
+\newtcolorbox{warningbox}[1][易错点]{sidebox=badc,colback=redbg,title={#1}}
+\newtcolorbox{correctionbox}[1]{basebox,colback=redbg,colframe=badc!60,
+  boxed title style={colback=badc!85},title={原图纠错 · #1}}
+% 总结 / 自检（极浅绿）
+\newtcolorbox{summarybox}[1][方法总结]{sidebox=okc,colback=greenbg,title={#1}}
+\newtcolorbox{checkbox}[1][学完这里，你应该能够回答]{sidebox=okc,colback=greenbg,title={#1}}
+% 三级提示：细色线 + 普通正文
+\newcommand{\tip}[2][注意]{\par\noindent{\color{auxc}\rule[-0.3ex]{1.5pt}{2.3ex}}\enspace{\sffamily\bfseries\color{auxc}#1}\enspace #2\par}
+
+% ---------- 代码 ----------
+\usepackage{listings}
+\lstdefinestyle{cpp}{language=C++,basicstyle=\ttfamily\small,
+  keywordstyle=\color{mainc}\bfseries,commentstyle=\color{okc!80!black},
+  stringstyle=\color{beigec!80!black},numberstyle=\tiny\color{auxc},
+  numbers=left,numbersep=6pt,xleftmargin=16pt,columns=fullflexible,keepspaces=true,
+  showstringspaces=false,tabsize=4,breaklines=true,
+  morekeywords={nullptr,NULL,sizeof,const,using,namespace},
+  literate={＝}{{=}}1}
+\lstset{style=cpp}
+\tcbset{codestyle/.style={enhanced,breakable,listing only,colback=codebg,colframe=gridc,boxrule=0.4pt,arc=2pt,
+  left=2pt,right=4pt,top=1pt,bottom=1pt,before skip=5pt,after skip=5pt}}
+\newtcblisting{code}{codestyle,listing options={style=cpp}}
+\newtcblisting{codeout}{codestyle,colback=white,listing options={style=cpp,numbers=none,xleftmargin=4pt,keywordstyle=,stringstyle=,commentstyle=}}
+\newcommand{\cpp}[1]{\lstinline[style=cpp,basicstyle=\ttfamily,numbers=none]{#1}}
+\newcommand{\cc}[1]{\texttt{#1}}
+
+% ---------- 通用 TikZ 样式：内存图 ----------
+\tikzset{
+  >={Stealth[length=2.2mm]},
+  cell/.style={draw=mainc,line width=0.6pt,fill=white,minimum width=15mm,minimum height=7mm,inner sep=1pt,font=\ttfamily\small},
+  pcell/.style={cell,fill=formc},
+  scell/.style={cell,minimum width=10mm},
+  acell/.style={draw=mainc,line width=0.6pt,fill=white,minimum width=9mm,minimum height=7mm,inner sep=0pt,font=\ttfamily\small},
+  hl/.style={fill=hlc},
+  badcell/.style={draw=badc,fill=redbg},
+  vn/.style={font=\ttfamily\small\bfseries,text=mainc,anchor=east,inner sep=2pt},
+  ad/.style={font=\ttfamily\scriptsize,text=auxc,anchor=south,inner sep=1.2pt},
+  adt/.style={ad,font=\ttfamily\fontsize{5.5}{6}\selectfont},
+  idx/.style={font=\ttfamily\scriptsize,text=auxc,anchor=north,inner sep=1.2pt},
+  ptr/.style={->,line width=0.9pt,draw=mainc},
+  ptrbad/.style={->,line width=0.9pt,draw=badc,dashed},
+  ptrok/.style={->,line width=0.9pt,draw=okc},
+  note/.style={font=\sffamily\footnotesize,text=auxc,align=center},
+  bnote/.style={font=\sffamily\footnotesize,text=badc,align=center},
+  gnote/.style={font=\sffamily\footnotesize,text=okc,align=center},
+  frame/.style={draw=gridc,rounded corners=2pt,line width=0.5pt},
+  lock/.pic={\fill[badc] (-0.11,-0.1) rectangle (0.11,0.06);
+             \draw[badc,line width=0.9pt] (-0.07,0.06) -- (-0.07,0.11) arc (180:0:0.07) -- (0.07,0.06);},
+  forbid/.pic={\draw[badc,line width=1.2pt] (-0.15,-0.15) -- (0.15,0.15) (-0.15,0.15) -- (0.15,-0.15);},
+}
+% \cell[样式]{id}{坐标}{变量名}{值}
+\newcommand{\cell}[5][]{\node[cell,#1] (#2) at (#3) {#5};\node[vn] at (#2.west) {#4};}
+% \pcell[样式]{id}{坐标}{变量名}{值}  —— 指针变量（浅蓝底）
+\newcommand{\pcell}[5][]{\node[pcell,#1] (#2) at (#3) {#5};\node[vn] at (#2.west) {#4};}
+% \addr{id}{地址文字}
+\newcommand{\addr}[2]{\node[ad] at (#1.north) {#2};}
+% \arr[单元样式]{id}{起点坐标}{值列表}{数组名}：连续单元，下标写在下方
+\newcommand{\arr}[5][]{%
+  \foreach \v [count=\k from 0] in {#4} {\node[acell,#1] (#2-\k) at ($(#3)+(\k*0.9,0)$) {\v};
+    \node[idx] at (#2-\k.south) {[\k]};}
+  \node[vn] at (#2-0.west) {#5};}
+% 统一选项小图面板：\optpanel{A}{tikz 内容}
+\newcommand{\optpanel}[2]{\begin{minipage}[t]{0.485\linewidth}\centering
+  {\sffamily\bfseries\color{mainc}(#1)}\par\vspace{1pt}
+  \begin{tikzpicture}[baseline=(current bounding box.north)]
+  \useasboundingbox (-1.4,-1.2) rectangle (5.6,0.65); #2\end{tikzpicture}\end{minipage}}
+% 解析区选项：\optsol{A}{1=正确/0=错误}{tikz}{文字}
+\newcommand{\optsol}[4]{\begin{minipage}[t]{0.485\linewidth}
+  \ifnum#2=1 \colorbox{greenbg}{\sffamily\bfseries\color{okc}(#1)\enspace\ding{51}\ 正确}%
+  \else\colorbox{redbg}{\sffamily\bfseries\color{badc}(#1)\enspace\ding{55}\ 错误}\fi\par\vspace{1pt}
+  \centering\begin{tikzpicture}[baseline=(current bounding box.north)]
+  \useasboundingbox (-1.4,-1.2) rectangle (5.6,0.65); #3\end{tikzpicture}\par
+  \raggedright\small\noindent #4\end{minipage}}
+
+% ---------- 练习与解析 ----------
+\newcounter{exq}
+\newcommand{\lvtag}[1]{%
+  \ifcase#1\or\colorbox{lightc}{\color{auxc}\sffamily\scriptsize\bfseries 基础}%
+  \or\colorbox{warmc}{\color{beigec}\sffamily\scriptsize\bfseries 提升}%
+  \or\colorbox{violetbg}{\color{violetc}\sffamily\scriptsize\bfseries 跨学科}\fi}
+% \q{层级 1/2/3}{知识点}  —— 题号自动递增
+\newcommand{\q}[2]{\par\needspace{9\baselineskip}\medskip\refstepcounter{exq}\noindent
+  {\sffamily\bfseries\color{mainc}\theexq.}\enspace\lvtag{#1}\enspace{\scriptsize\color{auxc}\sffamily #2}\par\nopagebreak}
+\newcommand{\choices}[4]{\par\nopagebreak\noindent\begin{tabularx}{\linewidth}{@{}YY@{}}(A)\ #1 & (B)\ #2\\ (C)\ #3 & (D)\ #4\end{tabularx}\par}
+\newcommand{\blank}[1][2.2cm]{\underline{\hspace{#1}}}
+% 解析标题：\sol{题号}{答案}{难度}{知识点}
+\newcommand{\sol}[4]{\par\needspace{6\baselineskip}\medskip
+  \noindent\begin{tcolorbox}[enhanced,colback=lightc,colframe=lightc,arc=1.5pt,left=5pt,right=5pt,top=2pt,bottom=2pt,before skip=6pt,after skip=4pt]
+  {\sffamily\bfseries\color{mainc}第 #1 题}\quad\lvtag{#3}\quad{\sffamily\small 答案：\textbf{\color{okc}#2}}\hfill{\scriptsize\sffamily\color{auxc}考点：#4}\end{tcolorbox}\nopagebreak}
+\newcommand{\step}[1]{\par\noindent{\sffamily\bfseries\color{auxc}#1}\enspace}
+\newcommand{\oneline}[1]{\par\noindent{\color{okc}\sffamily\bfseries 一句话总结}\enspace#1\par}
+
+% 常用图形尺寸
+\newcommand{\figcap}[1]{\par\vspace{2pt}{\centering\small\sffamily\color{auxc}#1\par}\vspace{2pt}}
+% \arrx{id}{起点}{值列表}{左侧标签}{从该下标起标绿(已就位)}{高亮下标1}{高亮下标2}
+\newcommand{\arrx}[7]{%
+  \foreach \v [count=\k from 0] in {#3} {
+    \tikzset{cst/.style={fill=white}}%
+    \ifnum\k>\numexpr#5-1\relax \tikzset{cst/.style={fill=greenbg,draw=okc}}\fi
+    \ifnum\k=#6 \tikzset{cst/.style={fill=hlc}}\fi
+    \ifnum\k=#7 \tikzset{cst/.style={fill=hlc}}\fi
+    \node[acell,cst] (#1-\k) at ($(#2)+(\k*0.9,0)$) {\v};}
+  \node[vn,font=\sffamily\scriptsize\bfseries] at (#1-0.west) {#4};}

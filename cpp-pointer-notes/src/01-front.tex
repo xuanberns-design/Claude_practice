@@ -1,0 +1,308 @@
+% ================================================================
+%  封面 · 阅读说明 · 目录 · 导读 · 学科小史 · 科普 · 原始资料重编码与纠错
+% ================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[mainc] (current page.north west) rectangle ([yshift=-9mm]current page.north east);
+  \fill[auxc] ([yshift=-9mm]current page.north west) rectangle ([yshift=-10.2mm]current page.north east);
+  \fill[lightc] (current page.south west) rectangle ([yshift=16mm]current page.south east);
+\end{tikzpicture}
+\vspace*{22mm}
+
+{\sffamily\color{auxc}\large C++ 程序设计\enspace{}·\enspace{}第七章}\par\vspace{6mm}
+{\sffamily\bfseries\color{mainc}\fontsize{40}{48}\selectfont 指\ 针}\par\vspace{5mm}
+{\sffamily\color{mainc}\Large 从“内存地址”到“用指针排序数组”}\par\vspace{2mm}
+{\color{auxc}\rule{0.62\linewidth}{0.8pt}}\par\vspace{3mm}
+{\sffamily\large\color{mainc}基础学习讲义}\enspace{\sffamily\color{auxc}可视化图解 · 推导补全 · 分层练习}\par
+\vspace{16mm}
+
+\begin{center}
+\begin{tikzpicture}[scale=1]
+  % 内存条
+  \foreach \i/\v/\a in {0/{},1/{10},2/{},3/{},4/{0x1004},5/{},6/{}} {
+    \node[cell,minimum width=18mm,minimum height=9mm] (m\i) at (\i*1.8,0) {\v};
+  }
+  \node[ad,font=\ttfamily\footnotesize] at (m1.north) {0x1004};
+  \node[ad,font=\ttfamily\footnotesize] at (m4.north) {0x2010};
+  \node[font=\ttfamily\bfseries\color{mainc}] at ([yshift=-5mm]m1.south) {int a};
+  \node[font=\ttfamily\bfseries\color{mainc}] at ([yshift=-5mm]m4.south) {int *p};
+  \node[pcell,minimum width=18mm,minimum height=9mm] at (m4) {0x1004};
+  \node[cell,minimum width=18mm,minimum height=9mm,hl] at (m1) {10};
+  \draw[ptr,line width=1.3pt] ([yshift=4mm]m4.north) to[out=140,in=40] node[above,note,font=\sffamily\small]{p 保存的是 a 的地址} ([yshift=4mm]m1.north);
+  \node[note] at ([xshift=-12mm]m0.west) {$\cdots$};
+  \node[note] at ([xshift=12mm]m6.east) {$\cdots$};
+  \draw[decorate,decoration={brace,amplitude=4pt,mirror},draw=auxc] ([yshift=-9mm]m0.south west) -- ([yshift=-9mm]m6.south east)
+    node[midway,below=5pt,note]{内存：一排按地址编号的存储单元};
+\end{tikzpicture}
+\end{center}
+\vspace{14mm}
+
+\noindent\begin{tabularx}{\linewidth}{@{}A{2.4cm}X@{}}
+\toprule
+适用对象 & 第一次学习 C++ 指针、前置基础不太牢固的本科生 \\
+原始依据 & 课堂手写笔记 11 页（§7.1～§7.8：基本概念、定义与使用、所占空间、空指针与野指针、const 修饰指针、指针和数组、指针和函数、指针+数组+函数综合案例） \\
+本讲义做了什么 & 识别重编码 $\to$ 纠正笔记中的 6 处问题 $\to$ 补全推导与证明 $\to$ 内存图解 $\to$ 38 道分层练习与逐选项图解 \\
+编译环境 & XeLaTeX；全部示例代码已用 g++（C++17，64 位 Linux）实际编译运行 \\
+\bottomrule
+\end{tabularx}
+\end{titlepage}
+
+% ---------------- 阅读说明 ----------------
+\usection{阅读说明}
+这份讲义不是把笔记“抄一遍”，而是把笔记里讲到的每一个知识点，按照“先知道为什么、再建立图像、然后给定义和公式、最后练习”的顺序重新讲一遍。建议这样使用：
+
+\noindent\begin{tabularx}{\linewidth}{@{}H{2.3cm}X@{}}
+\toprule
+第一次学习 & 按顺序读第一讲～第八讲，每讲末尾的“自检”能答出来再往后走。遇到内存图，先用手指沿着箭头“走一遍”。\\
+课前预习 & 只读每讲开头的“本讲回答的问题”和“直观理解”框，建立印象即可。\\
+课后复习 & 重点看“易错点”（浅红色框）和“相近概念辨析”表格，再做 A 组基础题。\\
+考前巩固 & 直接做练习 A、B、C 三组，对照答案速查，错题再回到对应讲次（见“知识点—题目对应表”）。\\
+\bottomrule
+\end{tabularx}
+
+\paragraph{颜色约定} 全书颜色含义固定，读几页之后就能“看颜色知用途”：
+
+\noindent
+\begin{tikzpicture}
+\foreach \c/\t/\x in {lightc/定义·核心知识/0, formc/核心关系式/3.05, warmc/例题·历史·科普/6.1, redbg/易错·原图纠错/9.15, greenbg/总结·自检/12.2}{
+  \node[draw=gridc,fill=\c,minimum width=28mm,minimum height=7mm,font=\sffamily\footnotesize,rounded corners=1.5pt] at (\x,0) {\t};}
+\end{tikzpicture}
+
+\paragraph{内存图约定} 本书所有内存图使用同一套画法，请先认识它们：
+
+\begin{center}
+\begin{tikzpicture}
+  \cell{a}{0,0}{a}{10}\addr{a}{0x1000}
+  \pcell{p}{5,0}{p}{0x1000}\addr{p}{0x2000}
+  \draw[ptr] (p.south) to[out=-150,in=-30] (a.south);
+  \node[note,anchor=west] at (7,0.35) {白底方框：普通变量（框内是值）};
+  \node[note,anchor=west] at (7,-0.2) {浅蓝方框：指针变量（框内是地址）};
+  \node[note,anchor=west] at (7,-0.75) {框上方小字：该变量自己的地址};
+  \node[note,anchor=west] at (7,-1.3) {深蓝箭头：“指向”关系};
+  \pic at (0,-1.4) {lock}; \node[note,anchor=west] at (0.2,-1.4) {红锁：不可修改（const）};
+  \draw[ptrbad] (3.2,-2) -- (4.4,-2); \node[note,anchor=west] at (4.5,-2) {红虚线箭头：非法 / 危险的指向};
+\end{tikzpicture}
+\end{center}
+
+\tip[提示]{图中的地址（如 \cc{0x1000}）都是为了讲解而选的“好看的数”。真实程序每次运行打印出的地址一般不同，且通常很长（如 \cc{0x7ffcc6ee782c}）。}
+
+\clearpage\tableofcontents
+\clearpage
+
+% ================================================================
+\usection{导读：本专题学什么、在哪里、需要什么}
+% ================================================================
+\subsection*{本专题回答的核心问题}
+学到第七章之前，我们一直在用“变量名”操作数据：\cpp{a = 10;}、\cpp{cout << a;}。这很方便，但留下了几个解决不了的问题：
+
+\begin{enumerate}[label=\arabic*.]
+  \item 一个函数想\textbf{修改调用者的变量}（比如交换两个数），只拿到“值的副本”是做不到的；
+  \item 把一个很大的数组交给函数处理时，我们不希望把整个数组复制一份，只想告诉函数\textbf{“数据在哪儿”}；
+  \item 有些数据根本没有名字，只有位置（例如以后学的动态内存、硬件寄存器），只能按\textbf{地址}访问。
+\end{enumerate}
+这三个问题的共同答案就是：\textbf{把“地址”本身也当成一种数据，存起来、传出去、用它间接访问内存}。存放地址的变量就叫\textbf{指针}。
+
+\subsection*{本专题在课程体系中的位置}
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={draw=mainc,fill=lightc,rounded corners=2pt,minimum height=8mm,font=\sffamily\small,align=center,inner xsep=4pt},
+  cur/.style={box,fill=mainc,text=white,font=\sffamily\small\bfseries},
+  fut/.style={box,fill=white,draw=auxc,text=auxc},
+  lk/.style={->,draw=auxc,line width=0.7pt}]
+  \node[box] (var) at (0,1.45) {变量与数据类型\\(第2章)};
+  \node[box] (arr) at (0,0) {数组\\(第5章)};
+  \node[box] (fun) at (0,-1.45) {函数与参数传递\\(第6章)};
+  \node[cur,minimum width=30mm,minimum height=16mm] (ptr) at (4.4,0) {第7章\\指针};
+  \node[fut] (ref) at (8.9,1.6) {引用 \& 结构体};
+  \node[fut] (dyn) at (8.9,0.55) {动态内存 new/delete};
+  \node[fut] (ds) at (8.9,-0.5) {数据结构：链表/树};
+  \node[fut] (os) at (8.9,-1.55) {操作系统 · 嵌入式};
+  \foreach \s in {var,arr,fun} \draw[lk] (\s.east) -- (ptr.west);
+  \foreach \t in {ref,dyn,ds,os} \draw[lk] (ptr.east) -- (\t.west);
+  \node[note] at (0,2.5) {前置知识}; \node[note] at (8.9,2.4) {后续知识};
+\end{tikzpicture}
+\end{center}
+
+\subsection*{前置知识地图：开始之前你需要知道的五件事}
+\noindent\begin{tabularx}{\linewidth}{@{}H{2.6cm}XA{3.3cm}@{}}
+\toprule
+前置知识 & 本章要用到的最少内容 & 用在哪里 \\
+\midrule
+变量与类型 & \cc{int a = 10;} 会在内存中划出一块空间（\cc{int} 一般 4 字节）并存入 10 & 第一讲、第二讲 \\
+\cc{sizeof} & \cc{sizeof(x)} 给出 \cc{x} 占用的字节数，编译时就已确定 & 第三讲、第八讲 \\
+数组 & \cc{int arr[5]} 是 5 个 \cc{int} \textbf{紧挨着}存放；下标从 0 开始，合法范围 \cc{0～4} & 第六讲、第八讲 \\
+函数 & 调用 \cc{f(a)} 时，形参是实参的\textbf{拷贝}（值传递） & 第七讲 \\
+十六进制 & \cc{0x} 开头表示十六进制：\cc{0x10}$=16$，\cc{0x0C}$=12$ & 全章地址计算 \\
+\bottomrule
+\end{tabularx}
+
+\begin{supplementbox}[十六进制快速复习]
+十六进制每一位取 \cc{0～9, A～F}（A=10，…，F=15），第 $k$ 位（从右往左、从 0 数）的权是 $16^k$。例如
+\[
+\texttt{0x0010}=1\times16^1+0=16,\qquad \texttt{0x100C}=1\times16^3+0+0+12=4108 .
+\]
+地址习惯用十六进制书写，原因是一位十六进制恰好对应 4 个二进制位，两位恰好是 1 个字节，和计算机“按字节编址”的方式对得很整齐。计算地址时最常见的操作是“加几个字节”，例如 $\texttt{0x1000}+12=\texttt{0x100C}$（因为十进制 12 就是十六进制 C）。
+\end{supplementbox}
+
+% ================================================================
+\usection{学科小史：指针是怎样出现的？}
+% ================================================================
+今天我们觉得“变量有地址”是理所当然的，但在高级语言发展早期，这是一个需要取舍的设计问题：\textbf{语言应该把机器的“地址”暴露给程序员，还是把它藏起来？}
+
+汇编语言里程序员直接写地址，效率高但极易出错；许多早期高级语言则把地址藏起来，安全但难以编写操作系统这类需要直接操纵内存的程序。指针正是在“既要像汇编一样高效，又要像高级语言一样可读”的需求下成熟起来的。
+
+\begin{center}
+\begin{tikzpicture}[scale=0.94,
+  ev/.style={font=\sffamily\footnotesize,align=center,text width=26mm},
+  yr/.style={font=\sffamily\bfseries\small,text=mainc}]
+  \draw[line width=1.2pt,draw=auxc,->] (0,0) -- (15.6,0);
+  \foreach \x in {0.9,3.9,6.9,9.9,12.9,15.0} \fill[mainc] (\x,0) circle (2.3pt);
+  \node[yr,below=3pt] at (0.9,0) {1965};
+  \node[yr,above=3pt] at (3.9,0) {1960s 后期};
+  \node[yr,below=3pt] at (6.9,0) {1969--1970};
+  \node[yr,above=3pt] at (9.9,0) {1969--1973};
+  \node[yr,below=3pt] at (12.9,0) {1979--1985};
+  \node[yr,above=3pt] at (15.0,0) {2011};
+  \node[ev,above=17pt] at (0.9,0) {ALGOL W 引入“空引用”（Hoare 后称其为“十亿美元的错误”）};
+  \node[ev,below=17pt] at (3.9,0) {BCPL（M.~Richards）：地址可以作为数值参与运算};
+  \node[ev,above=17pt] at (6.9,0) {B 语言（K.~Thompson）：继承 BCPL 的指针思想};
+  \node[ev,below=17pt] at (9.9,0) {C 语言（D.~Ritchie）：带类型的指针，数组名转为指针};
+  \node[ev,above=17pt] at (12.9,0) {C with Classes $\to$ C++（B.~Stroustrup）};
+  \node[ev,below=17pt] at (15.0,0) {C++11 引入 \texttt{nullptr}};
+\end{tikzpicture}
+\end{center}
+
+\begin{historybox}[几个真正影响你今天写代码的节点]
+\begin{itemize}
+  \item \textbf{BCPL 与 B（1960 年代后期—1970 年）}：Martin Richards 设计的 BCPL 和 Ken Thompson 在它基础上做的 B 语言，都允许把地址当作数来运算。但它们只有“机器字”一种数据，指针加 1 就是“下一个字”，没有“类型”的概念。
+  \item \textbf{C 语言（1969—1973，贝尔实验室）}：Dennis Ritchie 在 B 的基础上加入了 \cpp{int}、\cpp{char} 等类型，指针也随之有了类型——\cpp{int*} 加 1 前进一个 \cpp{int} 的字节数，\cpp{char*} 加 1 前进 1 个字节。Ritchie 在回顾文章中特别提到，“数组名在表达式中转换为指向首元素的指针”这一规则，是从 B 平滑过渡到 C 的关键设计。这正是本讲义第六讲的核心。
+  \item \textbf{C++（1979 年起）}：Bjarne Stroustrup 从 1979 年开始在 C 上增加类，最初叫 “C with Classes”，1983 年改名 C++，1985 年对外发布。C++ 完整保留了 C 的指针，所以本章内容在 C 和 C++ 中几乎一致。
+  \item \textbf{空指针的反思}：Tony Hoare 在 2009 年的一次演讲中回顾，他在 1965 年设计 ALGOL W 时引入了“空引用”，并称之为自己的“十亿美元的错误”——因为它引发了无数程序崩溃。C++11 引入更安全的 \cpp{nullptr}，现代语言则进一步从类型系统上限制空值。这正是第四讲“空指针不可访问”背后的历史教训。
+\end{itemize}
+\end{historybox}
+\noindent 读完这段历史，你会发现：\textbf{指针的“类型”决定步长、数组名会变成指针、空指针不能解引用}——这三条今天考试最爱考的规则，都是语言设计者当年有意做出的选择。
+
+% ================================================================
+\usection{从课本到现实：指针到底有什么用？}
+% ================================================================
+\begin{sciencebox}[1. 操作系统：你见过的“段错误”是怎么来的]
+笔记里写“空指针访问 $\to$ segmentation fault（段错误）”。这背后是操作系统的\textbf{内存保护}：每个程序只能访问操作系统分配给它的那部分地址；主流操作系统通常故意不把地址 0 附近的区域分配给程序。当程序通过空指针访问地址 0 时，硬件发现“这个地址不属于你”，操作系统就把程序终止，并报告段错误。所以段错误其实是一种\textbf{保护}：宁可让程序立刻崩溃，也不让它悄悄改坏别人的数据。
+\end{sciencebox}
+
+\begin{sciencebox}[2. 嵌入式：用指针“按地址”点亮一盏灯]
+在单片机里，控制 LED、电机的“寄存器”被安排在固定地址上（由芯片手册规定）。程序员把这个地址强制转换成指针，然后 \cpp{*reg = 1;} 就能让引脚输出高电平。这和笔记里 \cpp{int *p = (int*)0x0010;} 的写法\textbf{形式完全相同}——区别只在于：单片机上这个地址是芯片手册保证可以访问的，而在电脑上随便写的地址不是你的，就成了野指针。（C 组第 37 题就考这个。）
+\end{sciencebox}
+
+\begin{sciencebox}[3. 图像与数据：一张照片就是一个很长的数组]
+一张 $1920\times1080$ 的灰度图片，在内存中通常就是 $1920\times1080$ 个字节\textbf{按行连续存放}。图像处理程序拿到一个指向首字节的指针，用“指针 + 偏移”走遍每个像素；把图片交给函数处理时，也只传指针和尺寸，而不复制几兆字节的数据——这就是第八讲“数组作函数参数时只传首地址”的现实版本。（C 组第 38 题。）
+\end{sciencebox}
+
+\begin{sciencebox}[4. 安全：为什么大家越来越重视“内存安全”]
+笔记中“数组 5 个元素却循环 10 次”的越界读取，在真实软件里是一类非常常见、危害很大的安全漏洞来源（缓冲区溢出）。这也是近年来越来越多的工程团队重视内存安全、并在部分场景采用带边界检查的容器或内存安全语言的原因。学好指针的\textbf{边界意识}，是写出安全程序的第一步。
+\end{sciencebox}
+
+% ================================================================
+\usection{原始笔记的识别、重编码与纠错}
+% ================================================================
+\subsection*{原始资料内容一览}
+原始资料为手写笔记照片 11 页（笔记页码 378--393，日期 2026 年 9 月 25--27 日）。按照笔记本身的小节，识别出的结构如下：
+
+\begin{longtable}{@{}H{1.3cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{9.2cm}@{}}
+\toprule
+笔记小节 & 标题 & 可靠识别的主要内容 \\
+\midrule\endhead
+§7.1 & 基本概念 & 作用：通过指针间接访问内存；内存编号从 0 开始，一般用十六进制表示；可以利用指针变量保存地址；图示 \cc{int a = 10}、\cc{p} 中存 \cc{0x0000}（红字：“可以通过指针保存一个地址”）\\
+§7.2 & 指针变量的定义与使用 & 语法“数据类型 * 指针变量名”；\cc{int *p; p = \&a;}；输出 \cc{p}；“可以通过解引用的方式来找到指针指向的内存”，\cc{*p}（红字标注“解引用”）\\
+§7.3 & 指针所占的内存空间 & 32 位操作系统 4 字节，64 位操作系统 8 字节；示例 \cc{int b = sizeof(p);} \\
+§7.4 & 空指针与野指针 & 空指针：指向编号为 0 的空间，用于初始化，不可访问，\cc{int *p = NULL; *p = 100} $\to$ segmentation fault；野指针：指向非法的内存空间，示例 \cc{int *p = (int*)0x0010;}；红字总结：“空指针和野指针都不是我们申请的空间，因此不要访问” \\
+§7.5 & const 修饰指针 & 三种情况：const 修饰指针——常量指针（\cc{const int *p}，指向可改、值不可改）；const 修饰常量——指针常量（\cc{int * const p}，指向不可改、值可改）；两者都修饰（\cc{const int * const p}）；图示与示例代码 \\
+§7.6 & 指针和数组 & 利用指针访问数组元素；\cc{int *p = arr;}，\cc{p++}（红字：“向后偏移 4 个字节”）；通过指针遍历数组 \\
+§7.7 & 指针和函数 & 利用指针作函数参数可以修改实参；回顾值传递 \cc{swap(int a,int b)}；地址传递 \cc{swap\_p(int *p1,int *p2)}，红字“可以改变实参” \\
+§7.8 & 指针、数组和函数 & 案例：封装函数，利用冒泡排序实现整型数组升序排序；先在 \cc{main} 中写冒泡排序并解释两层循环边界；再封装 \cc{BubbleSort(int *arr,int n)}、\cc{PrintArray}，在 \cc{main} 中用 \cc{sizeof(arr)/sizeof(arr[0])} 求长度 \\
+\bottomrule
+\end{longtable}
+
+\subsection*{无法可靠辨认 / 需要说明的内容}
+\begin{itemize}
+  \item 第 378 页“一般用十\underline{\ \ }进制数字表示”中间一字书写潦草，\textbf{原始资料此处无法完全可靠辨认}。\emph{可能解释：“十六进制”}——依据是同页地址均写作 \cc{0x...} 形式。以下属于推测，不属于原图可靠识别结果，讲义按“十六进制”讲解。
+  \item 第 391 页 \cc{int arr[] = [5, 3, 7, 8, 2\}} 的左括号形似 “[”。C++ 中数组初始化只能用花括号，讲义按 \cc{\{5,3,7,8,2\}} 处理。
+  \item 第 389 页 \cc{cout << "a=" << a <\ " b=" ...} 中 \cc{a} 后面似乎只写了一个 \cc{<}。可能是书写时漏笔，讲义按 \cc{<<} 处理。
+  \item 部分页面背面字迹透印（如第 380、388 页中的淡色文字），均为其他页内容的透印，未计入本页识别结果。
+\end{itemize}
+
+\subsection*{原图纠错}
+以下 6 处问题都经过 g++ 实际编译或运行验证。它们不是“挑刺”，每一处都对应一个初学者很容易踩的坑，所以后文的讲解和练习会反复回到这里。
+
+\begin{correctionbox}{\ci{①} §7.6 遍历数组的循环次数越界（第 388 页）}
+\textbf{原始写法}\quad \cpp{int arr[] = {1,2,3,4,5};} 之后 \cpp{for (int i = 0; i < 10; i++) { cout << *p << endl; p++; }}
+
+\textbf{存在的问题}\quad 数组只有 5 个元素，循环却执行 10 次，后 5 次读取的是数组之外的内存，属于\textbf{越界访问（未定义行为）}。用 AddressSanitizer 编译运行，程序在第 6 次读取时报告 \cc{stack-buffer-overflow}。
+
+\textbf{规范写法}\quad \cpp{int len = sizeof(arr) / sizeof(arr[0]);}\ \ \cpp{for (int i = 0; i < len; i++)}
+
+\textbf{为什么这样改}\quad 循环次数应由数组实际长度决定；用 \cpp{sizeof} 计算长度，数组改了元素个数也不会出错。\quad\textbf{影响}\quad 第六讲、第 24 题专门讨论。
+\end{correctionbox}
+
+\begin{correctionbox}{\ci{②} §7.8 封装后的冒泡排序内层循环条件写错（第 392 页）}
+\textbf{原始写法}\quad \cpp{for (int j = 0; j < n - j - 1; j++)}
+
+\textbf{存在的问题}\quad 应为 \cpp{n - i - 1}。写成 \cc{n - j - 1} 后，条件变成 $2j<n-1$，内层循环只比较数组的前一半。实测：对笔记中的 \cc{\{3,7,9,12,5,1\}}，输出仍是 \cc{3 7 9 12 5 1}，\textbf{完全没有排好}。（同一笔记第 391 页未封装的版本写的是正确的 \cc{j < n-i-1}。）
+
+\textbf{规范写法}\quad \cpp{for (int j = 0; j < n - i - 1; j++)}\qquad\textbf{影响}\quad 第八讲推导为什么是 $n-i-1$；第 30、35 题。
+\end{correctionbox}
+
+\begin{correctionbox}{\ci{③} §7.8 if 语句缺少括号（第 392 页）}
+\textbf{原始写法}\quad \cpp{if arr[j] > arr[j+1]}\qquad \textbf{问题}\quad C++ 语法要求 \cc{if} 的条件必须写在圆括号中，否则编译错误。\qquad\textbf{规范写法}\quad \cpp{if (arr[j] > arr[j+1])}
+\end{correctionbox}
+
+\begin{correctionbox}{\ci{④} §7.5 注释中的变量名写错（第 387 页）}
+\textbf{原始写法}\quad \cpp{const int * const p2 = &a;}\ \ \cpp{// p1 = &b 与 *p1 = b 均非法}
+
+\textbf{存在的问题}\quad 这一行讨论的是 \cc{p2}；而 \cc{p1} 是上面定义的 \cc{const int *p1}，\cc{p1 = \&b} 恰恰是\textbf{合法的}。\quad\textbf{规范写法}\quad \cpp{// p2 = &b 与 *p2 = b 均非法}
+\end{correctionbox}
+
+\begin{correctionbox}{\ci{⑤} §7.5 图示中 b 的值画错（第 381 页）}
+\textbf{原始写法}\quad 图中标注 \cc{0x0022 → 20}、代码 \cc{int b = 20}，但下方方框 \cc{0x0022} 中写的是 \cc{10}。
+
+\textbf{规范写法}\quad 地址 \cc{0x0022} 的方框应为 \cc{20}。图中指针标为 \cc{P$_1$} 而代码写 \cc{p}，讲义统一为代码中的名字。\quad\textbf{影响}\quad 只影响图示，不影响结论。第五讲重新绘制。
+\end{correctionbox}
+
+\begin{correctionbox}{\ci{⑥} §7.3 “32 位操作系统 4 字节 / 64 位操作系统 8 字节”表述不够严谨（第 379 页）}
+\textbf{存在的问题}\quad 指针大小由\textbf{程序编译的目标平台}决定，而不是由操作系统直接决定。例如在 64 位 Windows 上运行的 32 位程序，\cpp{sizeof(int*)} 仍然是 4。
+
+\textbf{规范写法}\quad “在 32 位程序（32 位目标平台）中，指针通常占 4 字节；在 64 位程序中，通常占 8 字节。”\quad\textbf{影响}\quad 考试中按 “32 位 4 字节、64 位 8 字节” 作答即可，但要知道“位数”指程序的目标平台。
+\end{correctionbox}
+
+\begin{warningbox}[另外两处值得注意的说法（不算错误，但需补充）]
+\begin{itemize}
+  \item 笔记说“空指针访问 $\to$ segmentation fault”。严格说，C++ 标准规定解引用空指针是\textbf{未定义行为}；在 Linux、Windows 等主流系统上\emph{通常}表现为段错误或访问冲突，但\textbf{不保证}一定崩溃。
+  \item 笔记用 \cc{0x0000} 作为变量 \cc{a} 的示意地址。这只是示意；在真实系统中地址 0 正是空指针的值，普通变量不会位于那里。本讲义的示意地址统一从 \cc{0x1000} 起。
+\end{itemize}
+\end{warningbox}
+
+\subsection*{知识点总览与关系图}
+笔记的八个小节并不是八个孤立的话题，而是一条“先有地址，再有指针，再用指针连接数组和函数”的链条。本讲义按下面的学习逻辑组织（与笔记顺序基本一致，只是把“内存与地址”单独拿出来讲透）：
+
+\begin{center}
+\begin{tikzpicture}[
+  k/.style={draw=mainc,fill=lightc,rounded corners=2pt,font=\sffamily\small,align=center,minimum height=9mm,text width=27mm},
+  lk/.style={->,draw=auxc,line width=0.7pt},
+  lab/.style={font=\sffamily\scriptsize,text=auxc,fill=white,inner sep=1pt}]
+  \node[k] (k1) at (0,0) {\ci{①} 内存与地址\\ §7.1};
+  \node[k] (k2) at (3.45,0) {\ci{②} 定义与使用\\ \texttt{\&} 与 \texttt{*}\ §7.2};
+  \node[k] (k3) at (6.9,1.75) {\ci{③} 指针的大小\\ §7.3};
+  \node[k] (k4) at (6.9,0) {\ci{④} 空指针与\\野指针\ §7.4};
+  \node[k] (k5) at (6.9,-1.75) {\ci{⑤} const 与指针\\ §7.5};
+  \node[k] (k6) at (10.35,0.95) {\ci{⑥} 指针和数组\\ §7.6};
+  \node[k] (k7) at (10.35,-0.95) {\ci{⑦} 指针和函数\\ §7.7};
+  \node[k,fill=mainc,text=white] (k8) at (13.8,0) {\ci{⑧} 综合：冒泡排序\\ §7.8};
+  \draw[lk] (k1) -- node[lab,above]{存地址} (k2);
+  \draw[lk] (k2) -- (k3); \draw[lk] (k2) -- node[lab]{规则} (k4); \draw[lk] (k2) -- (k5);
+  \draw[lk] (k4.east) -- (k6.west); \draw[lk] (k4.east) -- (k7.west);
+  \draw[lk] (k6) -- (k8); \draw[lk] (k7) -- (k8);
+  \draw[lk,dashed] (k3.east) to[out=0,in=110] node[lab,pos=0.7]{sizeof 求长度} (k8.north);
+  \draw[lk,dashed] (k5.east) to[out=0,in=-110] node[lab,pos=0.7]{保护数据} (k8.south);
+\end{tikzpicture}
+\end{center}
+实线箭头表示“后者必须以前者为基础”，虚线表示“后者会用到前者的某个细节”。整章的终点是第八讲：\textbf{数组（数据）通过指针（地址）交给函数（操作）去排序}——三者在一个例子里会合。

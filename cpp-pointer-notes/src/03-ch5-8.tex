@@ -1,0 +1,639 @@
+% ================================================================
+%  第五讲 ～ 第八讲
+% ================================================================
+
+% ================================================================
+\section{\texorpdfstring{\texttt{const} 修饰指针：给指针“上锁”}{const 修饰指针：给指针上锁}}\label{sec:const}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 一个指针能改变哪两样东西？\ci{②} \cc{const} 放在不同位置分别锁住哪一样？\ci{③} 怎样一眼读出一个声明锁住了什么？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 指针的两种“权力” $\to$ 锁值（常量指针） $\to$ 锁指向（指针常量） $\to$ 两个都锁 $\to$ 读法口诀
+
+\subsection{为什么需要 const 修饰指针}
+回顾图 2.1：指针有两种“权力”——
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{改指向}：\cpp{p = &b;}，让箭头指向别处（改的是 \cc{p} 自己）；
+  \item \textbf{改值}：\cpp{*p = 20;}，顺着箭头修改对方（改的是 \cc{*p}）。
+\end{enumerate}
+第八讲的 \cc{PrintArray} 函数只需要\emph{读}数组，如果不小心写了 \cpp{arr[i] = 0;}，原数组就被破坏了。我们希望让编译器帮忙把关：\textbf{声明时就说清楚这个指针可以做什么、不可以做什么}，违反时直接编译报错。这就是 \cc{const} 修饰指针的用途。
+
+\subsection{先看直观图像：锁在哪里}
+\begin{center}
+\begin{tikzpicture}
+  % 情况1
+  \node[font=\sffamily\bfseries\small,text=mainc] at (1.2,1.45) {\ci{①} \texttt{const int *p = \&a;}};
+  \cell{a1}{0.4,0.35}{a}{10}\addr{a1}{0x1000}
+  \cell{b1}{2.3,0.35}{b}{20}\addr{b1}{0x1004}
+  \pcell{p1}{0.4,-1.2}{p}{0x1000}
+  \draw[ptr] (p1.north) -- (a1.south);
+  \draw[ptr,dashed,draw=okc] (p1.north east) -- (b1.south);
+  \pic at ([xshift=-1mm,yshift=-1mm]a1.north east) {lock};
+  \node[note] at (1.4,-2.15) {值被锁：\texttt{*p = 20} \ding{55}\\指向可改：\texttt{p = \&b} \ding{51}};
+  % 情况2
+  \node[font=\sffamily\bfseries\small,text=mainc] at (6.8,1.45) {\ci{②} \texttt{int * const p = \&a;}};
+  \cell[hl]{a2}{6.0,0.35}{a}{20}\addr{a2}{0x1000}
+  \cell{b2}{7.9,0.35}{b}{20}\addr{b2}{0x1004}
+  \pcell{p2}{6.0,-1.2}{p}{0x1000}
+  \draw[ptr] (p2.north) -- (a2.south);
+  \draw[ptrbad] (p2.north east) -- (b2.south);
+  \pic at ([xshift=-1mm,yshift=1mm]p2.south east) {lock};
+  \node[note] at (7.0,-2.15) {指向被锁：\texttt{p = \&b} \ding{55}\\值可改：\texttt{*p = 20} \ding{51}};
+  % 情况3
+  \node[font=\sffamily\bfseries\small,text=mainc] at (12.5,1.45) {\ci{③} \texttt{const int * const p = \&a;}};
+  \cell{a3}{11.6,0.35}{a}{10}\addr{a3}{0x1000}
+  \cell{b3}{13.5,0.35}{b}{20}\addr{b3}{0x1004}
+  \pcell{p3}{11.6,-1.2}{p}{0x1000}
+  \draw[ptr] (p3.north) -- (a3.south);
+  \draw[ptrbad] (p3.north east) -- (b3.south);
+  \pic at ([xshift=-1mm,yshift=-1mm]a3.north east) {lock};
+  \pic at ([xshift=-1mm,yshift=1mm]p3.south east) {lock};
+  \node[note] at (12.6,-2.15) {两个都锁：\\\texttt{*p = 20} \ding{55}\quad\texttt{p = \&b} \ding{55}};
+  \foreach \x in {4.1,9.7} \draw[gridc,dashed] (\x,1.7) -- (\x,-2.6);
+\end{tikzpicture}
+\figcap{图 5.1\quad 笔记 §7.5 图示的重绘（已改正 b 的值为 20）：红锁在“值”上，还是在“指针”上}
+\end{center}
+
+读图：每个小图中上排是变量 \cc{a}、\cc{b}，下排蓝框是指针 \cc{p}。\textbf{红锁画在目标方框上}表示“不能通过 \cc{p} 改值”；\textbf{红锁画在指针方框上}表示“\cc{p} 自己不能改”，所以指向 \cc{b} 的箭头是红色虚线（不允许）。图\ci{②}中 \cc{a} 已被 \cc{*p = 20} 改成 20（黄色）。
+
+\subsection{正式定义}
+\begin{definitionbox}[const 修饰指针的三种情况（笔记 §7.5）]
+\renewcommand{\arraystretch}{1.25}
+\noindent\begin{tabularx}{\linewidth}{@{}p{3.6cm}p{2.3cm}p{2.9cm}cc@{}}
+\toprule
+声明 & 笔记中的名称 & 常见英文说法 & 改指向 \cc{p=\&b} & 改值 \cc{*p=20} \\
+\midrule
+\cc{const int *p = \&a;} & 常量指针 & pointer to const & \cmark & \xmark \\
+\cc{int * const p = \&a;} & 指针常量 & const pointer & \xmark & \cmark \\
+\cc{const int * const p = \&a;} & （两者都修饰） & const pointer to const & \xmark & \xmark \\
+\bottomrule
+\end{tabularx}
+\end{definitionbox}
+
+\begin{formulabox}[读法口诀：看 const 在 * 的哪一边]
+\[
+\boxed{\ \texttt{const}\ \text{在}\ \texttt{*}\ \text{左边} \Rightarrow \text{锁“值”}\qquad
+\texttt{const}\ \text{在}\ \texttt{*}\ \text{右边} \Rightarrow \text{锁“指向”}\ }
+\]
+{\small 等价的“从右往左读”法：\cc{int * const p} 读作“\cc{p} 是 const 的、指向 int 的指针”；\cc{const int *p} 读作“\cc{p} 是指针，指向 const int”。\cc{int const *p} 与 \cc{const int *p} 完全相同（const 仍在 * 左边）。}
+\end{formulabox}
+
+\begin{warningbox}[名称容易混：以“位置”为准，不要死记名字]
+“常量指针”“指针常量”这两个中文名称，不同教材的叫法\textbf{并不统一}，甚至恰好相反。本讲义沿用笔记的叫法，但考试和写代码时，请一律用上面的“左锁值、右锁指向”判断，不要只凭名称作答。
+\end{warningbox}
+
+\subsection{为什么是这样：从类型推导}
+\begin{proofbox}[推导：为什么 \texttt{const int *p} 不能 \texttt{*p = 20} 却能 \texttt{p = \&b}]
+\textbf{已知}：C++ 规定，被声明为 \cc{const} 的对象不能出现在赋值号左边，否则编译错误。
+
+\textbf{第一步}（看 \cc{*p}）：声明 \cc{const int *p} 的含义是“\cc{*p} 的类型为 \cc{const int}”。所以 \cc{*p = 20} 是给一个 \cc{const int} 赋值，被编译器拒绝。g++ 报错：\cc{assignment of read-only location '* p1'}。
+
+\textbf{第二步}（看 \cc{p}）：\cc{p} 本身的类型是 \cc{const int*}，这个类型\emph{最外层}没有 const，\cc{p} 是普通变量，所以 \cc{p = \&b} 合法。
+
+\textbf{第三步}（对称情况）：\cc{int * const p} 中 const 修饰的是 \cc{p} 本身，\cc{p = \&b} 报错 \cc{assignment of read-only variable 'p'}；而 \cc{*p} 的类型是普通 \cc{int}，可以赋值。
+
+\textbf{结论}：const 写在 \cc{*} 左边，修饰的是“\cc{*p}”（指向的东西）；写在 \cc{*} 右边，修饰的是“\cc{p}”（指针自己）。上面的报错信息均为 g++ 实测。
+\end{proofbox}
+
+\begin{supplementbox}[两个常被忽略的边界情况]
+\textbf{(1) 常量指针不会让原变量变成常量。}
+\begin{code}
+int a = 10;
+const int *p = &a;
+// *p = 30;   // 错误：不能“通过 p”修改
+a = 30;       // 正确：a 本身不是 const，直接改完全可以
+\end{code}
+所以 \cc{const int *p} 的准确含义是“\textbf{不能通过 p} 修改所指对象”，而不是“所指对象永远不变”。
+
+\textbf{(2) 去掉条件会怎样：常量的地址只能交给“常量指针”。}
+\begin{code}
+const int c = 5;
+// int *q = &c;        // 错误：若允许，就能用 *q = 6 修改常量 c
+const int *q = &c;     // 正确
+\end{code}
+这说明 \cc{const int*} 中的 \cc{const} 不是可有可无的装饰：它正是编译器用来保护常量的“通行证”。
+\end{supplementbox}
+
+\begin{examplebox}[5.1\quad 笔记 §7.5 示例代码（已改正注释）]
+\begin{code}
+int a = 10, b = 20;
+// const 修饰常量（指针常量）：指向不可改，值可改
+int * const p = &a;
+*p = 20;                  // 合法
+// p = &b;                // 不合法
+// const 修饰指针（常量指针）：指向可改，值不可改
+const int *p1 = &b;
+p1 = &a;                  // 合法
+// *p1 = a;               // 不合法
+// const 既修饰指针又修饰常量
+const int * const p2 = &a;
+// p2 = &b 与 *p2 = b 均非法   （笔记原写 p1，已改正）
+\end{code}
+\textbf{本题真正想说明}：判断一行是否合法，只需两步——\ci{①} 这一行改的是 \cc{p} 还是 \cc{*p}？\ci{②} 对应的那一侧有没有 const？
+\end{examplebox}
+
+\begin{summarybox}[判断步骤（三步法）]
+\textbf{第一步} 找到 \cc{*}；\textbf{第二步} 看 \cc{const} 在 \cc{*} 左边、右边还是两边都有；\textbf{第三步} 看被检查的语句改的是 \cc{*p}（值）还是 \cc{p}（指向），对应一侧有锁就不合法。
+\end{summarybox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item \cc{int const *p} 锁的是什么？
+  \item \cc{const int *p = \&a;} 之后，\cc{a = 5;} 合法吗？\cc{*p = 5;} 呢？
+  \item 为什么 \cc{const int c = 5; int *q = \&c;} 会编译失败？
+  \item 如果要写一个“只读取数组、不修改数组”的函数，形参应该怎样写？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 会用 const 控制指针的权力了。\textbf{下一步还需要解决什么？} 目前指针都只指向单个变量。数组是一排连续的变量——指针能不能“一格一格地走”过去？
+
+% ================================================================
+\section{指针和数组：让指针在数组上移动}\label{sec:arr}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 为什么 \cc{int *p = arr;} 不用写 \cc{\&}？\ci{②} \cc{p++} 究竟让地址增加了多少？\ci{③} 用指针遍历数组时，边界在哪里？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 数组连续存放 $\to$ 数组名转换为首元素指针 $\to$ 指针算术 $p+k$ $\to$ \cc{arr[i]} $\equiv$ \cc{*(arr+i)} $\to$ 遍历与越界
+
+\subsection{为什么需要用指针访问数组}
+数组元素在内存中\textbf{紧挨着}存放。既然知道第一个元素在哪里、每个元素多大，就能算出任何一个元素的位置。指针正是做这种“按位置访问”的工具——第八讲把数组交给函数时，函数拿到的恰恰只有“第一个元素在哪里”。
+
+\subsection{数组名与首元素地址}
+\begin{definitionbox}[数组到指针的转换]
+在大多数表达式中，数组名 \cc{arr} 会自动转换为\textbf{指向首元素的指针}，即
+\[
+\texttt{arr}\ \longrightarrow\ \texttt{\&arr[0]}\qquad(\text{类型为 } \texttt{int*})
+\]
+因此 \cpp{int *p = arr;} 与 \cpp{int *p = &arr[0];} 完全等价。\\
+\textbf{例外}（本章会遇到的）：\cc{sizeof(arr)} 中不转换，得到整个数组的字节数。另外数组名不能被赋值，\cc{arr++} 是错误的。
+\end{definitionbox}
+
+\subsection{核心关系：指针加 1 到底加了多少}
+\begin{formulabox}[指针算术]
+设 \cc{T *p} 指向某数组中的一个元素，$k$ 为整数，则 \cc{p + k} 指向其后第 $k$ 个元素，其地址为
+\[
+\boxed{\ \text{地址}(\texttt{p}+k) \;=\; \text{地址}(\texttt{p}) \;+\; k\times\texttt{sizeof(T)}\ }
+\]
+特别地，\cc{p++} 使地址增加 \cc{sizeof(T)} 字节；对 \cc{int*}（\cc{int} 为 4 字节）即“向后偏移 4 个字节”（笔记红字）。\\
+{\small 使用条件：\cc{p+k} 必须仍位于同一数组内（或恰好指向最后一个元素的\emph{下一个}位置，但那个位置不能解引用）。超出范围就是越界。}
+\end{formulabox}
+
+\begin{proofbox}[推导：步长为什么是 \texttt{sizeof(T)}，以及 \texttt{arr[i]} $\equiv$ \texttt{*(arr+i)}]
+\textbf{已知}：数组 \cc{T arr[n]} 的 $n$ 个元素连续存放，每个占 \cc{sizeof(T)} 字节，\cc{arr[0]} 的地址为 $A$。
+
+\textbf{第一步}：\cc{arr[0]} 占 $[A,\ A+s-1]$（记 $s=\texttt{sizeof(T)}$），紧接着的 \cc{arr[1]} 从 $A+s$ 开始；以此类推，\cc{arr[i]} 的地址为 $A+i\cdot s$（数学归纳：每多一个元素，起点后移 $s$）。
+
+\textbf{第二步}：设计者希望“\cc{p+1} 指向下一个元素”，由第一步，下一个元素比当前元素的地址大 $s$，所以指针加 $k$ 必须让地址加 $k\cdot s$，而不是加 $k$ 字节。这就是指针必须带类型的原因——\textbf{类型决定步长}。
+
+\textbf{第三步}：由数组到指针的转换，\cc{arr} 等于 \cc{\&arr[0]}，地址为 $A$；于是 \cc{arr + i} 的地址为 $A+i\cdot s$，正是 \cc{arr[i]} 的地址。由第二讲，对它解引用就得到 \cc{arr[i]} 本身：
+\[
+\texttt{*(arr + i)}\ \equiv\ \texttt{arr[i]}.
+\]
+事实上，C++ 标准正是把下标运算 \cc{E1[E2]} \emph{定义}为 \cc{*((E1)+(E2))}。所以对指针也可以写下标：\cc{p[i]} 就是 \cc{*(p+i)}。
+\end{proofbox}
+
+\begin{center}
+\begin{tikzpicture}
+  \arr{A}{0,0}{1,2,3,4,5}{arr}
+  \foreach \k/\h in {0/00,1/04,2/08,3/0C,4/10} \node[adt] at (A-\k.north) {0x10\h};
+  \pcell{p0}{0,-1.9}{p}{0x1000}
+  \draw[ptr] (p0.north) -- ([yshift=-3mm]A-0.south);
+  \pcell[hl]{p1}{4.4,-1.9}{p}{0x1004}
+  \draw[ptr,draw=okc] (p1.north) to[out=90,in=-60] ([yshift=-3mm]A-1.south);
+  \node[note,anchor=west] at (5.4,-1.9) {执行 \texttt{p++} 之后：\\地址 $+4$（\texttt{sizeof(int)}），\\指向下一个元素 \texttt{arr[1]}};
+  \node[bnote,anchor=west] at (5.6,0.1) {\texttt{p+5}：最后一个元素的下一位\\可以指到这里，但不能 \texttt{*}};
+  \draw[ptrbad] (5.6,0.1) -- ([xshift=1mm]A-4.east);
+\end{tikzpicture}
+\figcap{图 6.1\quad \texttt{p++} 不是“地址加 1”，而是“走到下一个元素”——\texttt{int*} 每步 4 字节}
+\end{center}
+
+图 6.1 中数组 5 个元素首尾相接，上方是示意地址，相邻两个元素恰好差 \cc{0x04}。初始时 \cc{p} 指向 \cc{arr[0]}（深蓝箭头）；执行 \cc{p++} 后，\cc{p} 的值由 \cc{0x1000} 变为 \cc{0x1004}，指向 \cc{arr[1]}（绿箭头）。
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.8\linewidth,height=5.3cm,xlabel={$k$（指针加上的整数）},ylabel={地址增加的字节数},
+  xmin=0,xmax=5.2,ymin=0,ymax=42,xtick={0,...,5},ytick={0,8,16,24,32,40},
+  label style={font=\sffamily\small},tick label style={font=\small},
+  axis lines=left,grid=major,grid style={gridc},
+  legend style={font=\ttfamily\small,at={(0.02,0.98)},anchor=north west,draw=gridc}]
+\addplot[mainc,very thick,mark=*,mark size=1.6pt,domain=0:5,samples=6] {8*x};
+\addplot[auxc,very thick,mark=square*,mark size=1.6pt,domain=0:5,samples=6] {4*x};
+\addplot[beigec,very thick,mark=triangle*,mark size=2pt,domain=0:5,samples=6] {x};
+\legend{double*\ (斜率 8),int*\ (斜率 4),char*\ (斜率 1)}
+\end{axis}
+\end{tikzpicture}
+\figcap{图 6.2\quad $p+k$ 的地址增量与 $k$ 成正比，斜率就是 \texttt{sizeof(T)}}
+\end{center}
+图 6.2 的横轴是加到指针上的整数 $k$，纵轴是地址实际增加的字节数。三条直线都过原点，斜率分别是 8、4、1——这就是公式 $k\times\texttt{sizeof(T)}$ 的图像：\textbf{同样是 $p+3$，不同类型的指针走过的字节数不同}。
+
+\begin{examplebox}[6.1\quad 笔记 §7.6 示例：访问第一、第二个元素]
+\begin{code}
+int arr[] = {1,2,3,4,5,6,7,8,9,10};
+int *p = arr;                       // 数组名就是首元素地址
+cout << "第一个元素：" << *p << endl;
+cout << p << endl;
+p++;                                // 向后偏移 4 个字节（sizeof(int)）
+cout << p << endl;
+cout << "第二个元素为：" << *p << endl;
+\end{code}
+\textbf{实测输出}：\cc{第一个元素：1}，\cc{0x7ffd86321fa0}，\cc{0x7ffd86321fa4}，\cc{第二个元素为：2}。两个地址的末位由 \cc{a0} 变为 \cc{a4}，恰好相差 4，验证了公式。
+\end{examplebox}
+
+\begin{examplebox}[6.2\quad 通过指针遍历数组（改正越界版本）]
+\begin{code}
+int arr[] = {1,2,3,4,5};
+int len = sizeof(arr) / sizeof(arr[0]);   // 20 / 4 = 5
+int *p = arr;
+for (int i = 0; i < len; i++)             // 笔记原写 i < 10，越界
+{
+    cout << *p << endl;
+    p++;
+}
+\end{code}
+\begin{center}
+\begin{tikzpicture}
+  \arr{B}{0,0}{1,2,3,4,5}{arr}
+  \foreach \k in {5,...,9} \node[acell,badcell,dashed] (B-\k) at (\k*0.9,0) {?};
+  \foreach \k in {0,...,4} \node[gnote] at ([yshift=4mm]B-\k.north) {\k};
+  \foreach \k in {5,...,9} \node[bnote] at ([yshift=4mm]B-\k.north) {\k};
+  \node[note,anchor=east] at ([xshift=-10mm,yshift=4mm]B-0.north) {第 $i$ 次循环读的格子};
+  \draw[decorate,decoration={brace,mirror,amplitude=4pt},draw=okc] ([yshift=-4mm]B-0.south west) -- ([yshift=-4mm]B-4.south east) node[midway,below=4pt,gnote]{\texttt{i < len}：合法范围};
+  \draw[decorate,decoration={brace,mirror,amplitude=4pt},draw=badc] ([yshift=-4mm]B-5.south west) -- ([yshift=-4mm]B-9.south east) node[midway,below=4pt,bnote]{原写 \texttt{i < 10} 多读的 5 次：越界};
+\end{tikzpicture}
+\end{center}
+\textbf{本题真正想说明}：指针遍历时编译器\textbf{不会}检查是否越界，边界完全由程序员负责。用 \cc{sizeof(arr)/sizeof(arr[0])} 计算长度，是最简单的防护。
+\end{examplebox}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item \textbf{认为 \cc{p++} 是地址加 1。}对 \cc{int*} 是加 4 字节（一个元素），见图 6.2。
+  \item \textbf{混淆 \cc{p++} 与 \cc{(*p)++}。}前者移动指针，后者把当前元素的值加 1。
+  \item \textbf{对数组名做自增。}\cc{arr++} 编译错误；要移动请先 \cc{int *p = arr;} 再移动 \cc{p}。
+  \item \textbf{忘了越界没有报错。}越界读写可能不崩溃，但结果不可信（原图纠错\ci{①}）。
+\end{enumerate}
+\end{warningbox}
+
+\begin{extendbox}
+\cc{*p++} 表示“先取 \cc{*p}，再让 \cc{p} 后移”（后置 \cc{++} 优先级更高，但返回旧值）。这种紧凑写法在 C 语言库代码中很常见，初学阶段建议分成两行写。
+\end{extendbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item \cc{int arr[5]} 首地址为 \cc{0x2000}，\cc{arr + 3} 的地址是多少？
+  \item \cc{*(arr+2)} 和 \cc{arr[2]} 是什么关系？\cc{*arr + 2} 呢？
+  \item 若 \cc{double *q} 指向 \cc{0x3000}，\cc{q + 2} 的地址是多少？
+  \item 为什么说“类型决定步长”？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 指针可以在数组上移动、访问任意元素。\textbf{下一步还需要解决什么？} 指针最重要的用途之一是和函数配合：怎样让一个函数修改调用者的变量？
+
+% ================================================================
+\section{指针和函数：值传递与地址传递}\label{sec:func}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答三个问题：}\ \ci{①} 为什么 \cc{swap(a, b)} 交换不了 \cc{main} 中的 \cc{a}、\cc{b}？\ci{②} 传地址为什么就能改？\ci{③} 什么时候该传地址？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 回顾值传递（形参是拷贝） $\to$ 证明值传递改不了实参 $\to$ 地址传递（拷贝的是地址） $\to$ 通过解引用改实参 $\to$ 选择原则
+
+\subsection{回顾：值传递}
+\begin{examplebox}[7.1\quad 笔记 §7.7 值传递示例]
+\begin{code}
+void swap(int a, int b)       // 形参 a、b
+{
+    int temp = b;
+    b = a;
+    a = temp;
+}
+int main()
+{
+    int a = 10;
+    int b = 20;
+    swap(a, b);               // 实参 a、b
+    cout << "a=" << a << " b=" << b << endl;   // 输出 a=10 b=20
+    return 0;
+}
+\end{code}
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}
+  \node[frame,minimum width=46mm,minimum height=24mm] (M) at (0,0) {};
+  \node[font=\sffamily\bfseries\small,text=mainc,anchor=north west] at (M.north west) {main 的变量};
+  \cell{ma}{0.2,0.15}{a}{10}\addr{ma}{0x1000}
+  \cell{mb}{0.2,-0.75}{b}{20}
+  \node[frame,minimum width=46mm,minimum height=24mm,fill=warmc] (S) at (6.2,0) {};
+  \node[font=\sffamily\bfseries\small,text=beigec,anchor=north west] at (S.north west) {swap 的形参（新变量）};
+  \cell[hl]{sa}{6.4,0.15}{a}{20}\addr{sa}{0x2000}
+  \cell[hl]{sb}{6.4,-0.75}{b}{10}
+  \draw[->,draw=auxc,dashed,line width=0.8pt] (M.east) -- node[above,note]{调用时复制值} node[below,note]{10、20} (S.west);
+  \node[gnote] at (0.2,-1.7) {始终是 10、20，未被改变};
+  \node[bnote] at (6.4,-1.7) {被交换的只是副本；\\函数结束后副本销毁};
+\end{tikzpicture}
+\figcap{图 7.1\quad 值传递：\texttt{swap} 中的 a、b 是另外两个变量（地址不同），交换它们与 main 无关}
+\end{center}
+
+\begin{theorembox}[值传递不能修改实参]
+若函数形参是普通变量（非指针、非引用），则在函数体内对形参的任何赋值，都\textbf{不会}改变调用处的实参。
+\end{theorembox}
+\begin{proofbox}
+\textbf{已知}：C++ 在调用 \cc{swap(a, b)} 时，为形参创建\textbf{新的}变量，并用实参的\emph{值}初始化它们（这就是“值传递”的定义）。
+
+\textbf{第一步}：形参 \cc{a} 与 \cc{main} 中的 \cc{a} 是两个不同的对象，占用不同的内存（图 7.1 中 \cc{0x1000} 与 \cc{0x2000}）。\\
+\textbf{第二步}：赋值语句只修改赋值号左边那个对象所占的字节。\cc{swap} 函数体中所有赋值的左边都是形参 \cc{a}、\cc{b} 或局部变量 \cc{temp}，它们都在 \cc{swap} 自己的内存中。\\
+\textbf{第三步}：因此 \cc{main} 中 \cc{a}、\cc{b} 所占的字节从未被写过，值保持 10、20。函数返回后形参被销毁，交换结果随之消失。
+
+\textbf{直观解释}：你给朋友一份文件的\emph{复印件}，他在复印件上怎么改，你手里的原件都不会变。
+\end{proofbox}
+
+\subsection{地址传递：把“原件的位置”交出去}
+\begin{examplebox}[7.2\quad 笔记 §7.7 地址传递示例]
+\begin{code}
+void swap_p(int *p1, int *p2)
+{
+    int temp = *p1;           // 取出 a 的值
+    *p1 = *p2;                // 把 b 的值写进 a
+    *p2 = temp;               // 把原来 a 的值写进 b
+}
+int main()
+{
+    int a = 10;
+    int b = 20;
+    swap_p(&a, &b);           // 传入 a、b 的地址
+    cout << "a=" << a << " b=" << b << endl;   // 输出 a=20 b=10
+    return 0;
+}
+\end{code}
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}
+  \node[frame,minimum width=40mm,minimum height=24mm] (M) at (0,0) {};
+  \node[font=\sffamily\bfseries\small,text=mainc,anchor=north west] at (M.north west) {main};
+  \cell[hl]{ma}{0.3,0.15}{a}{20}\addr{ma}{0x1000}
+  \cell[hl]{mb}{0.3,-0.75}{b}{10}\node[ad,anchor=north] at (mb.south) {0x1004};
+  \node[frame,minimum width=52mm,minimum height=24mm,fill=warmc] (S) at (6.1,0) {};
+  \node[font=\sffamily\bfseries\small,text=beigec,anchor=north west] at (S.north west) {swap\_p 的形参};
+  \pcell{p1}{5.6,0.15}{p1}{0x1000}
+  \pcell{p2}{5.6,-0.75}{p2}{0x1004}
+  \cell{t}{7.6,-0.3}{}{10}\node[vn,anchor=south] at (t.north) {temp};
+  \draw[ptr] ([xshift=-6mm]p1.west) -- (ma.east);
+  \draw[ptr] ([xshift=-6mm]p2.west) -- (mb.east);
+\end{tikzpicture}
+\figcap{图 7.2\quad 地址传递：形参 p1、p2 保存的是 main 中 a、b 的地址，\texttt{*p1}、\texttt{*p2} 就是 main 的 a、b}
+\end{center}
+
+\begin{center}
+\small
+\begin{tabular}{@{}clccc@{}}
+\toprule
+\rowcolor{lightc}步骤 & 执行的语句 & \cc{temp} & \cc{a}（即 \cc{*p1}） & \cc{b}（即 \cc{*p2}） \\
+\midrule
+0 & 进入函数 & — & 10 & 20 \\
+1 & \cc{int temp = *p1;} & 10 & 10 & 20 \\
+2 & \cc{*p1 = *p2;} & 10 & \textbf{20} & 20 \\
+3 & \cc{*p2 = temp;} & 10 & 20 & \textbf{10} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{intuitionbox}[关键认识：“地址传递”其实也是值传递]
+仔细看图 7.2：\cc{p1}、\cc{p2} 也是 \cc{swap\_p} 新建的变量，它们同样是\emph{拷贝}——只不过拷贝的值是\textbf{地址}。拷贝来的地址和原地址相同，所以顺着它解引用，找到的是 \cc{main} 中的原变量。由第二讲的 \cc{*p} $\equiv$ \cc{x}，\cc{*p1 = *p2} 就是在修改 \cc{main} 的 \cc{a}。
+
+推论（常考）：如果在函数中修改的是 \emph{指针本身}（如 \cc{p1 = nullptr;}），调用者手里的指针\textbf{不受影响}——因为那只是改了副本。改“指向的东西”才会影响外部。
+\end{intuitionbox}
+
+\begin{center}
+\noindent\begin{tabularx}{\linewidth}{@{}p{2.5cm}YY@{}}
+\toprule
+\rowcolor{lightc}比较维度 & 值传递 & 地址传递 \\
+\midrule
+形参类型 & \cc{int a} & \cc{int *p} \\
+调用写法 & \cc{swap(a, b)} & \cc{swap\_p(\&a, \&b)} \\
+复制了什么 & 实参的值（10、20） & 实参的地址（0x1000、0x1004） \\
+函数内如何修改 & 改形参自己 & 改 \cc{*p}，即实参本身 \\
+能否改变实参 & 不能 & 能 \\
+适用场景 & 只需要读实参的值 & 需要修改实参；或数据很大、不想复制（配合 const） \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item 调用时漏写 \cc{\&}：\cc{swap\_p(a, b)} 把 \cc{int} 传给 \cc{int*} 形参，编译报错。
+  \item 函数内写成 \cc{int temp = p1; p1 = p2; p2 = temp;}（交换的是两个指针副本），实参不变。必须写 \cc{*}。
+  \item 以为“传了指针就一定能改外部”：只有改 \cc{*p} 才影响外部；改 \cc{p} 本身不影响（见 B 组第 27 题）。
+\end{enumerate}
+\end{warningbox}
+
+\begin{extendbox}
+下一章将学习“引用”：\cc{void swap\_r(int \&a, int \&b)} 也能交换实参，而调用时不需要写 \cc{\&}。引用在底层通常也是用地址实现的，可以看作“更安全、写法更简洁的指针”。
+\end{extendbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item 用自己的话证明：值传递的函数为什么改不了实参？
+  \item \cc{swap\_p} 中 \cc{temp} 为什么必须是 \cc{int} 而不是 \cc{int*}？
+  \item “地址传递也是值传递”这句话对吗？怎么理解？
+  \item 函数内执行 \cc{p1 = nullptr;}，调用者的指针会变成空指针吗？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 函数可以通过指针修改外部数据了。\textbf{下一步还需要解决什么？} 把前面所有内容合在一起：写一个函数，接收一个数组，把它原地排好序——这就是笔记 §7.8 的综合案例。
+
+% ================================================================
+\section{指针、数组和函数：封装冒泡排序}\label{sec:bubble}
+% ================================================================
+\noindent{\sffamily\bfseries\color{mainc}本讲回答四个问题：}\ \ci{①} 数组怎样传给函数？函数里还能用 \cc{sizeof} 求长度吗？\ci{②} 冒泡排序每一轮在做什么？\ci{③} 两层循环的边界 \cc{n-1} 和 \cc{n-i-1} 从哪里来？\ci{④} 为什么冒泡排序一定能排好序？\par
+\noindent{\sffamily\color{auxc}知识路线：}\ 数组传参 = 传首地址 $\to$ 必须另传长度 $\to$ 相邻比较交换 $\to$ 推导循环边界 $\to$ 正确性证明 $\to$ 比较次数
+
+\subsection{任务}
+笔记案例：\textbf{封装一个函数，利用冒泡排序，实现对整型数组的升序排序}。例如数组 \cc{\{3, 7, 9, 12, 5, 1\}} 排序后为 \cc{1 3 5 7 9 12}。
+
+\subsection{第一步：数组怎样传进函数}
+\begin{definitionbox}[数组作函数参数]
+调用 \cpp{BubbleSort(arr, len)} 时，实参 \cc{arr} 按第六讲的规则转换为 \cc{\&arr[0]}，所以形参只能收到一个\textbf{地址}。以下两种形参写法完全等价：
+\[
+\texttt{void BubbleSort(int *arr, int n)}\ \Longleftrightarrow\ \texttt{void BubbleSort(int arr[], int n)}
+\]
+函数通过这个地址直接操作原数组（这是第七讲“地址传递”），所以排序结果会保留在 \cc{main} 的数组中。
+\end{definitionbox}
+
+\begin{theorembox}[数组长度必须由调用者计算并传入]
+在定义数组的地方，$\texttt{len}=\dfrac{\texttt{sizeof(arr)}}{\texttt{sizeof(arr[0])}}$ 等于元素个数；但在函数内部，\cc{sizeof(arr)} 只是\textbf{指针的大小}（64 位程序为 8），不能再这样求长度。
+\end{theorembox}
+\begin{proofbox}[推导]
+\textbf{在 main 中}：\cc{int arr[] = \{3,7,9,12,5,1\};} 有 6 个 \cc{int}。\cc{sizeof(arr)} 属于第六讲所说的“不转换”的例外，得到整个数组的字节数 $6\times4=24$；\cc{sizeof(arr[0])}$=4$，于是 $24\div4=6$。一般地，$\dfrac{n\cdot\texttt{sizeof(int)}}{\texttt{sizeof(int)}}=n$。
+
+\textbf{在函数中}：形参 \cc{arr} 的类型是 \cc{int*}（即使写成 \cc{int arr[]} 也是如此），由第三讲，\cc{sizeof(arr)} $=8$，$8\div4=2$，与真实长度无关。若形参写成 \cc{int arr[]}，g++ 还会给出警告 \cc{sizeof on array function parameter ... will return size of int*}。所以长度 \cc{n} 必须作为第二个参数传进来。
+\end{proofbox}
+
+\subsection{第二步：冒泡排序在做什么}
+\begin{definitionbox}[冒泡排序（升序）]
+从头到尾依次比较\textbf{相邻}两个元素 \cc{arr[j]} 与 \cc{arr[j+1]}，若前者大于后者就交换。这样“走一遍”称为\textbf{一轮}，一轮结束时，参与比较的元素中最大的那个会被换到最后，就像气泡上浮。对剩下的元素重复进行，直到全部有序。
+\end{definitionbox}
+
+\begin{center}
+\begin{tikzpicture}
+  \arrx{r0}{0,0}{5,3,7,8,2}{初始}{99}{0}{1}
+  \arrx{r1}{0,-1}{3,5,7,8,2}{j=0 后}{99}{1}{2}
+  \arrx{r2}{0,-2}{3,5,7,8,2}{j=1 后}{99}{2}{3}
+  \arrx{r3}{0,-3}{3,5,7,8,2}{j=2 后}{99}{3}{4}
+  \arrx{r4}{0,-4}{3,5,7,2,8}{j=3 后}{4}{-1}{-1}
+  \foreach \k in {0,...,4} \node[idx] at (r0-\k.north) [anchor=south] {[\k]};
+  \node[note,anchor=west] at (4.6,0) {比较 5 与 3：5>3，交换};
+  \node[note,anchor=west] at (4.6,-1) {比较 5 与 7：不交换};
+  \node[note,anchor=west] at (4.6,-2) {比较 7 与 8：不交换};
+  \node[note,anchor=west] at (4.6,-3) {比较 8 与 2：8>2，交换};
+  \node[gnote,anchor=west] at (4.6,-4) {第 1 轮结束：最大值 8 到达末尾};
+  \node[note,anchor=west,align=left] at (9.8,-1.5) {黄色：下一次要比较的一对\\绿色：已经到达最终位置};
+\end{tikzpicture}
+\figcap{图 8.1\quad 对 \{5,3,7,8,2\} 做第 1 轮（$i=0$）：4 次相邻比较，把最大值 8“冒”到最后}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}
+  \arrx{s0}{0,0}{5,3,7,8,2}{初始}{99}{-1}{-1}
+  \arrx{s1}{0,-0.95}{3,5,7,2,8}{第1轮后}{4}{-1}{-1}
+  \arrx{s2}{0,-1.9}{3,5,2,7,8}{第2轮后}{3}{-1}{-1}
+  \arrx{s3}{0,-2.85}{3,2,5,7,8}{第3轮后}{2}{-1}{-1}
+  \arrx{s4}{0,-3.8}{2,3,5,7,8}{第4轮后}{0}{-1}{-1}
+  \node[note,anchor=west] at (4.6,-0.95) {$i=0$：比较 4 次（$j=0\sim3$）};
+  \node[note,anchor=west] at (4.6,-1.9) {$i=1$：比较 3 次（$j=0\sim2$）};
+  \node[note,anchor=west] at (4.6,-2.85) {$i=2$：比较 2 次（$j=0\sim1$）};
+  \node[note,anchor=west] at (4.6,-3.8) {$i=3$：比较 1 次（$j=0$），剩下的 2 自动就位};
+\end{tikzpicture}
+\figcap{图 8.2\quad 每轮结束时的状态：绿色部分（已就位）每轮向左增长一格}
+\end{center}
+图 8.1 展示一轮内部的每一次比较；图 8.2 只看每一轮结束时的数组。注意绿色区域：第 1 轮后末尾 1 个就位，第 2 轮后末尾 2 个就位……这正是下面推导循环边界的依据。
+
+\subsection{第三步：推导两层循环的边界}
+\begin{formulabox}[冒泡排序的循环边界（$n$ 个元素）]
+\[
+\boxed{\begin{aligned}
+&\text{外层：}\ \texttt{for (int i = 0; i < n - 1; i++)}\\
+&\text{内层：}\ \texttt{for (int j = 0; j < n - i - 1; j++)}
+\end{aligned}}
+\]
+{\small $i$：已经完成的轮数（从 0 开始），也等于末尾已就位的元素个数；$j$：本轮正在比较的一对中\emph{左边}元素的下标。}
+\end{formulabox}
+
+\begin{proofbox}[推导（笔记 §7.8 “理解”部分的补全）]
+\textbf{外层为什么是 $n-1$ 轮}：每轮至少让一个元素就位（下面的定理保证）。$n-1$ 轮后，末尾 $n-1$ 个元素已就位，剩下的唯一一个元素必然是最小值，位于 \cc{arr[0]}，也已就位。所以最多需要 $n-1$ 轮，$i$ 取 $0,1,\dots,n-2$，即 \cc{i < n-1}。
+
+\textbf{内层为什么是 $j<n-i-1$}：
+\begin{enumerate}[leftmargin=1.5em]
+  \item 第 $i$ 轮开始时，末尾 $i$ 个元素已就位，需要处理的是下标 $0\sim n-1-i$ 的部分；
+  \item 比较的是 \cc{arr[j]} 与 \cc{arr[j+1]}，右边元素下标 $j+1$ 最大为 $n-1-i$，所以 $j\le n-2-i$；
+  \item $j\le n-2-i$ 等价于 $j<n-i-1$。
+\end{enumerate}
+代入笔记的例子：$n=5,\ i=0$ 时最后比较的是 \cc{arr[3]} 与 \cc{arr[4]}，$j_{\max}=3$，即 $j<4=n-1$；每进行一轮，需要比较的少一个，所以一般地 $j<n-i-1$。
+
+\textbf{比较次数}：第 $i$ 轮比较 $n-1-i$ 次，总次数
+\[
+\sum_{i=0}^{n-2}(n-1-i)=(n-1)+(n-2)+\cdots+1=\frac{n(n-1)}{2}.
+\]
+例如 $n=5$ 时为 $10$ 次（图 8.2：$4+3+2+1$），$n=6$ 时为 $15$ 次。
+\end{proofbox}
+
+\begin{theorembox}[冒泡排序的正确性]
+对任意 $n\ge1$ 个整数，按上述边界执行冒泡排序后，数组按升序排列。
+\end{theorembox}
+\begin{proofbox}
+\textbf{要证明}：对 $i=0,1,\dots,n-2$，第 $i$ 轮结束后，下标 $n-1-i\sim n-1$ 的 $i+1$ 个位置上是整个数组中最大的 $i+1$ 个数，并已按升序排列（称为“性质 $P(i)$”）。
+
+\textbf{引理}（一轮内部）：在某一轮中，比较完 \cc{arr[j]} 与 \cc{arr[j+1]} 后，\cc{arr[j+1]} 等于本轮参与部分 \cc{arr[0..j+1]} 中的最大值。\\
+\emph{证明}：对 $j$ 归纳。$j=0$：比较并在需要时交换后，\cc{arr[1]} 是 \cc{arr[0]}、\cc{arr[1]} 中较大的。设比较完第 $j-1$ 对后 \cc{arr[j]} 是 \cc{arr[0..j]} 的最大值；比较第 $j$ 对后，\cc{arr[j+1]} 变为 $\max(\texttt{arr[j]},\texttt{arr[j+1]})$，也就是 \cc{arr[0..j+1]} 的最大值。引理得证。
+
+\textbf{主证明}（对轮数归纳）：第 $i$ 轮的内层循环最后一次 $j=n-i-2$，由引理，结束时 \cc{arr[n-1-i]} 是 \cc{arr[0..n-1-i]} 的最大值。当 $i=0$ 时，它就是全体最大值，$P(0)$ 成立。若 $P(i-1)$ 成立，则 \cc{arr[0..n-1-i]} 恰好是除去最大 $i$ 个数后剩下的数，其中最大者即全体第 $i+1$ 大的数，被放到 \cc{arr[n-1-i]}，且它不大于后面已就位的数，所以 $P(i)$ 成立。
+
+\textbf{结论}：$P(n-2)$ 表明下标 $1\sim n-1$ 是最大的 $n-1$ 个数且有序，剩下的 \cc{arr[0]} 是最小值，于是整个数组有序。
+
+\textbf{一句话直观解释}：每一轮都像“擂台赛”，最大的一路赢到最后；赢过的就不再参赛。
+\end{proofbox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=0.78\linewidth,height=5.2cm,xlabel={元素个数 $n$},ylabel={比较次数},
+  xmin=1,xmax=10.5,ymin=0,ymax=48,xtick={1,...,10},
+  label style={font=\sffamily\small},tick label style={font=\small},axis lines=left,grid=major,grid style={gridc},
+  legend style={font=\small,at={(0.02,0.98)},anchor=north west,draw=gridc}]
+\addplot[mainc,very thick,mark=*,mark size=1.5pt,samples at={1,...,10}] {x*(x-1)/2};
+\addplot[auxc,thick,dashed,domain=1:10] {x};
+\legend{冒泡排序 $n(n-1)/2$,参照线 $n$}
+\node[font=\small,text=badc,anchor=south east] at (axis cs:6,15) {$n=6$：15 次};
+\fill[badc] (axis cs:6,15) circle (2pt);
+\end{axis}
+\end{tikzpicture}
+\figcap{图 8.3\quad 比较次数随 $n$ 按二次函数增长：$n$ 翻一倍，比较次数约变为 4 倍}
+\end{center}
+图 8.3 横轴为元素个数，纵轴为比较次数。实线（冒泡排序）是抛物线，虚线是直线 $y=n$ 作参照：$n$ 较大时实线远高于虚线。这说明冒泡排序适合教学和小规模数据，大规模数据需要更快的算法（后续“数据结构”课程）。
+
+\subsection{第四步：完整程序（已改正笔记中的两处错误）}
+\begin{code}
+#include <iostream>
+using namespace std;
+
+// 冒泡排序：arr 为数组首地址，n 为元素个数
+void BubbleSort(int *arr, int n)
+{
+    for (int i = 0; i < n - 1; i++)            // 共 n-1 轮
+    {
+        for (int j = 0; j < n - i - 1; j++)    // 笔记原写 n-j-1，错误
+        {
+            if (arr[j] > arr[j + 1])           // 笔记原缺少括号
+            {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// 打印数组：只读，用 const 保护（第五讲）
+void PrintArray(const int *arr, int n)
+{
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+}
+
+int main()
+{
+    int arr[] = {3, 7, 9, 12, 5, 1};
+    int len = sizeof(arr) / sizeof(arr[0]);    // 24 / 4 = 6
+    BubbleSort(arr, len);                      // 传入首地址和长度
+    PrintArray(arr, len);                      // 输出：1 3 5 7 9 12
+    return 0;
+}
+\end{code}
+\noindent 这段代码一次用上了本章全部主线：\textbf{数组名即首地址}（第六讲）$\to$ \textbf{地址传递使函数能修改原数组}（第七讲）$\to$ \textbf{\cc{sizeof} 求长度必须在 main 中进行}（第三讲）$\to$ \textbf{\cc{const} 保护只读参数}（第五讲）。与笔记相比，\cc{PrintArray} 的形参加了 \cc{const}，输出改为同一行，属于教学补全。
+
+\begin{center}
+\begin{tikzpicture}
+  \arrx{w}{0,0}{3,7,9,12,5,1}{每轮比较}{99}{-1}{-1}
+  \foreach \a/\b in {0/1,1/2,2/3} \draw[okc,line width=1pt] ([yshift=1mm]w-\a.north) to[out=60,in=120] node[above,gnote]{\a} ([yshift=1mm]w-\b.north);
+  \foreach \a/\b in {3/4,4/5} \draw[badc,line width=1pt,dashed] ([yshift=1mm]w-\a.north) to[out=60,in=120] node[above,bnote]{\a} ([yshift=1mm]w-\b.north);
+  \node[bnote,anchor=west,align=left] at (5.6,0.2) {错误版本 \texttt{j < n-j-1}（$n=6$）：\\ $j<5-j \iff j\le 2$，只比较绿色的 3 对，\\红色虚线的 \texttt{12,5}、\texttt{5,1} 永远不比较\\ $\Rightarrow$ 实测输出仍为 \texttt{3 7 9 12 5 1}};
+\end{tikzpicture}
+\figcap{图 8.4\quad 笔记封装版本的错误：内层条件写成 \texttt{n-j-1}，每一轮都只比较前 3 对}
+\end{center}
+
+\begin{warningbox}
+\begin{enumerate}
+  \item \textbf{内层边界写错}：\cc{j < n-j-1}（笔记原误）只比较前半部分；\cc{j < n-1-i} 写成 \cc{j < n-i} 则会让 \cc{arr[j+1]} 越界。
+  \item \textbf{在函数内用 \cc{sizeof(arr)} 求长度}：得到的是指针大小，见上面的推导。
+  \item \textbf{交换时顺序写错}：必须借助 \cc{temp}，写成 \cc{arr[j] = arr[j+1]; arr[j+1] = arr[j];} 会丢失一个值。
+  \item \textbf{升序/降序符号弄反}：升序用 \cc{>} 时交换；降序改成 \cc{<}。
+\end{enumerate}
+\end{warningbox}
+
+\begin{extendbox}
+实际开发中可直接使用标准库 \cc{std::sort(arr, arr + len);}——注意它的参数也是两个指针：“首元素地址”和“最后一个元素的下一个位置”，正是第六讲图 6.1 中的 \cc{p+5}。这种“左闭右开”的表示法会贯穿整个 C++ 标准库。
+\end{extendbox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.,itemsep=0pt]
+  \item 为什么 \cc{BubbleSort} 能修改 \cc{main} 中的数组，而第七讲的 \cc{swap(a,b)} 却不能修改实参？
+  \item 对 8 个元素做冒泡排序，外层几轮？总共比较几次？
+  \item 写出 \cc{j < n-i-1} 的推导过程。
+  \item 为什么函数中的 \cc{sizeof(arr)} 不能用来求数组长度？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？} 从“地址是什么”出发，一路走到了“用指针把数组交给函数去排序”，第七章的主线全部打通。接下来用一张知识地图回顾全章，然后进入分层练习。
