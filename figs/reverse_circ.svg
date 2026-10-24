@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="890" font-family="sans-serif">
+<rect width="100%" height="100%" fill="white"/>
+<defs>
+<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker>
+<marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d22"/></marker>
+</defs>
+<text x="10" y="48" font-size="18" font-weight="bold" fill="#123">初始</text>
+<rect x="38.0" y="85.0" width="64" height="40" rx="6" fill="#ddd" stroke="#333"/>
+<text x="70" y="111" font-size="17" text-anchor="middle">头</text>
+<rect x="178.0" y="85.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="210" y="111" font-size="17" text-anchor="middle">1</text>
+<rect x="318.0" y="85.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="350" y="111" font-size="17" text-anchor="middle">2</text>
+<rect x="458.0" y="85.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="490" y="111" font-size="17" text-anchor="middle">3</text>
+<line x1="102.0" y1="97" x2="178.0" y2="97" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="242.0" y1="97" x2="318.0" y2="97" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="382.0" y1="97" x2="458.0" y2="97" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M490,85.0 C490,43 70,43 70,85.0" fill="none" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="10" y="218" font-size="18" font-weight="bold" fill="#123">① 准备</text>
+<line x1="0" y1="192" x2="940" y2="192" stroke="#ccc"/>
+<rect x="38.0" y="255.0" width="64" height="40" rx="6" fill="#ddd" stroke="#333"/>
+<text x="70" y="281" font-size="17" text-anchor="middle">头</text>
+<rect x="178.0" y="255.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="210" y="281" font-size="17" text-anchor="middle">1</text>
+<text x="210" y="323" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ p</text>
+<rect x="318.0" y="255.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="350" y="281" font-size="17" text-anchor="middle">2</text>
+<text x="350" y="323" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ q</text>
+<rect x="458.0" y="255.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="490" y="281" font-size="17" text-anchor="middle">3</text>
+<line x1="102.0" y1="267" x2="178.0" y2="267" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="178.0" y1="283" x2="102.0" y2="283" stroke="#d22" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="382.0" y1="267" x2="458.0" y2="267" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<path d="M490,255.0 C490,213 70,213 70,255.0" fill="none" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="600" y="253" font-size="16" font-family="monospace" fill="#222">p = first->link;  q = p->link;</text>
+<text x="600" y="279" font-size="16" font-family="monospace" fill="#222">p->link = first;</text>
+<text x="10" y="388" font-size="18" font-weight="bold" fill="#123">② 第 1 轮循环</text>
+<line x1="0" y1="362" x2="940" y2="362" stroke="#ccc"/>
+<rect x="38.0" y="425.0" width="64" height="40" rx="6" fill="#ddd" stroke="#333"/>
+<text x="70" y="451" font-size="17" text-anchor="middle">头</text>
+<rect x="178.0" y="425.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="210" y="451" font-size="17" text-anchor="middle">1</text>
+<rect x="318.0" y="425.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="350" y="451" font-size="17" text-anchor="middle">2</text>
+<text x="350" y="493" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ p</text>
+<rect x="458.0" y="425.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="490" y="451" font-size="17" text-anchor="middle">3</text>
+<text x="490" y="493" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ q, r</text>
+<line x1="102.0" y1="437" x2="178.0" y2="437" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="178.0" y1="453" x2="102.0" y2="453" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="318.0" y1="453" x2="242.0" y2="453" stroke="#d22" stroke-width="2.6" marker-end="url(#ar)"/>
+<path d="M490,425.0 C490,383 70,383 70,425.0" fill="none" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="600" y="423" font-size="16" font-family="monospace" fill="#222">r = q->link;  q->link = p;</text>
+<text x="600" y="449" font-size="16" font-family="monospace" fill="#222">p = q;  q = r;</text>
+<text x="10" y="558" font-size="18" font-weight="bold" fill="#123">② 第 2 轮循环</text>
+<line x1="0" y1="532" x2="940" y2="532" stroke="#ccc"/>
+<rect x="38.0" y="595.0" width="64" height="40" rx="6" fill="#ddd" stroke="#333"/>
+<text x="70" y="621" font-size="17" text-anchor="middle">头</text>
+<text x="70" y="663" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ q, r</text>
+<rect x="178.0" y="595.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="210" y="621" font-size="17" text-anchor="middle">1</text>
+<rect x="318.0" y="595.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="350" y="621" font-size="17" text-anchor="middle">2</text>
+<rect x="458.0" y="595.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="490" y="621" font-size="17" text-anchor="middle">3</text>
+<text x="490" y="663" font-size="16" text-anchor="middle" fill="#a50" font-weight="bold">↑ p</text>
+<line x1="102.0" y1="607" x2="178.0" y2="607" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="178.0" y1="623" x2="102.0" y2="623" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="318.0" y1="623" x2="242.0" y2="623" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="458.0" y1="623" x2="382.0" y2="623" stroke="#d22" stroke-width="2.6" marker-end="url(#ar)"/>
+<text x="600" y="593" font-size="16" font-family="monospace" fill="#222">r = q->link;  q->link = p;</text>
+<text x="600" y="619" font-size="16" font-family="monospace" fill="#222">p = q;  q = r;</text>
+<text x="600" y="645" font-size="16" font-family="monospace" fill="#222">此时 q == first，循环结束</text>
+<text x="10" y="728" font-size="18" font-weight="bold" fill="#123">③ 收尾</text>
+<line x1="0" y1="702" x2="940" y2="702" stroke="#ccc"/>
+<rect x="38.0" y="765.0" width="64" height="40" rx="6" fill="#ddd" stroke="#333"/>
+<text x="70" y="791" font-size="17" text-anchor="middle">头</text>
+<rect x="178.0" y="765.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="210" y="791" font-size="17" text-anchor="middle">1</text>
+<rect x="318.0" y="765.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="350" y="791" font-size="17" text-anchor="middle">2</text>
+<rect x="458.0" y="765.0" width="64" height="40" rx="6" fill="#eef4ff" stroke="#333"/>
+<text x="490" y="791" font-size="17" text-anchor="middle">3</text>
+<path d="M70,805.0 C70,847 490,847 490,805.0" fill="none" stroke="#d22" stroke-width="2.6" marker-end="url(#ar)"/>
+<line x1="178.0" y1="793" x2="102.0" y2="793" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="318.0" y1="793" x2="242.0" y2="793" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<line x1="458.0" y1="793" x2="382.0" y2="793" stroke="#333" stroke-width="1.6" marker-end="url(#a)"/>
+<text x="600" y="763" font-size="16" font-family="monospace" fill="#222">first->link = p;</text>
+<text x="600" y="789" font-size="16" font-family="monospace" fill="#222">结果：头 → 3 → 2 → 1 → 头</text>
+<text x="600" y="22" font-size="14" fill="#d22">红色箭头 = 这一步刚改过的指针</text>
+</svg>
