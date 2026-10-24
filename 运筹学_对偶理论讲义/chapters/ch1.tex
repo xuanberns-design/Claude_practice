@@ -1,0 +1,319 @@
+% ============================================================
+%  第 1 章  矩阵视角与修正单纯形法（K1）
+% ============================================================
+\section{矩阵视角：单纯形表里藏着什么}
+
+前两章我们一直在单纯形表上“画圈、换基、消元”。这套操作能算出答案，但它像一台黑箱：每一轮整张表都被重写一遍，我们说不清表里每个数字到底是什么。本章回答三个问题：
+\begin{enumerate}
+  \item 单纯形表中的每一个数，能不能用原始数据 $A,b,c$ 直接写出来？
+  \item 如果能，是不是只要记住一个小矩阵，就可以不再维护整张大表？
+  \item 这个小矩阵为什么会成为后面对偶理论、灵敏度分析的“总钥匙”？
+\end{enumerate}
+\noindent\textbf{本章知识路线：}初等行变换 $\to$ 左乘矩阵 $\to$ 单纯形表的矩阵表示 $\to$ 修正单纯形法。
+
+\subsection{初等行变换就是左乘一个矩阵}
+
+\srcTag{笔记 P1}\ 笔记里写道：“任何一种初等行变换都可以被若干次特定顺序的矩阵乘法来表示”，并给了一个交换两行的例子。先看图。
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \node (A) at (0,0) {$\begin{pmatrix}1&2&3\\4&5&6\\7&8&9\end{pmatrix}$};
+  \node (B) at (5.4,0) {$\begin{pmatrix}4&5&6\\1&2&3\\7&8&9\end{pmatrix}$};
+  \draw[arr] (A.east)--node[above]{交换第 1、2 行}(B.west);
+  \node (E) at (0,-2.5) {$\underbrace{\begin{pmatrix}0&1&0\\1&0&0\\0&0&1\end{pmatrix}}_{E\text{：把单位阵也交换 1、2 行}}$};
+  \node (A2) at (3.0,-2.35) {$\begin{pmatrix}1&2&3\\4&5&6\\7&8&9\end{pmatrix}$};
+  \node at (4.6,-2.35) {$=$};
+  \node (B2) at (6.2,-2.35) {$\begin{pmatrix}4&5&6\\1&2&3\\7&8&9\end{pmatrix}$};
+  \node[font=\scriptsize,shiftc!80!black,align=left] at (9.4,-2.35) {$EA$ 第 1 行 $=0\cdot(\text{第1行})$\\$+1\cdot(\text{第2行})+0\cdot(\text{第3行})$};
+  \draw[arr,shiftc] (B.south)--(B2.north);
+  \node[font=\scriptsize,auxblue,right] at (5.6,-1.0) {结果相同};
+\end{tikzpicture}
+\fig{初等行变换 $=$ 左乘初等矩阵：先对单位阵 $I$ 做同样的行变换得到 $E$，再用 $E$ 左乘 $A$}
+\end{center}
+
+图上半部分是我们熟悉的“直接交换两行”；下半部分是同一件事的矩阵写法：$E$ 由单位阵交换 1、2 行得到，$EA$ 的第 1 行等于 $E$ 的第 1 行 $(0,1,0)$ 去“挑选”$A$ 的第 2 行。右侧注释写出了第 1 行的“挑选”过程。
+
+\begin{definitionbox}[结论 1.1　初等矩阵（笔记中称“左行右列”）]
+对矩阵 $A$ 做一次初等\textbf{行}变换，等于用对应的初等矩阵 $E$ \textbf{左}乘 $A$；做一次初等\textbf{列}变换，等于\textbf{右}乘。三种初等行变换对应的 $E$ 都由单位阵 $I$ 做同样的变换得到：交换两行；某行乘非零数 $k$；某行加上另一行的 $k$ 倍。
+\end{definitionbox}
+
+\begin{proofbox}[为什么成立 \fillTag]
+矩阵乘法的规则是：$EA$ 的第 $i$ 行 $=\sum_k e_{ik}\,(A\text{ 的第 }k\text{ 行})$，即 $E$ 的第 $i$ 行给出“用 $A$ 的哪些行、各乘多少”。单位阵的第 $i$ 行是 $e_i\T$，只挑出 $A$ 的第 $i$ 行，所以 $IA=A$。把 $I$ 的行按某种初等变换改动，挑选方式就跟着改动，$EA$ 的行便恰好按同样方式改动。由于单纯形法中每次旋转都是若干次初等行变换，所以\textbf{一整轮旋转等于左乘若干个初等矩阵的乘积}。
+\end{proofbox}
+
+\tip[笔记原话]{“尽量做行变换，不要做列变换”——因为列对应变量，交换列会打乱变量与列的对应关系；而行变换只是在重写同一组方程。}
+
+\subsection{单纯形表的矩阵表示}
+
+有了“旋转 $=$ 左乘”，我们就能回答本章第一个问题。设标准型为
+\[
+\max z=c\T x,\qquad Ax=b,\quad x\ge0,
+\]
+其中 $A$ 是 $m\times n$ 矩阵。某一轮选定了 $m$ 个基变量，把 $A$ 的列重新分成两块：基变量的列组成\textbf{基矩阵} $B$（$m\times m$，可逆），其余列组成 $N$。相应地 $x=(x_B,x_N)$，$c=(c_B,c_N)$。
+
+\begin{proofbox}[推导：从 $Ax=b$ 到单纯形表 \fillTag]
+\textbf{第一步（解出基变量）。}$Ax=b$ 写成 $Bx_B+Nx_N=b$。两边左乘 $B^{-1}$（$B$ 可逆）：
+\begin{align}
+x_B+B^{-1}Nx_N&=B^{-1}b. \label{eq:xb}
+\end{align}
+这正是单纯形表中“约束行”的内容：基变量的列变成单位阵，非基变量的列是 $B^{-1}N$，右端是 $B^{-1}b$。
+
+\textbf{第二步（把目标函数写成只含非基变量）。}由 \eqref{eq:xb} 得 $x_B=B^{-1}b-B^{-1}Nx_N$，代入目标函数：
+\begin{align}
+z&=c_B\T x_B+c_N\T x_N
+ = c_B\T B^{-1}b+\bigl(c_N\T-c_B\T B^{-1}N\bigr)x_N. \label{eq:z}
+\end{align}
+\textbf{第三步（读出检验数）。}非基变量 $x_j$ 前的系数就是它的检验数；基变量在 \eqref{eq:z} 中已被消去，检验数为 0。两种情况可以统一写成一条公式（对基变量，$B^{-1}P_j$ 是单位向量 $e_r$，$c_j-c_B\T e_r=c_j-c_j=0$）。
+\end{proofbox}
+
+\begin{formulabox}[核心公式 1.1]
+\[
+\boxed{\;x_B=B^{-1}b,\qquad z=c_B\T B^{-1}b,\qquad \sigma\T=c\T-c_B\T B^{-1}A\;}\quad
+\text{即}\quad\sigma_j=c_j-c_B\T B^{-1}P_j .
+\]
+\end{formulabox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \fill[lightblue] (0,0) rectangle (1.6,2.4);
+  \fill[formulablue] (1.6,0) rectangle (8,2.4);
+  \fill[lightgreen] (1.6,-0.8) rectangle (8,0);
+  \fill[shiftc!20] (5.6,0) rectangle (8,2.4);
+  \draw[navy] (0,-0.8) rectangle (8,2.4);
+  \draw[navy] (1.6,-0.8)--(1.6,2.4);
+  \draw[navy] (0,0)--(8,0);
+  \node at (0.8,1.2) {$B^{-1}b$};
+  \node at (3.6,1.2) {$B^{-1}A$};
+  \node at (6.8,1.2) {$B^{-1}$};
+  \node at (4.8,-0.4) {$\sigma\T=c\T-c_B\T B^{-1}A$};
+  \node[font=\scriptsize,above] at (0.8,2.4) {$b$ 列};
+  \node[font=\scriptsize,above] at (4.8,2.4) {$x_1\ \cdots\ x_n$（含松弛变量）};
+  \node[font=\scriptsize,below,align=center,shiftc!80!black] at (6.8,-0.85) {初始单位阵所在的列};
+  % 注释
+  \draw[arr] (9.2,1.9) node[right,font=\scriptsize,align=left]{基变量取值\\$x_B=B^{-1}b$} -- (0.8,2.0);
+  \draw[arr] (9.2,0.9) node[right,font=\scriptsize,align=left]{约束系数} -- (4.4,0.9);
+  \draw[arr] (9.2,-0.4) node[right,font=\scriptsize,align=left]{检验数行} -- (7.6,-0.4);
+  \draw[decorate,decoration={brace,amplitude=5pt,mirror},thick,auxblue] (-0.2,2.4)--(-0.2,0) node[midway,left=6pt,font=\scriptsize,align=right]{$m$ 行};
+\end{tikzpicture}
+\fig{标注公式图：任意一张单纯形表都可以由 $B^{-1}$ 和原始数据 $A,b,c$ 写出}
+\end{center}
+
+图中蓝色块是约束部分，绿色块是检验数行。最值得注意的是右侧橙色块：如果初始表中某几列恰好是单位阵（例如松弛变量所在的列），那么在任何一张后续表中，这几列都变成 $B^{-1}I=B^{-1}$。也就是说，\textbf{$B^{-1}$ 不用另算，它就印在当前表上}。这是课件反复强调的结论，后面读影子价格时还要用到。
+
+\paragraph{符号说明。}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X l@{}}
+\toprule
+符号 & 含义 & 维数\\\midrule
+$B$ & 当前基变量在原系数矩阵 $A$ 中的列，按\textbf{基变量在表中的行次序}排列 & $m\times m$\\
+$P_j$ & $A$ 的第 $j$ 列，即变量 $x_j$ 在各约束中的系数 & $m\times1$\\
+$c_B$ & 基变量的价值系数，排列次序与 $B$ 的列次序一致 & $m\times1$\\
+$B^{-1}b$ & 当前基解中基变量的取值（$b$ 是\textbf{原模型}的右端项） & $m\times1$\\
+$\sigma_j$ & 检验数：非基变量 $x_j$ 增加 1 单位时目标函数的变化率 & 数\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\paragraph{使用条件。}公式要求 $B$ 可逆（$m$ 个基变量的列线性无关）。若 $B^{-1}b\ge0$，这组基解可行；若再有 $\sigma\le0$（max 问题），就是最优解。这两条判据在后面会被反复使用，第 5 章称之为“原始可行”与“对偶可行”。
+
+\begin{warningbox}
+\textbf{错误想法：}“$x_B=B^{-1}b$ 里的 $b$ 就是当前表的 $b$ 列。”\quad
+\textbf{错在哪里：}当前表的 $b$ 列本身已经是 $B^{-1}b$，再乘一次就错了。\quad
+\textbf{正确想法：}$b$ 永远是原模型右端项，$B^{-1}$ 从当前表的初始单位阵列读出。
+
+\textbf{错误想法：}“$B$ 的列随便排。”\quad
+\textbf{正确想法：}$B$ 的第 $r$ 列必须是第 $r$ 行基变量的系数列，$c_B$ 也按同样次序排；否则 $B^{-1}b$ 算出的数会对应到错误的变量上。
+\end{warningbox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[gbox,text width=6.2cm,align=left] (ok) at (0,0) {\textbf{正确}：基按行次序 $\{x_3,x_1\}$\\[2pt]
+  $B=(P_3,P_1)=\begin{pmatrix}2&1\\1&3\end{pmatrix}$，$c_B=(3,5)\T$\\[2pt]
+  $B^{-1}b=(\tfrac{17}{5},\tfrac65)\T\Rightarrow x_3=\tfrac{17}{5},\ x_1=\tfrac65$};
+  \node[rbox,text width=6.2cm,align=left] (bad) at (7.2,0) {\textbf{错误}：列次序与行次序不一致\\[2pt]
+  $B=(P_1,P_3)=\begin{pmatrix}1&2\\3&1\end{pmatrix}$，$c_B=(3,5)\T$\\[2pt]
+  $c_B$ 把价值 3 配给了 $x_1$，$z$ 与 $\sigma$ 全部算错};
+\end{tikzpicture}
+\fig{易错对照：$B$ 的列次序、$c_B$ 的次序、表中基变量的行次序，三者必须一致}
+\end{center}
+
+\subsection{修正单纯形法：只维护 $B^{-1}$}
+
+核心公式 1.1 说明：只要知道 $B^{-1}$，表中任何一个数都能随用随算。而单纯形法每一轮真正\textbf{用到}的数只有三组：
+\begin{enumerate}
+  \item 检验数 $\sigma_j$（决定谁入基）；
+  \item 入基列 $B^{-1}P_k$ 与右端 $B^{-1}b$（做比值、决定谁出基）；
+  \item 新的 $B^{-1}$（下一轮用）。
+\end{enumerate}
+其余的列（非入基变量的 $B^{-1}P_j$）每轮都被重算，却从来没被看过。修正单纯形法就是“只算用得上的数”。
+
+\begin{definitionbox}[算法 1.1　修正单纯形法（max 问题）\srcTag{笔记 P1--P4}]
+给定一个可行基 $B$ 及其逆 $B^{-1}$：
+\begin{enumerate}[label=\textbf{第\arabic*步}，,leftmargin=4.2em]
+  \item 计算 $x_B=B^{-1}b$ 和单纯形乘子 $y\T=c_B\T B^{-1}$；
+  \item 对每个非基变量计算 $\sigma_j=c_j-y\T P_j$。若全部 $\sigma_j\le0$，当前解最优，停止；
+  \item 取 $\sigma_k$ 最大的 $x_k$ 入基，计算入基列 $\bar P_k=B^{-1}P_k$。若 $\bar P_k\le0$，问题无界，停止；
+  \item 比值 $\theta=\min\{(B^{-1}b)_i/\bar a_{ik}:\bar a_{ik}>0\}$，取到最小值的第 $r$ 行基变量出基；
+  \item 用 $P_k$ 替换 $B$ 的第 $r$ 列得新基，求新的 $B^{-1}$，回到第 1 步。
+\end{enumerate}
+\end{definitionbox}
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.42cm,
+  s/.style={box,minimum width=4.6cm,minimum height=0.8cm},
+  d/.style={diamond,aspect=2.6,draw=navy,fill=white,font=\small,inner sep=1pt,align=center}]
+  \node[s] (a) {已知可行基 $B$ 与 $B^{-1}$};
+  \node[s,below=of a] (b) {$x_B=B^{-1}b$，\ $y\T=c_B\T B^{-1}$};
+  \node[s,below=of b] (c) {$\sigma_j=c_j-y\T P_j$（只算非基列）};
+  \node[d,below=of c] (d) {全部\\$\sigma_j\le0$?};
+  \node[gbox,right=1.2cm of d] (opt) {最优，停止};
+  \node[s,below=of d] (e) {$x_k$ 入基，算 $\bar P_k=B^{-1}P_k$};
+  \node[s,below=of e] (f) {$\theta$ 比值定出基行 $r$};
+  \node[s,below=of f] (g) {换列得新 $B$，更新 $B^{-1}$};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+  \draw[arr] (d)--node[above,font=\scriptsize]{是}(opt);
+  \draw[arr] (d)--node[right,font=\scriptsize]{否}(e);
+  \draw[arr] (e)--(f); \draw[arr] (f)--(g);
+  \draw[arr] (g.west) -- ++(-1.2,0) |- (b.west);
+  \node[font=\scriptsize,auxblue,align=left,right] at (3.2,-6.1) {每轮只算：\\一行 $y\T$、若干个数 $\sigma_j$、\\一列 $\bar P_k$、一个 $B^{-1}$};
+\end{tikzpicture}
+\fig{修正单纯形法流程图：与普通单纯形法的判据完全相同，只是不再维护整张表}
+\end{center}
+
+流程图左侧的回路就是一轮迭代。与普通单纯形法相比，入基、出基的\textbf{判据一字未改}，改变的只是“算哪些数”。笔记 P2 页眉写的“计算机：用特定的矩阵乘法运算（微观）”，指的就是这一点：计算机程序里实际执行的是修正单纯形法。
+
+\begin{supplementbox}[$2\times2$ 逆矩阵的快速求法 \fillTag]
+\begin{minipage}{0.52\linewidth}
+本章例题与练习常遇到 $2\times2$ 基矩阵。若 $B=\begin{pmatrix}a&b\\c&d\end{pmatrix}$ 且 $ad-bc\ne0$，则
+\[
+B^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}.
+\]
+口诀：\textbf{主对角互换，副对角变号，再除以行列式}。求完务必用 $BB^{-1}=I$ 检验——纠错 2 就是漏了这一步。
+\end{minipage}\hfill
+\begin{minipage}{0.44\linewidth}\centering
+\begin{tikzpicture}[x=0.75cm,y=0.75cm]
+  \node at (0,0) {$\begin{pmatrix}2&1\\1&3\end{pmatrix}$};
+  \draw[{Stealth}-{Stealth},shiftc,thick] (-0.45,0.35) to[bend left=40] (0.45,-0.35);
+  \node[font=\scriptsize,shiftc!80!black] at (0,1.0) {2 与 3 互换};
+  \draw[arr] (1.3,0)--(2.4,0);
+  \node at (4.2,0) {$\frac15\begin{pmatrix}3&-1\\-1&2\end{pmatrix}$};
+  \node[font=\scriptsize,auxblue] at (4.2,-1.0) {$\det=2\cdot3-1\cdot1=5$};
+  \node[font=\scriptsize,redline] at (4.4,1.0) {副对角取负};
+\end{tikzpicture}
+\fig{$2\times2$ 求逆的三步操作}
+\end{minipage}
+\end{supplementbox}
+
+\subsection{例题：同一道题，两种算法}
+
+\begin{examplebox}[例 1.1　\srcTag{笔记 P2--P4}]
+用修正单纯形法求解
+\[
+\max z=5x_1+2x_2+3x_3-x_4+x_5,\qquad
+\begin{cases}x_1+2x_2+2x_3+x_4=8,\\ 3x_1+4x_2+x_3+x_5=7,\\ x_j\ge0.\end{cases}
+\]
+\textbf{已知：}$A=(P_1,\dots,P_5)=\begin{pmatrix}1&2&2&1&0\\3&4&1&0&1\end{pmatrix}$，$b=\binom87$，$c=(5,2,3,-1,1)$。\quad
+\textbf{求：}最优解与最优值。\par
+\textbf{思路：}$x_4,x_5$ 的列恰为单位阵，取 $B^{(1)}=(P_4,P_5)=I$ 作初始基，$c_B=(-1,1)\T$。注意 $x_4,x_5$ 在目标函数中有非零系数，所以 $c_B\ne0$，初始检验数不等于 $c_j$。
+
+\textbf{第一轮。}$B^{-1}=I$，$x_B=b=(8,7)\T$，$y\T=c_B\T B^{-1}=(-1,1)$。
+\[
+\sigma_1=5-(-1\cdot1+1\cdot3)=3,\quad \sigma_2=2-(-2+4)=0,\quad \sigma_3=3-(-2+1)=4 .
+\]
+$\sigma_3=4$ 最大，$x_3$ 入基；$\bar P_3=B^{-1}P_3=(2,1)\T$，$\theta=\min\{\frac82,\frac71\}=4$，第 1 行的 $x_4$ 出基。
+
+\textbf{第二轮。}新基 $\{x_3,x_5\}$：$B=(P_3,P_5)=\begin{pmatrix}2&0\\1&1\end{pmatrix}$，$B^{-1}=\begin{pmatrix}\frac12&0\\-\frac12&1\end{pmatrix}$，$x_B=B^{-1}b=(4,3)\T$，$c_B=(3,1)\T$，
+$y\T=(3,1)B^{-1}=(1,1)$。对非基变量 $x_1,x_2,x_4$：
+\[
+\sigma_1=5-(1+3)=1,\quad \sigma_2=2-(2+4)=-4,\quad \sigma_4=-1-(1+0)=-2 .
+\]
+$x_1$ 入基；$\bar P_1=B^{-1}P_1=(\frac12,\frac52)\T$，$\theta=\min\{\frac{4}{1/2},\frac{3}{5/2}\}=\min\{8,\frac65\}=\frac65$，$x_5$ 出基。
+
+\textbf{第三轮。}新基 $\{x_3,x_1\}$：$B=(P_3,P_1)=\begin{pmatrix}2&1\\1&3\end{pmatrix}$，$B^{-1}=\frac15\begin{pmatrix}3&-1\\-1&2\end{pmatrix}$，$x_B=(\frac{17}{5},\frac65)\T$，$c_B=(3,5)\T$，$y\T=(\frac45,\frac75)$：
+\[
+\sigma_2=2-\bigl(\tfrac85+\tfrac{28}{5}\bigr)=-\tfrac{26}{5},\quad
+\sigma_4=-1-\tfrac45=-\tfrac95,\quad \sigma_5=1-\tfrac75=-\tfrac25 .
+\]
+全部 $\le0$，最优。\quad\textbf{结果：}$x^*=(\frac65,0,\frac{17}{5},0,0)\T$，$z^*=5\cdot\frac65+3\cdot\frac{17}{5}=\frac{81}{5}$。\par
+\textbf{检查：}代回约束：$\frac65+\frac{34}{5}=8$ ✓，$\frac{18}{5}+\frac{17}{5}=7$ ✓。\par
+\textbf{本题真正想说明什么：}三轮中我们一次也没有写出完整的 $2\times5$ 表，每轮只算了一个 $2\times2$ 逆矩阵、一行 $y\T$ 和一列 $\bar P_k$。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \i/\bs/\z/\sig in {0/{\{x_4,x_5\}}/-1/{(3,0,4)},1/{\{x_3,x_5\}}/15/{(1,-4,-2)},2/{\{x_3,x_1\}}/{\tfrac{81}{5}}/{(-\tfrac{26}{5},-\tfrac95,-\tfrac25)}}{
+    \node[box,minimum width=3.6cm,minimum height=1.35cm,align=center] (n\i) at (\i*4.8,0) {基 $\bs$\\$z=\z$\\[1pt]{\scriptsize 非基 $\sigma=\sig$}};
+  }
+  \draw[arr] (n0)--node[above,font=\scriptsize]{$x_3$ 入，$x_4$ 出}node[below,font=\scriptsize]{$\theta=4$}(n1);
+  \draw[arr] (n1)--node[above,font=\scriptsize]{$x_1$ 入，$x_5$ 出}node[below,font=\scriptsize]{$\theta=\tfrac65$}(n2);
+  % 目标值柱
+  \begin{scope}[yshift=-3.3cm]
+    \draw[ax] (-1.8,0)--(11.6,0);
+    \foreach \i/\h/\t in {0/-0.08/{-1},1/1.2/{15},2/1.296/{16.2}}{
+      \fill[auxblue!70] (\i*4.8-0.4,0) rectangle (\i*4.8+0.4,\h);
+      \node[font=\scriptsize,above] at (\i*4.8,{max(\h,0)}) {$z=\t$};
+    }
+    \node[font=\scriptsize,left] at (-1.8,0.6) {目标值};
+  \end{scope}
+\end{tikzpicture}
+\fig{例 1.1 的迭代路径：三个基、两次换基，目标值单调上升直至检验数全部非正}
+\end{center}
+
+上图上半部分把三轮迭代压缩成三个“状态盒”，箭头上写出换基依据；下半部分的柱高表示每个基对应的目标值。读图可以看出：每换一次基，目标值就上升一次（$-1\to15\to16.2$），而换基的理由都来自检验数。笔记 P2 右栏用普通单纯形表算了同一道题，两种方法每一轮的基、检验数完全相同（见纠错 1）。
+
+\begin{lifebox}[查菜谱只翻用得到的那一页]
+\begin{minipage}[t]{0.5\linewidth}
+\textbf{生活场景：}做一道新菜时，你不会把整本菜谱抄一遍，而是先查目录，再只翻到需要的那一页。\par
+\textbf{对应关系：}整本菜谱 $\leftrightarrow$ 完整单纯形表；目录 $\leftrightarrow$ $B^{-1}$；翻到的那一页 $\leftrightarrow$ 入基列 $B^{-1}P_k$。\par
+\textbf{小估算：}例 1.1 有 $m=2$ 行、$n=5$ 列。普通单纯形法每轮更新 $2\times(5+1)=12$ 个数；修正单纯形法每轮只需 $B^{-1}$（4 个）、$\bar P_k$（2 个）、$x_B$（2 个），共 8 个。约束越多、变量越多，差距越大。\par
+\textbf{边界说明：}实际软件并不显式存储 $B^{-1}$，而是存储它的分解形式（如 LU 分解），以减少舍入误差；“只算用得到的数”的思想不变。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % 书
+  \draw[warmline,fill=white] (0,0) rectangle (1.6,2.2);
+  \foreach \y in {0.4,0.7,...,1.9} \draw[black!25] (0.2,\y)--(1.4,\y);
+  \node[font=\scriptsize] at (0.8,2.45) {整本菜谱};
+  \fill[shiftc!30] (0.15,1.25) rectangle (1.45,1.45);
+  \node[font=\scriptsize] at (0.8,-0.3) {目录 + 一页};
+  % 表
+  \begin{scope}[xshift=2.9cm]
+    \draw[navy] (0,0) grid[step=0.36] (1.8,2.16);
+    \fill[shiftc!30] (1.08,0) rectangle (1.44,2.16);
+    \node[font=\scriptsize] at (0.9,2.45) {单纯形表};
+    \node[font=\scriptsize] at (0.9,-0.3) {$B^{-1}$ + 入基列};
+  \end{scope}
+  \draw[{Stealth}-{Stealth},auxblue,thick] (1.7,1.35)--(3.95,1.1);
+  \draw[{Stealth}-{Stealth},auxblue,thick,dashed] (1.7,0.5)--(2.85,0.5);
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ 抽象模型}
+\end{minipage}
+\end{lifebox}
+
+\begin{checkbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item 为什么说单纯形法的一轮旋转等于左乘一个矩阵？
+  \item 写出 $x_B$、$z$、$\sigma$ 用 $B^{-1}$ 表示的三个公式，并说明 $b$ 指的是哪一个 $b$。
+  \item 在当前单纯形表上，$B^{-1}$ 印在哪几列？为什么？
+  \item 修正单纯形法每一轮必须算的是哪几组数？
+  \item 若基变量按行次序是 $\{x_3,x_1\}$，$B$ 和 $c_B$ 应怎样排列？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？}我们把单纯形表“拆开”了：表中每个数都由 $B^{-1}$ 和原始数据决定，检验数可以写成 $\sigma_j=c_j-y\T P_j$，其中 $y\T=c_B\T B^{-1}$。
+\paragraph{下一步还需要解决什么？}这个 $y$ 只是计算中的一个中间量，还是有独立含义？下一章我们将看到：$y$ 恰好是另一个线性规划——对偶问题——的解，而且它有非常直观的经济含义：资源的价格。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.35cm and 0.35cm,k/.style={box,minimum height=0.8cm,font=\small}]
+  \node[k] (a) {初等行变换};
+  \node[k,right=of a] (b) {左乘 $E$};
+  \node[k,right=of b] (c) {一轮旋转 $=$ 左乘 $B^{-1}$};
+  \node[k,right=of c] (d) {表 $=B^{-1}[\,b\mid A\,]$};
+  \node[k,below=0.6cm of c] (e) {$\sigma=c-c_B\T B^{-1}A$};
+  \node[k,below=0.6cm of d] (f) {修正单纯形法};
+  \node[gbox,below=0.6cm of b] (g) {$y\T=c_B\T B^{-1}$\\$\to$ 第 2 章};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+  \draw[arr] (d)--(f); \draw[arr] (c)--(e); \draw[arr] (e)--(f); \draw[arr] (e)--(g);
+\end{tikzpicture}
+\fig{本章知识地图}
+\end{center}

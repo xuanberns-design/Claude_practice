@@ -1,0 +1,354 @@
+% ============================================================
+%  第 2 章  对偶问题的构造（K2）
+% ============================================================
+\section{对偶问题：同一组数据的另一种读法}
+
+上一章结尾留下了一个问题：计算检验数时出现的 $y\T=c_B\T B^{-1}$ 有没有独立的含义？本章先把它放一放，从一个经济学问题出发：如果有人想把工厂的资源整体买走，他应该出什么价？我们会发现，这个“买方定价问题”本身也是一个线性规划，它和原来的生产问题用的是同一组数字，只是读法不同。
+
+\noindent\textbf{本章回答三个问题：}(1) 对偶问题是怎样从实际问题中“长”出来的？(2) 对称形式的对偶怎样写？(3) 约束带 $\ge$、$=$，变量带 $\le0$、无约束时，对偶怎样写？\par
+\noindent\textbf{本章知识路线：}生产者模型 $\to$ 购买者模型 $\to$ 对称形式 $\to$ 一般形式的对应规则 $\to$ 例题。
+
+\subsection{问题引入：一家工厂的两种算账方式}
+
+\begin{examplebox}[引例　生产计划问题（原问题 $P$）\srcTag{笔记 P5--P6}]
+\begin{minipage}[t]{0.5\linewidth}
+某工厂生产甲、乙两种产品，消耗煤、电、油三种资源，数据如下表。求总收入最大的生产方案。
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+资源 & 甲 & 乙 & 资源限制\\\midrule
+煤 & 9 & 4 & 360\\
+电 & 4 & 5 & 200\\
+油 & 3 & 10 & 300\\\midrule
+单价 & 7 & 12 & \\\bottomrule
+\end{tabular}
+\end{center}
+设生产甲 $x_1$、乙 $x_2$ 单位：
+\[
+\begin{aligned}
+\max z&=7x_1+12x_2\\
+\st &9x_1+4x_2\le360\quad(\text{煤})\\
+&4x_1+5x_2\le200\quad(\text{电})\\
+&3x_1+10x_2\le300\quad(\text{油})\\
+&x_1,x_2\ge0
+\end{aligned}
+\]
+单纯形法解得 $x^*=(20,24)$，$z^*=7\times20+12\times24=428$。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=0.95cm,y=0.95cm]
+  \fill[feasreg] (0,0)--(4,0)--(3.448,1.241)--(2,2.4)--(0,3)--cycle;
+  \draw[gridl] (0,0) grid (6,5);
+  \draw[ax] (-0.2,0)--(6.3,0) node[right,font=\scriptsize]{$x_1$};
+  \draw[ax] (0,-0.2)--(0,5.3) node[above,font=\scriptsize]{$x_2$};
+  \foreach \i in {1,...,6} \node[below,font=\tiny,black!60] at (\i,0) {\the\numexpr\i*10\relax};
+  \foreach \i in {1,...,5} \node[left,font=\tiny,black!60] at (0,\i) {\the\numexpr\i*10\relax};
+  \draw[con] (4,0)--(1.78,5) node[above,font=\scriptsize]{煤};
+  \draw[con] (5,0)--(0,4) node[left,font=\scriptsize]{电};
+  \draw[con] (0,3)--(6,1.2) node[right,font=\scriptsize]{油};
+  \draw[iso] (0,3.567)--(5.1,0.592);
+  \node[optpt] at (2,2.4) {};
+  \node[lab,above right] at (2,2.45) {$(20,24)$};
+  \node[font=\scriptsize,black!55,rotate=-30] at (4.4,1.3) {$z=428$};
+\end{tikzpicture}
+\fig{原问题可行域：电、油两条约束在最优点 $(20,24)$ 交汇，煤约束不经过该点}
+\end{minipage}
+\end{examplebox}
+
+图中绿色区域是可行域，虚线是等值线 $7x_1+12x_2=428$。最优点由“电”和“油”两条边界线交出；“煤”的边界离最优点还有一段距离，说明煤没有用完：$9\times20+4\times24=276<360$，剩余 84（这就是终表中 $x_3=84$ 的来历）。
+
+\paragraph{现在换一个角度。}\srcTag{笔记 P5}\ 另一家厂想把这家工厂的煤、电、油\textbf{全部买走}。它要给三种资源定单价 $y_1,y_2,y_3$。它会怎样思考？
+\begin{enumerate}
+  \item \textbf{买方希望总花费最少：}$\min w=360y_1+200y_2+300y_3$；
+  \item \textbf{但卖方必须愿意卖：}对每一种产品，资源按新价格计算的“售价”不能低于自己生产这种产品的收入，否则卖方宁可自己生产。
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[wbox,minimum width=3.4cm] (jia) at (0,0) {生产 1 件甲\\需煤 9、电 4、油 3};
+  \node[box,minimum width=3.6cm] (sell) at (5.6,0.8) {卖掉这些资源得\\$9y_1+4y_2+3y_3$};
+  \node[box,minimum width=3.6cm] (make) at (5.6,-0.8) {自己生产甲得\\收入 $7$};
+  \draw[arr] (jia.east)--(sell.west);
+  \draw[arr] (jia.east)--(make.west);
+  \node[gbox,minimum width=3.6cm] (c) at (11.0,0) {卖方愿意卖的条件\\$9y_1+4y_2+3y_3\ge7$};
+  \draw[arr] (sell.east)--(c.west); \draw[arr] (make.east)--(c.west);
+  \node[font=\scriptsize,auxblue] at (8.3,1.5) {比较};
+\end{tikzpicture}
+\fig{购买者模型中一条约束的来历：站在产品甲的角度比较“卖资源”与“自己生产”}
+\end{center}
+
+这幅图说明了对偶约束的经济来源：产品甲占用的那一篮子资源（9 份煤、4 份电、3 份油），按买方给的价格折算后，不能低于甲的售价 7。产品乙同理得 $4y_1+5y_2+10y_3\ge12$。于是得到\textbf{对偶问题 $D$}：
+\[
+\begin{aligned}
+\min w&=360y_1+200y_2+300y_3\\
+\st &9y_1+4y_2+3y_3\ge7\quad(\text{甲})\\
+&4y_1+5y_2+10y_3\ge12\quad(\text{乙})\\
+&y_1,y_2,y_3\ge0
+\end{aligned}
+\]
+笔记中的红字概括为一句话：\textbf{生产 $x_1$（$x_2$）甲（乙）产品的原料售价，不低于自己用这些原料生产所获得的利益。}
+
+\subsection{对称形式的对偶问题}
+
+把原问题和对偶问题并排写成矩阵形式，规律一目了然。
+
+\begin{definitionbox}[定义 2.1　对称形式的对偶问题 \srcTag{笔记 P6--P7}]
+\[
+\text{(P)}\quad
+\begin{aligned}
+\max z&=c\T x\\ \st &Ax\le b\\ &x\ge0
+\end{aligned}
+\qquad\Longleftrightarrow\qquad
+\text{(D)}\quad
+\begin{aligned}
+\min w&=b\T y\\ \st &A\T y\ge c\\ &y\ge0
+\end{aligned}
+\]
+其中 $A$ 为 $m\times n$ 矩阵，$x\in\mathbb R^n$，$y\in\mathbb R^m$。两者互称对偶问题。
+\end{definitionbox}
+
+\begin{center}
+\begin{tikzpicture}[x=0.9cm,y=0.9cm]
+  % 原问题数据块
+  \fill[formulablue] (0,0) rectangle (3,2.4); \node at (1.5,1.2) {$A$};
+  \fill[warm] (3.2,0) rectangle (3.8,2.4); \node at (3.5,1.2) {$b$};
+  \fill[lightgreen] (0,2.6) rectangle (3,3.2); \node at (1.5,2.9) {$c\T$};
+  \draw[navy] (0,0) rectangle (3,2.4); \draw[navy] (3.2,0) rectangle (3.8,2.4); \draw[navy] (0,2.6) rectangle (3,3.2);
+  \node[font=\scriptsize] at (1.5,-0.35) {$n$ 列 $=n$ 个变量 $x_j$};
+  \node[font=\scriptsize,rotate=90] at (-0.35,1.2) {$m$ 行 $=m$ 条约束};
+  \node[font=\small\bfseries,navy] at (1.9,3.75) {原问题（max）};
+  % 箭头
+  \draw[-{Stealth[length=3mm]},very thick,shiftc] (4.5,1.6)--(6.3,1.6) node[midway,above,font=\scriptsize,shiftc!80!black]{整体转置};
+  % 对偶数据块
+  \begin{scope}[xshift=7cm]
+  \fill[formulablue] (0,0) rectangle (2.4,3); \node at (1.2,1.5) {$A\T$};
+  \fill[lightgreen] (2.6,0) rectangle (3.2,3); \node at (2.9,1.5) {$c$};
+  \fill[warm] (0,3.2) rectangle (2.4,3.8); \node at (1.2,3.5) {$b\T$};
+  \draw[navy] (0,0) rectangle (2.4,3); \draw[navy] (2.6,0) rectangle (3.2,3); \draw[navy] (0,3.2) rectangle (2.4,3.8);
+  \node[font=\scriptsize] at (1.2,-0.35) {$m$ 列 $=m$ 个变量 $y_i$};
+  \node[font=\scriptsize,rotate=90] at (-0.35,1.5) {$n$ 行 $=n$ 条约束};
+  \node[font=\small\bfseries,navy] at (1.6,4.35) {对偶问题（min）};
+  \end{scope}
+  \node[font=\scriptsize,align=left,auxblue] at (12.5,2.6) {右端项 $b$\\$\to$ 目标系数};
+  \node[font=\scriptsize,align=left,auxblue] at (12.5,1.0) {目标系数 $c$\\$\to$ 右端项};
+\end{tikzpicture}
+\fig{对称形式的对偶 $=$ 把“数据矩阵”整体转置：$A\to A\T$，$b$ 与 $c$ 交换位置，max 变 min，$\le$ 变 $\ge$}
+\end{center}
+
+图中三种颜色分别标出系数矩阵、右端项、价值系数。转置之后：原问题的\textbf{每一条约束}变成对偶的\textbf{一个变量}（行 $\to$ 列），原问题的\textbf{每一个变量}变成对偶的\textbf{一条约束}。笔记把它类比为“矩阵转置”，非常准确。
+
+\paragraph{为什么要这样定义？}从引例可见：对偶变量 $y_i$ 是第 $i$ 种资源的单价，所以有 $m$ 个；对偶约束逐个产品比较“资源售价 $\ge$ 产品收入”，所以有 $n$ 条，系数正好是 $A$ 的列，即 $A\T$ 的行。
+
+\begin{proofbox}[对称性：对偶的对偶就是原问题 \fillTag]
+把 (D) 改写成 max 型与 $\le$ 型：$\max\,(-b)\T y$，$\st (-A\T)y\le -c$，$y\ge0$。按定义 2.1 写它的对偶（数据为 $-A\T,\,-c,\,-b$）：
+$\min\,(-c)\T x$，$\st (-A\T)\T x\ge -b$，$x\ge0$，即 $\max c\T x$，$\st Ax\le b$，$x\ge0$。这正是 (P)。\quad 所以笔记写“$P$ 与 $D$ 互为对偶（类比矩阵转置 $(A\T)\T=A$）”。
+\end{proofbox}
+
+\subsection{一般形式：约束和变量不“规矩”时怎么办}
+
+实际模型里常常有 $\ge$ 约束、等式约束、$x_j\le0$ 或无符号限制的变量。笔记把对应关系整理成一张表（P7--P8），我们先给出规则，再解释为什么。
+
+\begin{theorembox}[对应规则 2.2　原问题（max）$\longleftrightarrow$ 对偶问题（min）\srcTag{笔记 P7--P8}]
+\begin{center}
+\begin{tabular}{@{}l@{\qquad}c@{\qquad}l@{}}
+\toprule
+\textbf{原问题（max）} & & \textbf{对偶问题（min）}\\\midrule
+目标函数 $\max z$ & $\longleftrightarrow$ & 目标函数 $\min w$\\
+约束条件右端项 $b_i$ & $\longleftrightarrow$ & 目标函数系数\\
+目标函数系数 $c_j$ & $\longleftrightarrow$ & 约束条件右端项\\\midrule
+第 $i$ 个约束 $\le b_i$ & $\longleftrightarrow$ & 第 $i$ 个变量 $y_i\ge0$\\
+第 $i$ 个约束 $\ge b_i$ & $\longleftrightarrow$ & 第 $i$ 个变量 $y_i\le0$\\
+第 $i$ 个约束 $=b_i$ & $\longleftrightarrow$ & 第 $i$ 个变量 $y_i$ 无约束\\\midrule
+第 $j$ 个变量 $x_j\ge0$ & $\longleftrightarrow$ & 第 $j$ 个约束 $\ge c_j$\\
+第 $j$ 个变量 $x_j\le0$ & $\longleftrightarrow$ & 第 $j$ 个约束 $\le c_j$\\
+第 $j$ 个变量 $x_j$ 无约束 & $\longleftrightarrow$ & 第 $j$ 个约束 $=c_j$\\\bottomrule
+\end{tabular}
+\end{center}
+原问题是 min 时，把表\textbf{从右往左}读（笔记：“原 $\min z$，则对偶 $\max$（右往左看）；原 $\max z$，则对偶 $\min$（左 $\to$ 右）”）。
+\end{theorembox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,
+  n/.style={draw=navy,rounded corners=2pt,fill=white,minimum width=2.6cm,minimum height=0.62cm,font=\small},
+  g/.style={draw=greenline,rounded corners=2pt,fill=lightgreen,minimum width=2.6cm,minimum height=0.62cm,font=\small},
+  r/.style={draw=redline!70,rounded corners=2pt,fill=lightred,minimum width=2.6cm,minimum height=0.62cm,font=\small},
+  e/.style={draw=auxblue,rounded corners=2pt,fill=grayblue,minimum width=2.6cm,minimum height=0.62cm,font=\small}]
+  \node[font=\small\bfseries,navy] at (0,1.0) {max 问题的约束};
+  \node[font=\small\bfseries,navy] at (4.6,1.0) {min 问题的变量};
+  \node[g] (a1) at (0,0) {$\le$（正常）}; \node[g] (b1) at (4.6,0) {$y_i\ge0$（正常）};
+  \node[r] (a2) at (0,-0.9) {$\ge$（反常）}; \node[r] (b2) at (4.6,-0.9) {$y_i\le0$（反常）};
+  \node[e] (a3) at (0,-1.8) {$=$}; \node[e] (b3) at (4.6,-1.8) {无约束};
+  \draw[arr] (a1)--(b1); \draw[arr] (a2)--(b2); \draw[arr] (a3)--(b3);
+  \begin{scope}[xshift=8.4cm]
+  \node[font=\small\bfseries,navy] at (0,1.0) {max 问题的变量};
+  \node[font=\small\bfseries,navy] at (4.6,1.0) {min 问题的约束};
+  \node[g] (c1) at (0,0) {$x_j\ge0$（正常）}; \node[g] (d1) at (4.6,0) {$\ge c_j$（正常）};
+  \node[r] (c2) at (0,-0.9) {$x_j\le0$（反常）}; \node[r] (d2) at (4.6,-0.9) {$\le c_j$（反常）};
+  \node[e] (c3) at (0,-1.8) {无约束}; \node[e] (d3) at (4.6,-1.8) {$=c_j$};
+  \draw[arr] (c1)--(d1); \draw[arr] (c2)--(d2); \draw[arr] (c3)--(d3);
+  \end{scope}
+\end{tikzpicture}
+\fig{记忆图：“正常对正常、反常对反常、等号对无约束”。max 问题的正常约束是 $\le$，min 问题的正常约束是 $\ge$，正常变量都是 $\ge0$}
+\end{center}
+
+图中绿色是“正常”情形，即对称形式里出现的情形；红色是“反常”情形；蓝灰色是等号与无约束的配对。只要记住对称形式（定义 2.1），其余六种情形都能由“正常对正常、反常对反常”推出，不必死记整张表。
+
+\begin{proofbox}[为什么是这样对应？\fillTag]
+思路：把一般形式先化成对称形式，用定义 2.1 写出对偶，再把变量换回来。
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{约束 $a_i\T x\ge b_i$（反常）。}两边乘 $-1$ 化为正常约束 $-a_i\T x\le-b_i$，它对应的对偶变量 $y_i'\ge0$，在对偶中贡献系数 $-a_i$ 与目标项 $-b_iy_i'$。令 $y_i=-y_i'$，贡献变回 $a_i$ 与 $b_iy_i$，而 $y_i=-y_i'\le0$。
+  \item \textbf{约束 $a_i\T x=b_i$。}拆成 $a_i\T x\le b_i$ 与 $a_i\T x\ge b_i$，分别对应 $y_i'\ge0$ 与 $y_i''\le0$；二者在对偶中系数相同，可合并为 $y_i=y_i'+y_i''$，它可正可负，即无约束。
+  \item \textbf{变量 $x_j\le0$（反常）。}令 $x_j=-x_j'$，$x_j'\ge0$，则这一列变为 $-P_j$、价值系数变为 $-c_j$。对偶约束 $-P_j\T y\ge-c_j$ 等价于 $P_j\T y\le c_j$。
+  \item \textbf{变量 $x_j$ 无约束。}令 $x_j=x_j'-x_j''$，两者都 $\ge0$，得到两条对偶约束 $P_j\T y\ge c_j$ 与 $-P_j\T y\ge-c_j$，合起来就是 $P_j\T y=c_j$。
+\end{enumerate}
+\textbf{一句话直观解释：}“反常”就是对称形式乘了一个 $-1$，这个 $-1$ 会原封不动地传到对偶的另一侧。
+\end{proofbox}
+
+\subsection{例题：按四步写出对偶}
+
+笔记把写对偶的过程总结为四步：\textbf{1° 明确目标}（max 还是 min）；\textbf{2° 确定查表方向}（max 左 $\to$ 右，min 右 $\to$ 左）；\textbf{3° 变量 $\to$ 约束}；\textbf{4° 约束 $\to$ 变量}。
+
+\begin{examplebox}[例 2.1　\srcTag{笔记 P8--P9}]
+写出下列问题的对偶问题：
+\[
+\max z=2x_1+3x_2-5x_3+x_4,\quad
+\begin{cases}
+x_1+x_2-3x_3+x_4\ge5\\
+2x_1+2x_3-x_4\le4\\
+x_2+x_3+x_4=6\\
+x_1\le0,\ x_2,x_3\ge0,\ x_4\text{ 无约束}
+\end{cases}
+\]
+\textbf{1° 目标：}原问题 max $\Rightarrow$ 对偶 $\min w=5y_1+4y_2+6y_3$（右端项 $5,4,6$ 成为目标系数）。\par
+\textbf{2° 方向：}max 问题，规则表从左往右读。\par
+\textbf{3° 变量 $\to$ 约束：}系数矩阵转置后，第 $j$ 列给出第 $j$ 条对偶约束，右端为 $c_j$：
+\[
+A=\begin{pmatrix}1&1&-3&1\\2&0&2&-1\\0&1&1&1\end{pmatrix},\qquad
+\begin{array}{lll}
+x_1\le0\ (\text{反常}) &\Rightarrow& y_1+2y_2\le2\\
+x_2\ge0\ (\text{正常}) &\Rightarrow& y_1+y_3\ge3\\
+x_3\ge0\ (\text{正常}) &\Rightarrow& -3y_1+2y_2+y_3\ge-5\\
+x_4\text{ 无约束} &\Rightarrow& y_1-y_2+y_3=1
+\end{array}
+\]
+\textbf{4° 约束 $\to$ 变量：}第 1 个约束 $\ge$（反常）$\Rightarrow y_1\le0$；第 2 个 $\le$（正常）$\Rightarrow y_2\ge0$；第 3 个 $=\Rightarrow y_3$ 无约束。\par
+\textbf{结果：}
+\[
+\min w=5y_1+4y_2+6y_3,\quad
+\begin{cases}
+y_1+2y_2\le2\\ y_1+y_3\ge3\\ -3y_1+2y_2+y_3\ge-5\\ y_1-y_2+y_3=1\\ y_1\le0,\ y_2\ge0,\ y_3\text{ 无约束}
+\end{cases}
+\]
+\textbf{检查：}原问题 4 个变量、3 个约束 $\Rightarrow$ 对偶 4 个约束、3 个变量 ✓。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,
+  pv/.style={draw=navy,fill=lightblue,rounded corners=2pt,minimum width=1.9cm,minimum height=0.55cm,font=\small},
+  dv/.style={draw=greenline,fill=lightgreen,rounded corners=2pt,minimum width=3.6cm,minimum height=0.55cm,font=\small}]
+  \node[font=\small\bfseries,navy] at (0,0.75) {原问题的变量};
+  \node[font=\small\bfseries,greenline] at (4.2,0.75) {对偶的约束};
+  \foreach \i/\a/\b in {0/{x_1\le0}/{y_1+2y_2\le2},1/{x_2\ge0}/{y_1+y_3\ge3},2/{x_3\ge0}/{\cdots\ge-5},3/{x_4\text{ 自由}}/{y_1-y_2+y_3=1}}{
+    \node[pv] (p\i) at (0,-\i*0.8) {$\a$};
+    \node[dv] (d\i) at (4.2,-\i*0.8) {$\b$};
+    \draw[arr] (p\i)--(d\i);
+  }
+  \begin{scope}[xshift=8.6cm]
+  \node[font=\small\bfseries,navy] at (0,0.75) {原问题的约束};
+  \node[font=\small\bfseries,greenline] at (3.6,0.75) {对偶的变量};
+  \foreach \i/\a/\b in {0/{\cdots\ge5}/{y_1\le0},1/{\cdots\le4}/{y_2\ge0},2/{\cdots=6}/{y_3\text{ 自由}}}{
+    \node[pv,minimum width=2.1cm] (q\i) at (0,-\i*0.8) {$\a$};
+    \node[dv,minimum width=2.1cm] (e\i) at (3.6,-\i*0.8) {$\b$};
+    \draw[arr] (q\i)--(e\i);
+  }
+  \end{scope}
+\end{tikzpicture}
+\fig{例 2.1 的推导路线图：左半是第 3 步（变量 $\to$ 约束），右半是第 4 步（约束 $\to$ 变量）}
+\end{center}
+
+图中每一根箭头都是规则表的一行。这样逐项连线，可以避免漏写或把符号配错。
+
+\begin{examplebox}[例 2.2　同样的数据，目标改为 min　\srcTag{笔记 P9--P11}]
+把例 2.1 的目标改成 $\min z=2x_1+3x_2-5x_3+x_4$，约束不变。\par
+\textbf{1°} 原问题 min $\Rightarrow$ 对偶 $\max w=5y_1+4y_2+6y_3$。\quad
+\textbf{2°} 规则表\textbf{从右往左}读：此时原问题处在表的右栏。\par
+\textbf{3° 变量 $\to$ 约束}（右栏“变量”对左栏“约束”）：$x_1\le0\Rightarrow$ 对偶约束 $\ge$；$x_2,x_3\ge0\Rightarrow\le$；$x_4$ 无约束 $\Rightarrow=$。\par
+\textbf{4° 约束 $\to$ 变量}（右栏“约束”对左栏“变量”）：$\ge5\Rightarrow y_1\ge0$；$\le4\Rightarrow y_2\le0$；$=6\Rightarrow y_3$ 无约束。\par
+\textbf{结果：}
+$\max w=5y_1+4y_2+6y_3$，\ $y_1+2y_2\ge2$，\ $y_1+y_3\le3$，\ $-3y_1+2y_2+y_3\le-5$，\ $y_1-y_2+y_3=1$，\ $y_1\ge0,\ y_2\le0,\ y_3$ 无约束。\par
+\textbf{本题真正想说明什么：}与例 2.1 比较，所有不等号和符号限制都\textbf{恰好反过来}，而等式与无约束不变。原因是：对 min 问题，“正常”的约束是 $\ge$。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[box,text width=5.4cm,align=left] (l) at (0,0) {\textbf{例 2.1}（原 max）\\[1pt]
+  $y_1+2y_2\ \mathbf{\le}\ 2$\quad $y_1+y_3\ \mathbf{\ge}\ 3$\\
+  $\cdots\ \mathbf{\ge}\ -5$\quad $\cdots=1$\\
+  $y_1\mathbf{\le}0$，\ $y_2\mathbf{\ge}0$，\ $y_3$ 自由};
+  \node[gbox,text width=5.4cm,align=left] (r) at (9.0,0) {\textbf{例 2.2}（原 min）\\[1pt]
+  $y_1+2y_2\ \mathbf{\ge}\ 2$\quad $y_1+y_3\ \mathbf{\le}\ 3$\\
+  $\cdots\ \mathbf{\le}\ -5$\quad $\cdots=1$\\
+  $y_1\mathbf{\ge}0$，\ $y_2\mathbf{\le}0$，\ $y_3$ 自由};
+  \draw[{Stealth}-{Stealth},thick,shiftc] (l)--node[above,font=\scriptsize,shiftc!80!black]{只改 max/min}node[below,font=\scriptsize,shiftc!80!black]{不等号全部反向}(r);
+\end{tikzpicture}
+\fig{相近情形辨析：同一组约束，原问题由 max 改为 min 后，对偶中所有“$\le/\ge$”互换，“$=$/自由”不变}
+\end{center}
+
+\begin{warningbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{把 $b$ 和 $c$ 放反。}对偶目标系数来自原问题的\textbf{右端项} $b$，对偶约束右端来自原问题的\textbf{目标系数} $c$。
+  \item \textbf{只转置了一半。}对偶约束的系数是 $A$ 的\textbf{列}。检查方法：对偶第 $j$ 条约束的系数个数 $=$ 原问题约束条数 $m$。
+  \item \textbf{查表方向错。}原问题是 min 时，必须从右栏读起（纠错 5 中笔记把对偶变量写成 $x_i$，就是查表时串了栏）。
+  \item \textbf{先化标准型再写对偶。}不必！对偶直接由原模型写出；先加松弛变量反而会多出一堆约束。
+\end{enumerate}
+\end{warningbox}
+
+\begin{lifebox}[闲置食材：卖给邻居，还是自己做点心？]
+\begin{minipage}[t]{0.54\linewidth}
+\textbf{生活场景：}你周末在家烤饼干出售。邻居想整包买走你的面粉和黄油，问你最低多少钱肯卖。\par
+\textbf{对应关系：}见右图——你的“生产问题”是原问题，邻居的“出价问题”是对偶问题；食材数量是 $b$，食材单价是 $y$，每份饼干的收入是 $c$。\par
+\textbf{小判断：}一份饼干用面粉 2 杯、黄油 1 块，能卖 10 元。若邻居出价面粉 3 元/杯、黄油 3 元/块，则这一篮子食材值 $2\times3+1\times3=9<10$ 元，你会拒绝——这正是对偶约束 $2y_1+y_2\ge10$ 不满足。\par
+\textbf{边界说明：}真实交易还涉及讨价还价、运输与时间成本，线性模型只抓住了“不能低于自己生产的收益”这一条底线。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.42\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[wbox,minimum width=2.2cm] (f) at (0,1.8) {面粉 2 杯};
+  \node[wbox,minimum width=2.2cm] (b) at (0,0.9) {黄油 1 块};
+  \node[wbox,minimum width=2.2cm] (k) at (0,-0.2) {饼干卖 10 元};
+  \node[box,minimum width=2.0cm] (a) at (3.4,1.8) {$a_{1j}=2$};
+  \node[box,minimum width=2.0cm] (bb) at (3.4,0.9) {$a_{2j}=1$};
+  \node[box,minimum width=2.0cm] (c) at (3.4,-0.2) {$c_j=10$};
+  \draw[{Stealth}-{Stealth},auxblue] (f)--(a); \draw[{Stealth}-{Stealth},auxblue] (b)--(bb); \draw[{Stealth}-{Stealth},auxblue] (k)--(c);
+  \node[gbox,minimum width=4.4cm] at (1.7,-1.35) {$2y_1+y_2\ge10$};
+  \node[font=\scriptsize] at (0,2.55) {生活场景};
+  \node[font=\scriptsize] at (3.4,2.55) {对偶模型};
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ 对偶约束}
+\end{minipage}
+\end{lifebox}
+
+\begin{checkbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item 用引例说明对偶变量 $y_i$ 和对偶约束各代表什么。
+  \item 对称形式的对偶中，$A$、$b$、$c$ 分别去了哪里？
+  \item 原问题（max）的 $\ge$ 约束对应怎样的对偶变量？为什么？
+  \item 原问题是 min 时，规则表应怎样读？
+  \item 原问题有 5 个变量、3 个约束，对偶问题有几个变量、几个约束？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？}任给一个线性规划，我们都能机械地写出它的对偶问题，并能说出对偶变量的经济意义（资源单价）。
+\paragraph{下一步还需要解决什么？}写出来的对偶问题和原问题到底有什么数量关系？买方最低的总出价 $w^*$ 与卖方最高的总收入 $z^*$ 谁大？下一章将证明：它们恰好相等。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.35cm and 0.35cm,k/.style={box,minimum height=0.8cm,font=\small}]
+  \node[k] (a) {生产者模型 $\max c\T x$};
+  \node[k,right=of a] (b) {购买者模型 $\min b\T y$};
+  \node[k,right=of b] (c) {对称形式：转置};
+  \node[k,below=0.55cm of b] (d) {一般形式：正常/反常};
+  \node[k,below=0.55cm of c] (e) {四步写对偶};
+  \node[gbox,below=0.55cm of a,xshift=-1.2cm] (f) {对偶的对偶 $=$ 原问题};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e); \draw[arr] (b.south west)--(f.north east);
+\end{tikzpicture}
+\fig{本章知识地图}
+\end{center}

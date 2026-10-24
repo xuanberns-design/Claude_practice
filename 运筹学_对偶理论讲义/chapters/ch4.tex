@@ -1,0 +1,317 @@
+% ============================================================
+%  第 4 章  影子价格（K5）
+% ============================================================
+\section{影子价格：资源在企业内部值多少钱}
+
+上一章得到：原问题最优表中松弛变量检验数的相反数就是对偶最优解 $y^*$。这一章换一个更贴近决策的问法：\textbf{某种资源多给一个单位，最优利润能增加多少？}我们会看到，答案就是 $y_i^*$，它被称为第 $i$ 种资源的\textbf{影子价格}（shadow price）。
+
+\noindent\textbf{本章回答三个问题：}(1) 影子价格怎样从最优表中读出？(2) 它为什么等于“资源多一单位时最优值的增量”？(3) 它能指导哪些决策，又在什么范围内有效？\par
+\noindent\textbf{本章知识路线：}最优表 $\to$ 读出 $B^{-1}$ $\to$ $y\T=c_B\T B^{-1}$ $\to$ 几何验证 $\to$ 经济意义 $\to$ 使用范围。
+
+\subsection{本章主例与它的最优表}
+
+\begin{examplebox}[主例　两种原材料与一台设备 \srcTag{课件 P5--P10}]
+\begin{minipage}[t]{0.5\linewidth}
+某厂用材料 $A$、材料 $B$ 和一台设备生产两种产品，单位利润分别为 2 与 3：
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}\toprule
+资源 & 产品一 & 产品二 & 可用量\\\midrule
+材料 $A$ & 4 & 0 & 16 kg\\ 材料 $B$ & 0 & 4 & 12 kg\\ 设备台时 & 1 & 2 & 8 台时\\\midrule
+单位利润 & 2 & 3 & ---\\\bottomrule
+\end{tabular}
+\end{center}
+\[
+\begin{aligned}\max z&=2x_1+3x_2\\ \st 4x_1+x_3&=16\quad(A)\\ 4x_2+x_4&=12\quad(B)\\ x_1+2x_2+x_5&=8\quad(\text{台时}),\quad x_j\ge0\end{aligned}
+\]
+松弛变量 $x_3,x_4,x_5$ 分别是三种资源的剩余量。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.46\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=0.5cm,y=0.6cm]
+  \lecRegion
+  \axes{9}{5}{x_1}{x_2}
+  \lecLines
+  \draw[iso] (0,4.667)--(7,0) node[below,font=\scriptsize,black!60]{$z=14$};
+  \foreach \p in {(0,0),(4,0),(2,3),(0,3)} \node[vpt] at \p {};
+  \node[optpt] at (4,2) {};
+  \node[lab,above right] at (4,2) {$(4,2)$};
+  \node[font=\small,green!40!black] at (1.5,1.2) {可行域};
+\end{tikzpicture}
+\fig{主例可行域：最优顶点 $(4,2)$ 由材料 $A$ 与台时两条约束交出}\label{fig:lec}
+\end{minipage}
+\end{examplebox}
+
+单纯形法经过 3 次换基得到最优表（课件 P8）：
+
+\begin{center}
+\small
+\begin{tabular}{@{}ccc|ccccc@{}}
+\toprule
+& $c_j$ & & 2 & 3 & 0 & 0 & 0\\
+$c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
+0 & $x_4$ & 4 & 0 & 0 & \cellcolor{formulablue}$\frac12$ & \cellcolor{formulablue}1 & \cellcolor{formulablue}$-2$\\
+3 & $x_2$ & 2 & 0 & 1 & \cellcolor{formulablue}$-\frac18$ & \cellcolor{formulablue}0 & \cellcolor{formulablue}$\frac12$\\
+2 & $x_1$ & 4 & 1 & 0 & \cellcolor{formulablue}$\frac14$ & \cellcolor{formulablue}0 & \cellcolor{formulablue}0\\\midrule
+\multicolumn{3}{c|}{$\sigma_j$} & 0 & 0 & \cellcolor{shiftc!25}$-\frac18$ & \cellcolor{shiftc!25}0 & \cellcolor{shiftc!25}$-\frac32$\\\bottomrule
+\end{tabular}\par\nopagebreak[4]
+\captionof{table}{主例最优表。蓝色块即 $B^{-1}$，橙色块是松弛变量的检验数}\label{tab:lec}
+\end{center}
+
+读表：$x_1=4$，$x_2=2$，$x_4=4$（材料 $B$ 剩 4 kg），$x_3=x_5=0$（材料 $A$ 与台时用尽），最优值 $z^*=2\times4+3\times2=14$。图~\ref{fig:lec} 中，最优点 $(4,2)$ 恰好落在“材料 $A$”竖线与“台时”斜线的交点上，而“材料 $B$”水平线 $x_2=3$ 在它上方——这与表中“材料 $B$ 有剩余”完全吻合。
+
+\subsection{从最优表读出 $B^{-1}$}
+
+\begin{theorembox}[结论 4.1　$B^{-1}$ 就印在最优表上 \srcTag{课件 P11}]
+三个松弛变量在初始方程组中的列并排是单位阵 $I$；最优表 $=B^{-1}\times$ 初始表，所以这三列在最优表中变成 $B^{-1}I=B^{-1}$。行次序是基变量次序 $x_4,x_2,x_1$，列次序是三条约束（材料 $A$、材料 $B$、台时）：
+\[
+B^{-1}=\begin{pmatrix}\frac12&1&-2\\[2pt]-\frac18&0&\frac12\\[2pt]\frac14&0&0\end{pmatrix}.
+\]
+\end{theorembox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node (M) at (0,0) {$\begin{pmatrix}\frac12&1&-2\\[2pt]-\frac18&0&\frac12\\[2pt]\frac14&0&0\end{pmatrix}$};
+  \node (b) at (2.4,0) {$\begin{pmatrix}16\\12\\8\end{pmatrix}$};
+  \node at (3.5,0) {$=$};
+  \node (r) at (4.5,0) {$\begin{pmatrix}4\\2\\4\end{pmatrix}$};
+  \fill[shiftc!25,opacity=0.6] (-1.45,0.32) rectangle (1.45,0.78);
+  \node[font=\scriptsize,align=left] at (8.4,0.55) {第 1 行：$\frac12\cdot16+1\cdot12+(-2)\cdot8=4=x_4$ ✓};
+  \node[font=\scriptsize,align=left] at (8.4,0) {第 2 行：$-\frac18\cdot16+0+\frac12\cdot8=2=x_2$ ✓};
+  \node[font=\scriptsize,align=left] at (8.4,-0.55) {第 3 行：$\frac14\cdot16+0+0=4=x_1$ ✓};
+  \node[font=\scriptsize,auxblue] at (2.4,-1.15) {原模型右端 $b$};
+  \node[font=\scriptsize,auxblue] at (4.5,-1.15) {最优表 $b$ 列};
+  \node[font=\scriptsize,auxblue] at (0,-1.15) {最优表中 $x_3,x_4,x_5$ 三列};
+\end{tikzpicture}
+\fig{验算 $x_B=B^{-1}b$：用原模型右端项 $(16,12,8)\T$ 去乘，应还原出最优表的 $b$ 列（课件 P13）}
+\end{center}
+
+图中高亮的是第 1 行的计算过程。三行结果 $(4,2,4)$ 与最优表 $b$ 列逐一相同，说明 $B^{-1}$ 读对了。注意：被乘的是\textbf{原模型}的 $b=(16,12,8)\T$，不是最优表的 $b$ 列——这就是课件红字想提醒的事（纠错 6 第 7 条）。
+
+\subsection{影子价格的定义与计算}
+
+\begin{definitionbox}[定义 4.2　影子价格 \srcTag{课件 P15--P17}\ \srcTag{笔记 P13}]
+设 $B$ 为最优基，称
+\[
+\boxed{\;y\T=c_B\T B^{-1}\;}
+\]
+的第 $i$ 个分量 $y_i$ 为第 $i$ 种资源的\textbf{影子价格}。同一组数在不同语境下有不同名称：矩阵表达中称\textbf{单纯形乘子}，对偶理论中称\textbf{对偶变量}（对偶最优解），经济分析中称\textbf{影子价格}。\par
+\textbf{前提}（笔记 P13）：原问题为 $\max z,\ Ax\le b,\ x\ge0$ 型，对偶为 min 型。
+\end{definitionbox}
+
+\begin{examplebox}[例 4.1　计算主例的影子价格]
+\textbf{已知：}基为 $\{x_4,x_2,x_1\}$，价值系数 $c_B=(0,3,2)\T$，$B^{-1}$ 如上。\quad\textbf{求：}$y$。\par
+\textbf{思路：}$y_i=c_B\T\times(B^{-1}\text{ 的第 }i\text{ 列})$。
+\[
+y_1=0\cdot\tfrac12+3\cdot(-\tfrac18)+2\cdot\tfrac14=\tfrac18,\qquad
+y_2=0\cdot1+3\cdot0+2\cdot0=0,\qquad
+y_3=0\cdot(-2)+3\cdot\tfrac12+2\cdot0=\tfrac32 .
+\]
+\textbf{结果：}$y=(\frac18,\,0,\,\frac32)$。\quad
+\textbf{检查：}与表~\ref{tab:lec} 橙色块 $(-\frac18,0,-\frac32)$ 逐项互为相反数 ✓；$y\T b=\frac18\cdot16+0+\frac32\cdot8=2+12=14=z^*$ ✓。
+\end{examplebox}
+
+\begin{proofbox}[为什么“松弛变量检验数的相反数”就是影子价格（课件 P19）]
+第 $i$ 条约束的松弛变量记作 $s_i$，它在原方程组中的列是单位向量 $e_i$，价值系数为 0。代入检验数公式 $\sigma_j=c_j-y\T P_j$：
+\[
+\sigma(s_i)=0-y\T e_i=-y_i .
+\]
+所以影子价格不必另算，\textbf{读松弛变量所在列的检验数、取相反数即可}。又因最优表满足 $\sigma\le0$，得 $y_i=-\sigma(s_i)\ge0$：在 $Ax\le b$ 型问题中，影子价格非负。
+\end{proofbox}
+
+\subsection{影子价格的含义：资源的边际贡献}
+
+\begin{theorembox}[定理 4.3　影子价格 $=$ 最优值对资源量的变化率]
+若右端项 $b_i$ 改变后最优基 $B$ 不变，则
+\[
+z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
+\boxed{\;y_i=\frac{\partial z^*}{\partial b_i}\;}
+\]
+即第 $i$ 种资源每增加 1 单位，最优值增加 $y_i$。
+\end{theorembox}
+
+\begin{proofbox}[推导 \fillTag]
+\textbf{第一步。}由核心公式 1.1，$z^*=c_B\T x_B=c_B\T B^{-1}b$。\par
+\textbf{第二步。}$b$ 变为 $b+\Delta b$ 时，只要最优基 $B$ 不变（第 6 章会求出这个范围），$c_B$ 和 $B^{-1}$ 都不变，于是新的最优值为 $c_B\T B^{-1}(b+\Delta b)=z^*+y\T\Delta b$。\par
+\textbf{第三步。}取 $\Delta b=e_i$（只把第 $i$ 种资源加 1），增量恰为 $y_i$。在最优基不变的范围内 $z^*$ 是 $b$ 的线性函数，所以 $y_i$ 就是偏导数 $\partial z^*/\partial b_i$。\par
+\textbf{一句话直观解释：}在最优基不变的范围内，最优值随资源线性变化，斜率就是影子价格。
+\end{proofbox}
+
+课件用三幅图逐一验证了这个结论。我们把它们并排画在一起，使用相同的坐标范围，方便比较。
+
+\begin{center}
+\begin{tikzpicture}[x=0.53cm,y=0.6cm]
+  % (a) 材料 A +1
+  \begin{scope}
+    \fill[feasreg] (0,0)--(4.25,0)--(4.25,1.875)--(2,3)--(0,3)--cycle;
+    \axes{8}{4}{x_1}{x_2}
+    \draw[con,black!30] (4,-0.2)--(4,4.3);
+    \draw[shiftl] (4.25,-0.2)--(4.25,4.3) node[above,font=\scriptsize]{$4x_1=17$};
+    \draw[con] (-0.2,3)--(8.3,3);
+    \draw[con] (-0.4,4.2)--(8.3,-0.15);
+    \node[badpt] at (4,2) {}; \node[optpt,fill=shiftc] at (4.25,1.875) {};
+    \node[font=\scriptsize,align=center] at (4,-1.6) {(a) 材料 $A$：$16\to17$\\新顶点 $(\frac{17}{4},\frac{15}{8})$\\$z=\frac{113}{8}$，增 $\frac18=y_1$};
+  \end{scope}
+  % (b) 材料 B +1
+  \begin{scope}[xshift=5.35cm]
+    \fill[feasreg] (0,0)--(4,0)--(4,2)--(1.5,3.25)--(0,3.25)--cycle;
+    \axes{8}{4}{x_1}{x_2}
+    \draw[con] (4,-0.2)--(4,4.3);
+    \draw[con,black!30] (-0.2,3)--(8.3,3);
+    \draw[shiftl] (-0.2,3.25)--(8.3,3.25) node[above left,font=\scriptsize]{$4x_2=13$};
+    \draw[con] (-0.4,4.2)--(8.3,-0.15);
+    \node[optpt] at (4,2) {};
+    \node[font=\scriptsize,align=center] at (4,-1.6) {(b) 材料 $B$：$12\to13$\\最优点仍是 $(4,2)$\\$z=14$，增 $0=y_2$};
+  \end{scope}
+  % (c) 台时 +1
+  \begin{scope}[xshift=10.7cm]
+    \fill[feasreg] (0,0)--(4,0)--(4,2.5)--(3,3)--(0,3)--cycle;
+    \axes{8}{4}{x_1}{x_2}
+    \draw[con] (4,-0.2)--(4,4.3);
+    \draw[con] (-0.2,3)--(8.3,3);
+    \draw[con,black!30] (-0.4,4.2)--(8.3,-0.15);
+    \draw[shiftl] (-0.4,4.7)--(8.3,0.35) node[above left,font=\scriptsize]{$x_1+2x_2=9$};
+    \node[badpt] at (4,2) {}; \node[optpt,fill=shiftc] at (4,2.5) {};
+    \node[font=\scriptsize,align=center] at (4,-1.6) {(c) 台时：$8\to9$\\新顶点 $(4,\frac52)$\\$z=\frac{31}{2}$，增 $\frac32=y_3$};
+  \end{scope}
+\end{tikzpicture}
+\fig{影子价格的几何验证（课件 P21--P26）：灰线为原边界，橙色虚线为资源加 1 后的新边界，红点为原最优点，橙点为新最优点}\label{fig:sp3}
+\end{center}
+
+三幅图读法相同：灰色实线是原来的边界，橙色虚线是该资源增加 1 单位后的新边界，可行域随之扩大一小条。
+\begin{itemize}
+  \item 图 (a)：材料 $A$ 的边界右移，最优顶点沿台时斜线移到 $(\frac{17}{4},\frac{15}{8})$，$z=2\cdot\frac{17}{4}+3\cdot\frac{15}{8}=\frac{68+45}{8}=\frac{113}{8}$，比 14 多 $\frac18$；
+  \item 图 (b)：材料 $B$ 的边界上移，但最优顶点 $(4,2)$ 根本不在这条线上，可行域虽然扩大，最优点不动，增量为 0；
+  \item 图 (c)：台时边界整体外推，最优顶点沿材料 $A$ 竖线上移到 $(4,\frac52)$，$z=8+\frac{15}{2}=\frac{31}{2}$，多 $\frac32$。
+\end{itemize}
+三个增量恰好是 $(\frac18,0,\frac32)$，与例 4.1 算出的影子价格完全一致。
+
+\begin{supplementbox}[影子价格只在一段范围内是常数 \fillTag]
+\begin{minipage}{0.47\linewidth}
+把材料 $A$ 的可用量 $b_1$ 从 0 一直增加，最优值 $z^*(b_1)$ 的变化如右图（第 6 章将求出中间一段的端点）：
+\begin{itemize}[leftmargin=1.2em]
+  \item $0\le b_1\le8$：最优点在 $(\frac{b_1}{4},3)$，$z^*=\frac{b_1}{2}+9$，斜率 $\frac12$；
+  \item $8\le b_1\le32$：最优基即本章的 $\{x_4,x_2,x_1\}$，斜率 $\frac18$；
+  \item $b_1\ge32$：材料 $A$ 不再紧缺，$z^*=16$，斜率 0。
+\end{itemize}
+斜率就是该段的影子价格。它随资源增多而\textbf{逐段变小}——资源越充裕，边际价值越低。
+\end{minipage}\hfill
+\begin{minipage}{0.5\linewidth}\centering
+\begin{tikzpicture}
+\begin{axis}[width=7.6cm,height=5.2cm,xmin=0,xmax=40,ymin=8,ymax=17.5,axis lines=left,
+  xlabel={材料 $A$ 可用量 $b_1$},ylabel={$z^*$},xtick={0,8,16,32,40},ytick={9,13,14,16},
+  grid=major,grid style={black!8},label style={font=\scriptsize},tick label style={font=\scriptsize}]
+  \addplot[navy,very thick] coordinates {(0,9)(8,13)(32,16)(40,16)};
+  \addplot[only marks,mark=*,mark options={fill=optc,draw=white},mark size=2.5pt] coordinates {(16,14)};
+  \node[font=\scriptsize,anchor=south east] at (axis cs:7,11.6) {斜率 $\frac12$};
+  \node[font=\scriptsize,anchor=north west] at (axis cs:18,14.1) {斜率 $\frac18=y_1$};
+  \node[font=\scriptsize,anchor=south] at (axis cs:36,16) {斜率 0};
+  \draw[shiftc,dashed] (axis cs:8,8)--(axis cs:8,13);
+  \draw[shiftc,dashed] (axis cs:32,8)--(axis cs:32,16);
+  \fill[shiftc!12] (axis cs:8,8) rectangle (axis cs:32,8.6);
+  \node[font=\scriptsize,shiftc!80!black] at (axis cs:20,8.9) {最优基不变的范围};
+\end{axis}
+\end{tikzpicture}
+\fig{$z^*$ 随 $b_1$ 变化的折线：每一段的斜率是该段的影子价格}\label{fig:zb1}
+\end{minipage}
+\end{supplementbox}
+
+图~\ref{fig:zb1} 的横轴是材料 $A$ 的可用量，纵轴是最优值；紫点是当前状态 $b_1=16$、$z^*=14$。橙色区间 $[8,32]$ 内折线是一条直线，斜率 $\frac18$ 就是影子价格；越过端点后斜率改变，“每多 1 kg 增利 $\frac18$”就不再成立。这是使用影子价格时最容易忽视的一点（课件 P61“影子价格为常数的边界”）。
+
+\subsection{影子价格的经济意义与用法}
+
+\srcTag{笔记 P13}\ 笔记把影子价格的意义总结为三条：
+\begin{enumerate}
+  \item \textbf{资源的边际贡献：}资源转换成经济效益的效率；
+  \item \textbf{资源的稀缺程度：}影子价格 $=0$ 多半意味着资源有剩余（严格地说是“有剩余 $\Rightarrow$ 影子价格为 0”，见纠错 6）；影子价格 $>0$ 说明资源在最优方案中已用尽，值越大越稀缺；
+  \item \textbf{资源的边际使用价值：}买方愿意为这种资源支付的最低合理出价（笔记 P13：“$Y^*$：买主的最低出价”）。
+\end{enumerate}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}lXX@{}}
+\toprule
+\rowcolor{lightblue}比较维度 & 市场价格 & 影子价格\\\midrule
+由什么决定 & 市场供求关系 & 企业自身的技术条件、资源结构与产品价格\\
+对谁相同 & 所有企业面对同一价格 & 不同企业不同；同一企业在不同时期也不同\\
+怎样得到 & 市场报价 & 求解线性规划，$y\T=c_B\T B^{-1}$\\
+会不会变 & 随行情波动 & 最优基改变时随之改变（图~\ref{fig:zb1} 的折点）\\
+经济含义 & 交易价格 & 企业内部的机会成本\\\bottomrule
+\end{tabularx}\par\nopagebreak[4]
+\captionof{table}{相近概念辨析：影子价格不是市场价格（课件 P28）}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \i/\t/\d in {0/{决定是否购入}/{市场价 $<$ 影子价 $\Rightarrow$ 买入有利},1/{对外报价下限}/{卖出报价不应低于影子价},2/{识别生产瓶颈}/{影子价最高者最稀缺，优先扩充}} {
+    \node[gbox,text width=4.1cm,minimum height=1.3cm] at (\i*4.8,0) {\textbf{\t}\\[2pt]{\scriptsize \d}};
+  }
+  \begin{scope}[yshift=-2.3cm]
+    \draw[ax] (-1.8,0)--(12.2,0) node[right,font=\scriptsize]{元/单位};
+    \foreach \x/\l in {0/0,4/1,8/{1.5}} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.1) {\l};}
+    \fill[shiftc] (8,0) circle (2.5pt) node[above,font=\scriptsize]{台时影子价 $\frac32$};
+    \fill[greenline] (4,0) circle (2.5pt) node[above,font=\scriptsize,align=center]{市场租金 1：\\租入有利};
+    \fill[redline] (10.4,0) circle (2.5pt) node[above,font=\scriptsize,align=center]{市场租金 1.8：\\不租};
+    \fill[auxblue] (0.5,0) circle (2.5pt) node[above,font=\scriptsize]{材料 $A$ $\frac18$};
+  \end{scope}
+\end{tikzpicture}
+\fig{影子价格的三种用法（课件 P29），下方数轴以主例的设备台时为例：市场租金低于 $\frac32$ 才值得租入}
+\end{center}
+
+图下半部分是一条价格数轴：橙点是设备台时的影子价格 $\frac32$。若市场上租 1 台时只要 1 元（绿点，在左侧），租入后每台时净赚 $\frac32-1=\frac12$；若要 1.8 元（红点，在右侧），就不划算。材料 $A$ 的影子价格只有 $\frac18$，说明三种资源中台时最紧缺，是生产的瓶颈。
+
+\begin{warningbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{超出范围仍按影子价格外推。}“多买 100 kg 材料 $A$ 能多赚 $100\times\frac18=12.5$ 元”是错的：$b_1$ 超过 32 后影子价格变为 0，实际最多多赚 $16\times\frac18=2$ 元（课件 P61）。
+  \item \textbf{把影子价格当成市场价格。}影子价格是“在本企业内部值多少”，不是“在市场上卖多少钱”。
+  \item \textbf{读表时取错符号或列。}影子价格是\textbf{松弛变量}列的检验数的\textbf{相反数}，不是决策变量列，也不是检验数本身。
+\end{enumerate}
+\end{warningbox}
+
+\begin{lifebox}[柠檬水摊：多一份冰块值多少钱？]
+\begin{minipage}[t]{0.55\linewidth}
+\textbf{生活场景：}周末摆摊卖柠檬水（每杯赚 2 元，用 1 份冰、1 个柠檬）和冰茶（每杯赚 3 元，用 2 份冰）。今天只有 10 份冰、4 个柠檬。\par
+\textbf{对应关系：}冰、柠檬的数量 $\leftrightarrow b$；每杯利润 $\leftrightarrow c$；最优安排是柠檬水 4 杯、冰茶 3 杯，赚 17 元；冰和柠檬都用完了。由互补松弛，$y_{\text{冰}}+y_{\text{柠檬}}=2$、$2y_{\text{冰}}=3$，得冰的影子价格 1.5 元/份，柠檬 0.5 元/个。\par
+\textbf{小估算：}邻摊愿以 1 元/份卖给你冰块。多 1 份冰可多做半杯冰茶，增利 1.5 元，扣掉成本净赚 0.5 元——值得买。\par
+\textbf{边界说明：}真实摆摊还受顾客需求限制，冰多到一定程度卖不完，影子价格就会降为 0，这正是“只在范围内有效”。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.41\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=0.5cm,y=0.5cm]
+  \fill[feasreg] (0,0)--(4,0)--(4,3)--(0,5)--cycle;
+  \axes{6}{5}{L}{T}
+  \draw[con] (-0.3,5.15)--(6.3,1.85) node[right,font=\scriptsize]{冰};
+  \draw[con] (4,-0.2)--(4,5.3) node[above,font=\scriptsize]{柠檬};
+  \draw[shiftl] (-0.3,5.65)--(6.3,2.35);
+  \node[optpt] at (4,3) {}; \node[optpt,fill=shiftc] at (4,3.5) {};
+  \node[lab,right] at (4.2,2.8) {$(4,3)$};
+  \node[font=\scriptsize,align=center] at (3,-1.6) {冰 $+1$：最优点上移半杯\\利润 $+1.5$};
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ 影子价格}
+\end{minipage}
+\end{lifebox}
+
+\begin{checkbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item 影子价格的定义式是什么？在最优表上怎样直接读出？
+  \item 为什么 $Ax\le b$ 型问题的影子价格一定非负？
+  \item 主例中材料 $B$ 的影子价格为什么是 0？用图和用表各解释一次。
+  \item 用 $y\T b$ 验证主例的最优值。
+  \item 影子价格与市场价格有哪些不同？
+  \item 为什么不能说“多买 100 kg 材料 $A$ 可多赚 12.5 元”？
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？}我们会读、会算、会解释影子价格，并知道它只在“最优基不变”的范围内是常数。
+\paragraph{下一步还需要解决什么？}一旦资源变化超出这个范围，最优表中的 $b$ 列会出现负数——此时检验数仍然合格，但解不可行。能不能从这张“半坏”的表接着算，而不从头再来？这就需要下一章的对偶单纯形法。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
+  \node[k] (a) {最优表};
+  \node[k,right=of a] (b) {读 $B^{-1}$};
+  \node[k,right=of b] (c) {$y\T=c_B\T B^{-1}$};
+  \node[k,right=of c] (d) {$y_i=-\sigma(s_i)\ge0$};
+  \node[k,below=0.55cm of b] (e) {$y_i=\partial z^*/\partial b_i$};
+  \node[k,right=of e] (f) {三种用法};
+  \node[rbox,right=of f] (g) {只在范围内有效\\$\to$ 第 6 章};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (c)--(e); \draw[arr] (e)--(f); \draw[arr] (f)--(g);
+\end{tikzpicture}
+\fig{本章知识地图}
+\end{center}

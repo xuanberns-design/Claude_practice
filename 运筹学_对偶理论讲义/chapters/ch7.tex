@@ -1,0 +1,137 @@
+% ============================================================
+%  第 7 章  总结与复习
+% ============================================================
+\section{总结：把六章内容收拢成一张网}
+
+六章内容看似分散，其实都围绕同一个对象 $B^{-1}$ 展开。本章不引入新知识，只把前面的结论汇总成便于复习和查阅的形式。
+
+\subsection{全专题知识地图}
+
+\begin{center}
+\begin{forest}
+  for tree={draw=navy,fill=lightblue,rounded corners=2pt,font=\small,align=center,
+    grow'=east,parent anchor=east,child anchor=west,edge={auxblue,thick},
+    l sep=5mm,s sep=1.2mm,inner sep=2.5pt,anchor=west,font=\footnotesize}
+  [{最优基的逆 $B^{-1}$}
+    [{表的矩阵表示\\$x_B=B^{-1}b$，$\sigma=c-c_B\T B^{-1}A$}
+      [修正单纯形法]]
+    [{单纯形乘子 $y\T=c_B\T B^{-1}$}
+      [{对偶问题\\（转置；正常/反常）}
+        [{弱对偶 $c\T x\le b\T y$}]
+        [{强对偶 $z^*=w^*$}[互补松弛]]]
+      [{影子价格\\$y_i=\partial z^*/\partial b_i$}[{三种用法；只在范围内有效}]]]
+    [{两条判据\\$B^{-1}b\ge0$；$\sigma\le0$}
+      [{对偶单纯形法\\保住 $\sigma\le0$}]
+      [{灵敏度分析}
+        [{改 $b$：$x_B+\Delta b_r\beta_r\ge0$}]
+        [{改 $c$：$\sigma_k-\Delta c_j t_{rk}\le0$}]
+        [{新增变量 / 约束}]]]]
+\end{forest}
+\fig{全专题知识地图：从根节点 $B^{-1}$ 出发的三条主干，分别通向算法、对偶理论与灵敏度分析}\label{fig:allmap}
+\end{center}
+
+\subsection{基础解题步骤总结}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{lightgreen}题型 & 标准步骤\\\midrule
+写对偶问题 & ① 看原目标 max/min，定对偶目标；② 定查表方向（max 左 $\to$ 右）；③ 原变量的符号 $\to$ 对偶约束的方向；④ 原约束的方向 $\to$ 对偶变量的符号；⑤ 检查：变量数与约束数互换。\\
+从最优表读信息 & $B^{-1}$：初始单位阵所在列；影子价格：松弛变量列检验数取负；对偶剩余变量：决策变量列检验数取负；$z^*=y\T b$ 验算。\\
+互补松弛求对偶解 & ① $x_j>0\Rightarrow$ 第 $j$ 条对偶约束取等；② 资源有剩余 $\Rightarrow y_i=0$；③ 解方程组；④ 检查 $y$ 可行、$w=z$。\\
+对偶单纯形法 & ① 化 max、乘 $-1$ 得单位阵；② 确认 $\sigma\le0$；③ $b$ 最负的行出基；④ 负系数列中 $\min\sigma_j/a_{rj}$ 入基；⑤ 旋转；⑥ 直到 $b\ge0$。\\
+$b_r$ 的范围 & ① 读 $\beta_r$（$x_{s_r}$ 列）与 $x_B$；② 逐行 $x_{B_i}+\Delta b_r\beta_{ir}\ge0$；③ 正系数给下界、负系数给上界；④ 取交集，加回 $b_r$。\\
+$c_j$ 的范围 & 非基：$\Delta c_k\le-\sigma_k$。基（第 $r$ 行）：对每个非基列 $\sigma_k-\Delta c_jt_{rk}\le0$，$t_{rk}>0$ 给下界、$<0$ 给上界，取交集。\\
+新增变量 & $\sigma_{n+1}=c_{n+1}-y\T P_{n+1}$；$>0$ 则把 $B^{-1}P_{n+1}$ 写入表、续单纯形法。\\
+新增约束 & ① 原解代入；② 不满足则加松弛变量成新行；③ 消去新行中基变量的系数；④ 对偶单纯形法。\\\bottomrule
+\end{tabularx}\par\nopagebreak[4]
+\captionof{table}{基础解题步骤总表}
+\end{center}
+
+\subsection{高频易错点总表}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.6cm}@{}}
+\toprule
+\rowcolor{lightred}错误想法 & 正确想法 & 出处\\\midrule
+$x_B=B^{-1}b$ 中用最优表的 $b$ 列 & $b$ 是原模型右端项 & 第 1、4 章\\
+$B$ 的列随意排列 & 与基变量的行次序一致，$c_B$ 同序 & 第 1 章\\
+写对偶时 $b$、$c$ 放反 & $b\to$ 对偶目标系数，$c\to$ 对偶约束右端 & 第 2 章\\
+min 问题也从左往右查表 & min 问题从右往左查，不等号全反 & 第 2 章\\
+弱对偶证明不提 $y\ge0$ & 乘不等式必须用非负数 & 第 3 章\\
+对偶无可行解 $\Rightarrow$ 原问题无界 & 也可能原问题同样无可行解 & 第 3 章\\
+影子价格为 0 $\Rightarrow$ 资源有剩余 & 只有反方向成立；退化时可能“用尽但价格为 0” & 第 3、4 章\\
+影子价格在任何范围都可外推 & 只在最优基不变的范围内为常数 & 第 4、6 章\\
+影子价格等于市场价格 & 影子价格是企业内部的机会成本 & 第 4 章\\
+对偶单纯形法求的是对偶问题 & 它求解当前问题本身 & 第 5 章\\
+对偶单纯形法比值用 $b/a$ & 用 $\sigma_j/a_{rj}$，且只取 $a_{rj}<0$ 的列 & 第 5 章\\
+基变量 $c_j$ 改变只影响本列 & 影响全部非基列的检验数 & 第 6 章\\
+改 $c$ 会改变最优解的取值 & 范围内取值不变，只有最优值变 & 第 6 章\\
+新增约束直接写进表 & 先消去新行中基变量的系数 & 第 6 章\\\bottomrule
+\end{tabularx}\par\nopagebreak[4]
+\captionof{table}{高频易错点总表}
+\end{center}
+
+\subsection{相近概念总对比}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{lightblue}概念对 & 本质区别 & 判断方法\\\midrule
+单纯形法 / 修正单纯形法 & 判据相同；后者只维护 $B^{-1}$ & 是否写出整张表\\
+单纯形法 / 对偶单纯形法 & 保住 $b\ge0$ 找 $\sigma\le0$ / 保住 $\sigma\le0$ 找 $b\ge0$ & 看起始表哪条判据已满足\\
+弱对偶 / 强对偶 & 任意可行解的不等式 / 最优解的等式 & 是否要求“最优”\\
+对偶变量 / 影子价格 / 单纯形乘子 & 同一组数 $y\T=c_B\T B^{-1}$ 的三个名字 & 看语境：理论、经济、计算\\
+影子价格 / 市场价格 & 内部机会成本 / 外部交易价格 & 是否依赖本企业的技术结构\\
+原始可行 / 对偶可行 & $B^{-1}b\ge0$ / $\sigma\le0$ & 看 $b$ 列还是 $\sigma$ 行\\
+松弛变量 / 剩余变量 & $\le$ 约束加上 / $\ge$ 约束减去 & 系数为 $+1$ 还是 $-1$\\
+改 $b$ / 改 $c$ & 动可行性（边界平移）/ 动最优性（等值线旋转） & 改动出现在哪个公式里\\\bottomrule
+\end{tabularx}\par\nopagebreak[4]
+\captionof{table}{相近概念总对比}
+\end{center}
+
+\subsection{后续课程连接}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,k/.style={box,text width=2.9cm,minimum height=1.0cm,font=\small},
+  n/.style={wbox,text width=3.6cm,minimum height=1.0cm,font=\scriptsize}]
+  \node[k] (c) at (0,0) {本专题：\\对偶与灵敏度};
+  \node[n] (a) at (-4.6,1.6) {\textbf{整数规划}\\分支定界每加一条约束，用对偶单纯形法重新优化};
+  \node[n] (b) at (0,2.4) {\textbf{运输问题}\\位势法中的 $u_i,v_j$ 就是对偶变量};
+  \node[n] (d) at (4.6,1.6) {\textbf{非线性规划}\\KKT 条件、拉格朗日乘子是影子价格的推广};
+  \node[n] (e) at (-4.6,-1.6) {\textbf{博弈论}\\零和博弈的极小极大定理与 LP 对偶等价};
+  \node[n] (f) at (0,-2.4) {\textbf{微观经济学}\\边际收益、机会成本、要素定价};
+  \node[n] (g) at (4.6,-1.6) {\textbf{电力系统 / 自动控制}\\经济调度、节点电价、模型预测控制中的 LP/QP};
+  \foreach \x in {a,b,d,e,f,g} \draw[arr] (c)--(\x);
+\end{tikzpicture}
+\fig{本专题与后续课程的联系（只列出真实存在的直接联系）}
+\end{center}
+
+\begin{connectionbox}[拓展联想：以下内容只用于建立知识联系，当前阶段不要求掌握]
+对一般的约束优化问题 $\max f(x)$，$g_i(x)\le b_i$，可以构造拉格朗日函数 $L(x,y)=f(x)+\sum_iy_i\,(b_i-g_i(x))$。线性规划时 $f=c\T x$、$g=Ax$，对 $x\ge0$ 取上确界再对 $y\ge0$ 取下确界，得到的恰好就是本专题的对偶问题；$y_i$ 依然表示“第 $i$ 个约束放松一单位时最优值的变化率”。笔记 P7 旁注的“拉格朗日乘子”指的就是这件事。
+\end{connectionbox}
+
+\subsection{知识点—题目对应表}
+
+下表说明 38 道正式练习分别检查哪个知识点。做完练习后，可以按此表找到自己的薄弱环节，回到对应章节复习。
+
+\begin{center}
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\rowcolor{lightblue}核心知识点 & 章节 & 基础巩固（1--25） & 中等偏下（26--35） & 跨学科（36--38）\\\midrule
+K1 矩阵视角、修正单纯形法 & 第 1 章 & 5, 18, 22 & 35 & \\
+K2 对偶问题的构造 & 第 2 章 & 1, 2, 11, 16, 21 & 34 & \\
+K3 对偶的基本性质 & 第 3 章 & 3, 4, 12 & 27 & 37, 38\\
+K4 互补松弛 & 第 3 章 & 7, 14 & 27, 34 & 37\\
+K5 影子价格 & 第 4 章 & 6, 13, 17, 23 & 26, 29, 31, 34 & 36, 37, 38\\
+K6 对偶单纯形法 & 第 5 章 & 8, 19, 24 & 28, 32, 35 & \\
+K7 右端项灵敏度 & 第 6 章 & 9, 15, 25 & 26, 29, 31 & \\
+K8 价值系数灵敏度 & 第 6 章 & 10, 15, 20 & 29, 33 & \\
+K9 新增变量 / 约束 & 第 6 章 & 15 & 30, 32, 35 & \\\bottomrule
+\end{tabular}\par\nopagebreak[4]
+\captionof{table}{知识点—题目对应表}\label{tab:cover}
+\end{center}

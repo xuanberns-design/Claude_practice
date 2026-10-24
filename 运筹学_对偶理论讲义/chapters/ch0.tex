@@ -1,0 +1,175 @@
+% ============================================================
+%  导论：学科小史、现实应用、原始资料重编码与纠错、知识总览
+% ============================================================
+\section*{导论：问题从哪里来}
+\addcontentsline{toc}{section}{导论：学科小史、现实应用与原始资料}
+\markboth{导论}{}
+
+\subsection*{学科小史：这个知识是怎样出现的？}
+\addcontentsline{toc}{subsection}{学科小史：这个知识是怎样出现的？}
+
+对偶理论并不是先有数学、后找应用。它是在“怎样给稀缺资源定价”和“怎样快速求解大规模线性规划”这两个现实问题的推动下逐步形成的。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[very thick,navy] (0,0)--(15.6,0);
+  \foreach \x/\yr/\t/\d in {
+    0.8/1939/{康托罗维奇}/{生产计划中的“解乘数”\\为资源定出内部估价},
+    4.0/1947/{丹齐格}/{提出单纯形法；与冯·诺伊曼\\交谈中出现对偶思想},
+    7.2/1951/{盖尔、库恩、塔克}/{发表线性规划\\对偶定理的证明},
+    10.4/1954/{莱姆克}/{提出对偶单纯形法\\（dual simplex method）},
+    13.6/1950s--{今}/{修正单纯形法与计算机}/{RAND 等机构把只维护 $B^{-1}$\\的算法写成程序，延续至今}}{
+    \fill[navy] (\x,0) circle (3pt);
+    \node[font=\small\bfseries,navy,above] at (\x,0.15) {\yr};
+    \node[font=\small,above,text width=3cm,align=center] at (\x,0.6) {\t};
+    \node[font=\scriptsize,below,text width=3.1cm,align=center,black!75] at (\x,-0.2) {\d};
+  }
+\end{tikzpicture}
+\fig{对偶理论发展的五个关键节点（时间轴只标出与本章直接相关的事件）}
+\end{center}
+
+\begin{historybox}[人们遇到了什么问题？]
+\begin{itemize}
+  \item \textbf{资源怎么估价。}1939 年，苏联数学家康托罗维奇（L.~V.~Kantorovich）研究胶合板厂的生产安排时，引入了一组“解乘数”，它们衡量每种资源对最优产出的贡献。这正是今天“影子价格”的前身。他与库普曼斯（T.~C.~Koopmans）因资源最优配置理论共同获得 1975 年诺贝尔经济学奖。
+  \item \textbf{怎么求解。}1947 年，丹齐格（G.~B.~Dantzig）为美国空军的计划问题提出单纯形法。据丹齐格本人回忆，同年他向冯·诺伊曼（J.~von Neumann）介绍线性规划时，后者立刻把它与自己的博弈论联系起来，指出每个线性规划都伴随着另一个“对偶”的线性规划。
+  \item \textbf{严格证明与新算法。}1951 年，盖尔、库恩、塔克（D.~Gale, H.~W.~Kuhn, A.~W.~Tucker）发表了对偶定理的证明；1954 年，莱姆克（C.~E.~Lemke）提出对偶单纯形法；同一时期，丹齐格与奥查德-海斯（W.~Orchard-Hays）等人在 RAND 公司发展了只维护基逆矩阵的修正单纯形法，以适应当时内存极小的计算机。
+\end{itemize}
+\textbf{为什么今天还要学？}因为现代求解器求解线性规划、整数规划时，大量时间都花在“改一点数据—从旧的最优表继续算”上，而这正是对偶单纯形法与灵敏度分析的用武之地。
+\end{historybox}
+\tip[说明]{“谁最早提出对偶”在文献中有不同叙述，上面采用较保守的说法：对偶思想在 1947 年丹齐格与冯·诺伊曼的交流中出现，严格证明于 1951 年发表。}
+
+\needspace{14\baselineskip}
+\subsection*{从课本到现实：这个知识到底有什么用？}
+\addcontentsline{toc}{subsection}{从课本到现实：这个知识到底有什么用？}
+
+\begin{sciencebox}[三个真实系统里的对偶变量]
+\begin{minipage}[t]{0.58\linewidth}
+\textbf{1. 电力市场的“节点电价”。}电网调度机构每隔一段时间求解一个“满足负荷、成本最低”的优化问题。每个节点“供需平衡”约束对应的对偶变量，就是该节点再多用 1 兆瓦时电能所增加的系统成本，许多电力市场直接把它作为结算电价（称为节点边际电价，LMP）。本讲义的跨学科第 36 题就是它的简化版。
+
+\smallskip
+\textbf{2. 航空公司的“票价门槛”。}一架航班的座位是有限资源。收益管理系统先求解一个线性规划，用各航段座位约束的对偶价格估计“一个座位的机会成本”。如果一张联程票的价格低于它占用的各段座位影子价格之和，系统就倾向于不卖。
+
+\smallskip
+\textbf{3. 求解器里的“重新优化”。}整数规划的分支定界法会反复往线性规划里加一条约束再求解。每加一条约束，旧的最优表就变成“对偶可行而原始不可行”的状态，用对偶单纯形法通常几步就能恢复最优——这正是第 6 章“新增约束”的内容。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.38\linewidth}
+\vspace{2pt}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[box,minimum width=3.6cm] (m) at (0,0) {线性规划\\（原问题）};
+  \node[wbox,minimum width=3.6cm] (a) at (0,-1.7) {对偶变量 $y_i$};
+  \node[gbox,minimum width=1.6cm,font=\scriptsize] (p) at (-1.4,-3.5) {节点电价};
+  \node[gbox,minimum width=1.6cm,font=\scriptsize] (q) at (0.1,-3.5) {座位机会\\成本};
+  \node[gbox,minimum width=1.6cm,font=\scriptsize] (r) at (1.6,-3.5) {重新优化\\的起点};
+  \draw[arr] (m)--node[right,font=\scriptsize]{求解 / 读表}(a);
+  \draw[arr] (a)--(p); \draw[arr] (a)--(q); \draw[arr] (a)--(r);
+\end{tikzpicture}
+\fig{课堂上的 $y_i$ 在三个系统中的身份}
+\end{minipage}
+\end{sciencebox}
+
+本节讲的是整个专题在现实系统中的位置；每个知识点各自的生活例子放在相应章节的“生活中的它”模块里，二者不重复。
+
+% ------------------------------------------------------------
+\subsection*{原始资料重新编码}
+\addcontentsline{toc}{subsection}{原始资料重新编码与纠错}
+
+本讲义依据三份原始资料。下表说明每份资料讲了什么、对应讲义哪一章，以及讲义补充了什么。
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{lightblue}\textbf{原始资料} & \textbf{可靠识别的内容} & \textbf{对应章节} & \textbf{讲义补充（教学补全）}\\
+\midrule
+手写笔记 P1--P4（10 月 14--15 日） & 修正单纯形法思路；初等行变换 = 左乘初等矩阵；例题 $\max z=5x_1+2x_2+3x_3-x_4+x_5$ 的单纯形表与修正单纯形法对照计算 & 第 1 章 & 检验数公式 $\sigma=c-c_B\T B^{-1}A$ 的推导；修正单纯形法完整步骤；$2\times2$ 逆矩阵求法\\
+\addlinespace
+手写笔记 P5--P11（10 月 19 日） & 煤电油引例与购买者模型；对偶问题对称形式；一般形式的对应规则表；例题 1、2；对偶的六条性质；对偶最优解与原问题终表检验数的关系 & 第 2、3 章 & 弱对偶性证明中 $\bar y\ge0$ 的必要性；强对偶定理证明；无界性的证明与反例；互补松弛定理的一般证明\\
+\addlinespace
+手写笔记 P12--P13（10 月 19--20 日） & 煤电油问题终表；影子价格的定义、数学表示、经济意义三条 & 第 4 章 & 影子价格 $=\partial z^*/\partial b_i$ 的推导；适用范围\\
+\addlinespace
+手写笔记 P14--P16（10 月 21 日） & 对偶单纯形法的特点、与单纯形法对照、五步操作；例题 $\min z=2x_1+3x_2+4x_3$ & 第 5 章 & 入基比值规则的推导；无可行解判据的证明\\
+\addlinespace
+课件《对偶单纯形法》85 页 & 例题 $\min w=2000y_1+1000y_2$ 的完整迭代；原始可行/对偶可行；出基、入基判据推导；几何路径；与原问题三张表逐格对照；新增约束 $x_2\le500$ 的重新优化 & 第 5、6 章 & 判据背后的对偶解释整合进正文\\
+\addlinespace
+课件《影子价格与灵敏度分析》73 页 & 例题 $\max z=2x_1+3x_2$（材料 $A$、$B$、设备台时）；$B^{-1}$ 的读取；影子价格计算与几何验证；互补松弛四步推导；灵敏度分析三种情形、两条判据、四个步骤；$b_1,b_2,b_3,c_1,c_2$ 的范围 & 第 4、6 章 & 新增变量、新增约束的公式；价值系数范围的几何解释统一\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\paragraph{无法可靠辨认的内容。}手写笔记第 1 页“回顾”一行末尾被纸张边缘截断，可辨认出“人工变量法/退化/整数规划”，其后文字\textbf{原始资料此处无法可靠辨认}，不影响本章内容。第 5 页引例表格中“煤”的资源限制数字字迹有涂改，但后文模型统一写作 $9x_1+4x_2\le360$，终表 $x_3=84$ 也与 360 吻合，因此按 360 处理。
+
+% ------------------------------------------------------------
+\subsection*{原图纠错}
+
+逐页验算原始资料后，发现以下问题。每一处都不影响课上得到的最终答案，但如果照抄，会在自己做题时出错。
+
+\begin{correctionbox}[纠错 1　手写笔记 P2：单纯形表第三张表 $x_3$ 行的 $b$ 值]
+\textbf{原始写法：}第三张表中 $x_3$ 行 $B^{-1}b=\frac{12}{5}$，右侧框出的 $B_3^{-1}$ 左上角为 $\frac25$。\par
+\textbf{存在的问题：}由上一张表做旋转运算：$x_3$ 行 $=$ 原 $x_3$ 行 $-\frac12\times$（新 $x_1$ 行），得 $b=4-\frac12\cdot\frac65=\frac{17}{5}$，$x_4$ 列 $=\frac12-\frac12\cdot(-\frac15)=\frac35$。\par
+\textbf{规范写法：}$x_3$ 行 $B^{-1}b=\frac{17}{5}$，$B_3^{-1}=\begin{pmatrix}\frac35&-\frac15\\[2pt]-\frac15&\frac25\end{pmatrix}$。\par
+\textbf{为什么这样改：}最优值验算 $z^*=3\times\frac{17}{5}+5\times\frac65=\frac{51}{5}+\frac{30}{5}=\frac{81}{5}$，与笔记最终答案一致；若用 $\frac{12}{5}$ 则得 $\frac{66}{5}$，矛盾。\par
+\textbf{是否影响后续：}不影响检验数行与最终答案，笔记下一页修正单纯形法求出的 $x^*=(\frac65,0,\frac{17}{5},0,0)$ 是正确的。
+\end{correctionbox}
+
+\begin{correctionbox}[纠错 2　手写笔记 P3：$B^{(3)-1}_{3,1}$ 求错]
+\textbf{原始写法：}$B_{3,1}^{(3)}=\begin{pmatrix}2&1\\1&3\end{pmatrix}$，$B_{3,1}^{(3)-1}=\begin{pmatrix}-\frac25&\frac15\\[2pt]\frac15&-\frac35\end{pmatrix}$。\par
+\textbf{存在的问题：}$\det B=2\times3-1\times1=5$，按 $2\times2$ 逆矩阵公式应为 $\frac15\begin{pmatrix}3&-1\\-1&2\end{pmatrix}$。可用乘法检验：原写法与 $B$ 相乘不得单位阵。\par
+\textbf{规范写法：}$B^{-1}=\begin{pmatrix}\frac35&-\frac15\\[2pt]-\frac15&\frac25\end{pmatrix}$，于是 $x_B=B^{-1}b=\left(\frac{24-7}{5},\frac{-8+14}{5}\right)\T=\left(\frac{17}{5},\frac65\right)\T$。\par
+\textbf{是否影响后续：}笔记 P4 的数值结果正确，说明计算时实际使用的是正确的逆矩阵，仅书写有误。
+\end{correctionbox}
+
+\begin{correctionbox}[纠错 3　手写笔记 P13：煤电油终表 $x_3$ 行]
+\textbf{原始写法：}$x_3$ 行 $x_4$ 列为 $-0.32$。\quad
+\textbf{规范写法：}$-3.12$。\par
+\textbf{为什么：}由 $x_1=20-0.4x_4+0.2x_5$、$x_2=24+0.12x_4-0.16x_5$ 代入煤约束 $x_3=360-9x_1-4x_2$，得 $x_3=84+3.12x_4-1.16x_5$，表中系数为 $-3.12$ 与 $1.16$。检验数 $-1.36,-0.52$ 不受影响。
+\end{correctionbox}
+
+\begin{correctionbox}[纠错 4　手写笔记 P16：对偶单纯形法例题的最优值符号]
+\textbf{原始写法：}“$z'^*=-\frac{28}{5}$，$\max z'=\min -z=\frac{28}{5}$”。\par
+\textbf{存在的问题：}$z'=-z$，所以 $\max z'=-\min z$。由 $\max z'=-\frac{28}{5}$ 应得 $\min z=\frac{28}{5}$。原写法把两个量的符号写混了。\par
+\textbf{规范写法：}$\max z'=-\frac{28}{5}$，故原问题 $\min z=\frac{28}{5}$。\par
+\textbf{附带说明：}同页第二轮 $\theta$ 比值中 $x_5$ 一项被打叉，实际上 $a_{r5}=-\frac12<0$，比值 $\frac{-1}{-1/2}=2$ 应参与比较；因 $\frac85<2$，入基变量仍是 $x_2$，结论不变。
+\end{correctionbox}
+
+\begin{correctionbox}[纠错 5　手写笔记 P10--P11：对偶约束与对偶变量的记号]
+\textbf{原始写法：}例题 1、2 的“套路”中写 $g_1(y)\le b_1$、$g_2(y),g_3(y)\ge b_2,b_3$；例题 2 第 4 步写“$f_1(x)\ge5\to x_1\ge0$，$f_2(x)\le4\to x_2\le0$，$f_3(x)=6\to x_3$ 无约束”。\par
+\textbf{存在的问题：}对偶约束的右端是原问题的价值系数 $c_j$，不是 $b_j$；原问题约束对应的是对偶\textbf{变量} $y_i$，不是 $x_i$。\par
+\textbf{规范写法：}$g_j(y)\ \square\ c_j$；例题 2 第 4 步应为 $y_1\ge0$，$y_2\le0$，$y_3$ 无约束（笔记 P10 上方列出的对偶模型本身是正确的）。
+\end{correctionbox}
+
+\begin{correctionbox}[纠错 6　表述不严谨的几处]
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{笔记 P2“初始可行基必须是单位阵”：}修正单纯形法只要求初始基 $B$ 可逆、$B^{-1}b\ge0$ 且 $B^{-1}$ 容易得到。单位阵最方便（$B^{-1}=I$），但不是必须。
+  \item \textbf{笔记 P11 弱对偶性证明：}由 $A\bar x\le b$ 左乘 $\bar y$ 得 $\bar yA\bar x\le\bar yb$，这一步\textbf{需要 $\bar y\ge0$}（不等式两边乘负数要变号）。笔记写对偶模型时才给出 $y\ge0$，应在相乘前说明。
+  \item \textbf{笔记 P13“影子价格 $=0$ 表示这种资源有剩余”：}反过来才总成立——资源有剩余 $\Rightarrow$ 影子价格为 0。退化时资源恰好用尽、影子价格也可能为 0（见第 3 章例子）。
+  \item \textbf{笔记 P14--P15：}“保证初始可行解最优性”应为“保证初始\textbf{基解}满足最优性条件”——对偶单纯形法的初始基解恰恰不可行；“前提不满足，不可使用单纯形法”应为“不可使用\textbf{对偶}单纯形法”；单纯形法最优判据“所有 $\sigma_i<0$”应为 $\sigma_i\le0$。
+  \item \textbf{课件 P69：}“$\Delta c_2\le\Delta c_2\le1$”为排版笔误，应为 $\Delta c_2\le1$。
+  \item \textbf{课件 P52 与 P66 记号冲突：}P52 用 $\beta_r$ 表示 $B^{-1}$ 的第 $r$ \textbf{列}，P66 又用 $\beta_r\T$ 表示 $B^{-1}$ 的第 $r$ \textbf{行}。本讲义统一记 $\beta_r$ 为第 $r$ 列，第 $r$ 行记作 $(B^{-1})_{r\cdot}$。
+  \item \textbf{课件 P13 红字“单纯形表的 $b$ 列的值，不是式子中的 $b$ 的值”：}含义应理解为：公式 $x_B=B^{-1}b$ 中的 $b$ 是\textbf{原模型的右端项} $(16,12,8)\T$，算出的结果才等于最优表 $b$ 列 $(4,2,4)\T$。二者不要混用。
+\end{enumerate}
+\end{correctionbox}
+
+% ------------------------------------------------------------
+\subsection*{知识点总览与关系图}
+\addcontentsline{toc}{subsection}{知识点总览与关系图}
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.55cm and 0.45cm,
+  k/.style={box,minimum width=2.75cm,minimum height=1.0cm,text width=2.6cm}]
+  \node[k] (K1) {\textbf{K1} 矩阵视角\\修正单纯形法};
+  \node[k,right=of K1] (K2) {\textbf{K2} 对偶问题\\的构造};
+  \node[k,right=of K2] (K3) {\textbf{K3} 对偶的\\基本性质};
+  \node[k,right=of K3] (K4) {\textbf{K4} 互补松弛};
+  \node[k,below=1.1cm of K2] (K5) {\textbf{K5} 影子价格};
+  \node[k,below=1.1cm of K3] (K6) {\textbf{K6} 对偶单纯形法};
+  \node[k,below=1.1cm of K4] (K7) {\textbf{K7--K9} 灵敏度分析\\$b$、$c$、新增};
+  \node[k,below=1.1cm of K1] (Y) {$y\T=c_B\T B^{-1}$\\（全篇枢纽）};
+  \draw[arr] (K1)--(K2); \draw[arr] (K2)--(K3); \draw[arr] (K3)--(K4);
+  \draw[arr] (K1)--(Y); \draw[arr] (Y)--(K5); \draw[arr] (K3)--(K5); \draw[arr] (K4)--(K5);
+  \draw[arr] (K3)--(K6); \draw[arr] (K5)--(K6); \draw[arr] (K6)--(K7); \draw[arr] (K4)--(K7);
+  \draw[arr] (K5) to[bend right=25] (K7);
+\end{tikzpicture}
+\fig{九个核心知识点之间的依赖关系。箭头 $A\to B$ 表示学 $B$ 时要用到 $A$}
+\end{center}
+
+整份讲义按图中从左上到右下的顺序展开。读者可以把这张图当作“地铁线路图”：每学完一站，回来看看自己走到了哪里。

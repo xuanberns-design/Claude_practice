@@ -1,0 +1,43 @@
+% ============================================================
+%  参考资料
+% ============================================================
+\section*{参考资料}
+\addcontentsline{toc}{section}{参考资料}
+\markboth{参考资料}{}
+
+\subsection*{原始教学依据}
+\begin{enumerate}[label={[\arabic*]},leftmargin=2.2em]
+  \item 运筹学课堂手写笔记，第四章“修正单纯形法与对偶”“对偶问题与灵敏度分析”，2026 年 10 月 14--21 日，共 16 页（Memo No.~532--535、557--559、564--568、571、607--608 及一页未编号照片）。
+  \item 运筹学课件《对偶单纯形法：从对偶可行出发，逐步恢复原始可行——一种无需人工变量的求解路径》，共 85 页。
+  \item 运筹学课件（第 17、18 节 / 共 32 节），山东大学控制科学与工程学院：影子价格与线性规划灵敏度分析，共 73 页。
+\end{enumerate}
+
+\subsection*{核心定义与公式核验}
+\begin{enumerate}[label={[\arabic*]},leftmargin=2.2em,resume]
+  \item 《运筹学》教材编写组．运筹学（第 4 版）．北京：清华大学出版社，2012．（第 2 章 线性规划的对偶理论与灵敏度分析）
+  \item F.~S.~Hillier, G.~J.~Lieberman. \emph{Introduction to Operations Research}. New York: McGraw-Hill.（对偶理论、对偶单纯形法与灵敏度分析各章）
+  \item D.~Bertsimas, J.~N.~Tsitsiklis. \emph{Introduction to Linear Optimization}. Belmont: Athena Scientific, 1997.（第 3 章修正单纯形法，第 4 章对偶理论与互补松弛，第 5 章灵敏度分析）
+  \item R.~J.~Vanderbei. \emph{Linear Programming: Foundations and Extensions}. New York: Springer.（对偶定理的证明与对偶单纯形法）
+\end{enumerate}
+
+\subsection*{学科史资料}
+\begin{enumerate}[label={[\arabic*]},leftmargin=2.2em,resume]
+  \item G.~B.~Dantzig. \emph{Linear Programming and Extensions}. Princeton: Princeton University Press, 1963.
+  \item G.~B.~Dantzig. Linear programming. \emph{Operations Research}, 2002, 50(1): 42--47.（丹齐格对单纯形法与对偶思想起源的回忆）
+  \item L.~V.~Kantorovich. Mathematical methods of organizing and planning production. \emph{Management Science}, 1960, 6(4): 366--422.（1939 年俄文原著的英译本）
+  \item D.~Gale, H.~W.~Kuhn, A.~W.~Tucker. Linear programming and the theory of games. In: T.~C.~Koopmans (ed.), \emph{Activity Analysis of Production and Allocation}. New York: Wiley, 1951.
+  \item C.~E.~Lemke. The dual method of solving the linear programming problem. \emph{Naval Research Logistics Quarterly}, 1954, 1(1): 36--47.
+  \item G.~B.~Dantzig, W.~Orchard-Hays. The product form for the inverse in the simplex method. \emph{Mathematical Tables and Other Aids to Computation}, 1954, 8: 64--67.
+  \item 诺贝尔奖官方网站：1975 年诺贝尔经济学奖授予 L.~V.~Kantorovich 与 T.~C.~Koopmans，“表彰他们对资源最优配置理论的贡献”。
+\end{enumerate}
+
+\tip[说明]{第 0 章“从课本到现实”中的电力市场节点电价、航空收益管理与求解器重新优化，属于运筹学与相关工程领域的常识性应用介绍，讲义只描述其基本原理，不涉及具体市场规则或软件实现细节；生活例子中的阶梯电价数字为示意数字。}
+
+\vspace{1cm}
+\begin{center}
+\begin{tikzpicture}
+  \node[gbox,text width=13cm,align=center,font=\small] {\textbf{全篇一句话}\\[2pt]
+  单纯形表里的 $B^{-1}$ 既是计算的工具（修正单纯形法），也是对偶的解（$y\T=c_B\T B^{-1}$），更是资源的价格（影子价格）；\\
+  守住 $\sigma\le0$ 去找可行，就是对偶单纯形法；分开核验 $B^{-1}b\ge0$ 与 $\sigma\le0$，就是灵敏度分析。};
+\end{tikzpicture}
+\end{center}

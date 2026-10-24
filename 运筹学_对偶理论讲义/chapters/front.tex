@@ -1,0 +1,137 @@
+% ============================================================
+%  封面、阅读说明、目录、专题定位
+% ============================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[navy] (current page.north west) rectangle ([yshift=-0.9cm]current page.north east);
+  \fill[auxblue!30] ([yshift=-0.9cm]current page.north west) rectangle ([yshift=-1.0cm]current page.north east);
+\end{tikzpicture}
+\vspace*{2.4cm}
+{\color{auxblue}\large 运筹学 · 第四章专题讲义}\par\vspace{0.6cm}
+{\fontsize{30}{38}\selectfont\bfseries\color{navy} 对偶理论与灵敏度分析}\par\vspace{0.4cm}
+{\Large\color{navy!80} 修正单纯形法 · 对偶问题 · 影子价格 · 对偶单纯形法}\par\vspace{0.5cm}
+{\large\color{black!70} 一份面向初学者的可视化基础学习讲义：看懂为什么，学会怎么算}\par
+\vspace{1.2cm}
+\begin{center}
+\begin{tikzpicture}[x=0.72cm,y=0.72cm]
+  % 原问题
+  \begin{scope}
+    \axes{6}{5}{x_1}{x_2}
+    \lecRegion
+    \draw[con] (4,-0.2)--(4,4.6);
+    \draw[con] (-0.2,3)--(6.2,3);
+    \draw[con] (-0.4,4.2)--(6.4,0.8);
+    \node[optpt] at (4,2) {};
+    \node[lab,above right] at (4,2) {$x^*=(4,2)$};
+    \node[font=\small\bfseries,navy] at (3,-1.3) {原问题：$\max z$};
+  \end{scope}
+  % 对偶
+  \begin{scope}[xshift=8.2cm]
+    \fill[feas] (0,5)--(0,4)--(2,3)--(6,3)--(6,5)--cycle;
+    \draw[gridl] (0,0) grid (6,5);
+    \draw[ax] (-0.3,0) -- (6.4,0) node[right,font=\scriptsize]{$y_1$};
+    \draw[ax] (0,-0.3) -- (0,5.4) node[above,font=\scriptsize]{$y_3$};
+    \draw[con] (0,4)--(6.2,0.9);
+    \draw[con] (-0.2,3)--(6.2,3);
+    \node[optpt] at (2,3) {};
+    \node[lab,above right] at (2,3) {$y^*=(\tfrac18,\tfrac32)$};
+    \node[font=\small\bfseries,navy] at (3,-1.3) {对偶问题：$\min w$（$y_2=0$ 截面）};
+  \end{scope}
+  \draw[{Stealth[length=3mm]}-{Stealth[length=3mm]},very thick,shiftc] (7.2,2.5)--(10.2,2.5);
+  \node[font=\small,align=center,shiftc!80!black] at (8.7,3.4) {同一组数据\\两种视角};
+  \node[font=\small,align=center,navy] at (8.7,1.4) {$z^*=w^*$};
+\end{tikzpicture}
+\end{center}
+\vspace{1.0cm}
+\begin{tcolorbox}[enhanced,colback=lightblue,colframe=lightblue,arc=2pt,left=10pt,right=10pt]
+\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\textbf{\color{navy}适用读者} & 第一次学习线性规划对偶理论、单纯形法基础尚不牢固的本科生\\
+\textbf{\color{navy}前置知识} & 线性规划标准型、单纯形表与检验数、矩阵乘法与逆矩阵\\
+\textbf{\color{navy}内容依据} & 课堂手写笔记（16 页）、课件《对偶单纯形法》（85 页）、课件《影子价格与灵敏度分析》（73 页），并按标准教材补全\\
+\textbf{\color{navy}配套练习} & 38 道分层练习：基础 25 + 中等偏下 10 + 跨学科 3，附逐题、逐选项图解\\
+\end{tabularx}
+\end{tcolorbox}
+\vfill
+{\small\color{auxblue} 封面图：左为原问题可行域与最优顶点，右为对偶问题可行域（示意），二者最优值相等。}
+\end{titlepage}
+
+% ------------------------------------------------------------
+\pagenumbering{roman}
+\section*{阅读说明}
+\addcontentsline{toc}{section}{阅读说明}
+\markboth{阅读说明}{}
+
+这份讲义把三份课堂资料（手写笔记、两套课件）重新组织成一条连续的学习路线。它不是课件的翻版：课件为了节省版面省略了不少证明、推导中间步骤和例子，这些内容在讲义里都已经补齐，并用“教学补全”标签单独标出，方便你区分“老师课上写过的”和“为了讲清楚而补上的”。
+
+\paragraph{版面里的颜色是有含义的。}读几页之后你会自然习惯：
+\begin{center}
+\begin{tikzpicture}[every node/.style={minimum width=2.55cm,minimum height=0.85cm,font=\small,align=center}]
+  \node[box] at (0,0) {定义 / 定理\\核心公式};
+  \node[draw=auxblue,fill=grayblue,rounded corners=1pt] at (3,0) {为什么 / 直观\\推导 / 联系};
+  \node[wbox] at (6,0) {例题 / 生活中的它\\学科史 / 科普};
+  \node[rbox] at (9,0) {易错点\\原图纠错};
+  \node[gbox] at (12,0) {方法总结\\学习自检};
+\end{tikzpicture}
+\fig{颜色语义：蓝 = 核心知识，蓝灰左线 = 理解与联系，米色 = 示例与应用，红 = 易错，绿 = 总结与检查}
+\end{center}
+
+\paragraph{三种标签。}\srcTag{笔记}\,/\,\srcTag{课件} 表示内容可以在原始资料中可靠找到；\fillTag\ 表示原始资料没有完整写出、依据标准教材补充的内容；正文中若出现“推测”字样，表示该处原图无法可靠辨认。
+
+\paragraph{建议的使用方法。}
+\begin{enumerate}
+  \item 第一遍按顺序读正文，每读完一章做“学完这里，你应该能够回答”的自检；
+  \item 第二遍只看图：每一章的图连起来就是这一章的骨架；
+  \item 做练习时先独立完成全部 38 题，再查“答案速查”，最后读详细解析。解析区的图与题目区的图不同，解析图上画出了解题时添加的辅助信息。
+\end{enumerate}
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+% ------------------------------------------------------------
+\section*{本专题学什么}
+\addcontentsline{toc}{section}{本专题学什么、它在课程中的位置}
+\markboth{本专题学什么}{}
+
+前几章我们学会了用单纯形法求出一个线性规划的最优解。但一个真实的决策者拿到最优解之后，马上会追问三类问题：
+\begin{enumerate}[label=\textbf{问题\arabic*},leftmargin=4.6em]
+  \item \textbf{能不能算得更省？}单纯形表每一步都要把整张表重算一遍，很多数字其实用不上。（$\to$ 修正单纯形法）
+  \item \textbf{资源到底值多少钱？}多给一单位原料、一小时设备，利润能多多少？有没有人愿意出价买走我的资源？（$\to$ 对偶问题、影子价格）
+  \item \textbf{数据变了怎么办？}价格、库存、工艺都会变化，最优解还成立吗？能不能不从头算？（$\to$ 对偶单纯形法、灵敏度分析）
+\end{enumerate}
+本专题回答的就是这三类问题，而三类问题的答案都写在同一个对象里——\textbf{最优基的逆矩阵 $B^{-1}$}。这是贯穿全篇的一条主线。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.45cm and 0.5cm,
+  k/.style={box,minimum width=2.6cm,minimum height=0.95cm},
+  p/.style={draw=black!25,rounded corners=2pt,fill=white,align=center,font=\small,minimum width=2.4cm,minimum height=0.85cm}]
+  \node[p] (lp) {线性规划\\标准型};
+  \node[p,below=of lp] (sm) {单纯形法\\检验数 $\sigma_j$};
+  \node[p,below=of sm] (mat) {矩阵乘法\\逆矩阵};
+  \node[k,right=1.2cm of sm] (B) {\textbf{最优基的逆}\\$B^{-1}$};
+  \node[k,above right=0.2cm and 1.1cm of B] (rev) {修正单纯形法};
+  \node[k,right=1.1cm of B] (dual) {对偶问题\\影子价格};
+  \node[k,below right=0.2cm and 1.1cm of B] (ds) {对偶单纯形法};
+  \node[k,right=0.9cm of dual] (sa) {灵敏度分析};
+  \draw[arr] (lp)--(B); \draw[arr] (sm)--(B); \draw[arr] (mat)--(B);
+  \draw[arr] (B)--(rev); \draw[arr] (B)--(dual); \draw[arr] (B)--(ds);
+  \draw[arr] (dual)--(sa); \draw[arr] (ds.east) -| (sa.south);
+  \node[font=\scriptsize,auxblue,above=1pt of lp] {前置知识};
+  \node[font=\scriptsize,auxblue,above=1pt of rev] {第 1 章};
+  \node[font=\scriptsize,auxblue,above=1pt of sa] {第 6 章};
+\end{tikzpicture}
+\fig{前置知识地图：左列是需要提前会的内容，它们共同汇聚到 $B^{-1}$，再分出本专题的四个模块}
+\end{center}
+
+图中箭头表示“学习依赖”：例如对偶单纯形法既要用到单纯形表的旋转运算，也要用到对偶可行的概念，所以它排在对偶理论之后；灵敏度分析需要影子价格和对偶单纯形法两样工具，因此放在最后。
+
+\begin{connectionbox}[本专题在课程体系中的位置]
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{navy}}l X@{}}
+所属课程 & 运筹学（线性规划部分），第四章\\
+前面学过 & 第一、二章：线性规划模型、图解法、单纯形法、大 $M$ 法与两阶段法\\
+后面会用 & 整数规划（分支定界中的“加约束再求解”正是对偶单纯形法）、运输问题（位势法本质是对偶变量）、非线性规划（KKT 条件与拉格朗日乘子）\\
+相关课程 & 微观经济学（边际收益、机会成本）、最优化方法（拉格朗日对偶）、电力系统分析（经济调度与节点电价）、博弈论（零和博弈与极小极大定理）\\
+\end{tabularx}
+\end{connectionbox}

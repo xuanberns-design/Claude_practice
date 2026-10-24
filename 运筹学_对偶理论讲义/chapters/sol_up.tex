@@ -1,0 +1,376 @@
+% ============================================================
+%  提升 10 题与跨学科 3 题详细解析
+% ============================================================
+\section*{中等偏下提升训练详细解析}
+\addcontentsline{toc}{section}{详细解析：中等偏下提升（26--35）}
+\markboth{详细解析：提升训练}{}
+
+\subsection*{提升单选题解析}
+
+% ---------------- 26 ----------------
+\A{26}
+\SolHead{B}{中等偏下}{K5 影子价格 + K7 允许范围}
+\Lb{知识链}核对范围 $\to$ 发现越界 $\to$ 对偶单纯形法续解 $\to$ 比较最优值。\par
+\Lb{判断过程}$\Delta b_1=2$，超出 $[-1,1]$，不能直接用 $2\times2=4$。传递公式给出 $x_B'=(3,1,3)\T+2\cdot(0,1,-3)\T=(3,3,-3)\T$，$x_4$ 行变负。用对偶单纯形法：$x_4$ 行 $(0,0,-3,1,2\mid-3)$ 中只有 $x_3$ 列为负，$\theta=\frac{-2}{-3}=\frac23$，$x_3$ 入基。旋转后 $x_3=1$，$x_2=3-1=2$，$x_1=3$，检验数 $\sigma_4=-\frac23$，$\sigma_5=-\frac73$，最优。新最优点 $(3,2)$，$z^*=9+4=13$，实际增加 $13-11=2$。
+\begin{center}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=4 by 1,horizontal sep=0.55cm},width=4.3cm,height=3.6cm,xmin=3.5,xmax=6.5,ymin=10,ymax=18,
+  axis lines=left,xtick={4,5,6},ytick={11,13,15,17},tick label style={font=\tiny},xlabel={\tiny $b_1$}]
+\nextgroupplot[title={\scriptsize A：按 $y_1=2$ 外推}]
+  \addplot[black!25,thick] coordinates {(3.5,10)(5,13)(6.5,13)};
+  \addplot[badc,very thick] coordinates {(4,11)(6,15)}; \addplot[only marks,mark=*,mark options={fill=badc}] coordinates {(6,15)};
+\nextgroupplot[title={\scriptsize B：实际折线 ✓}]
+  \addplot[greenline,very thick] coordinates {(3.5,10)(5,13)(6.5,13)}; \addplot[only marks,mark=*,mark options={fill=greenline}] coordinates {(6,13)};
+\nextgroupplot[title={\scriptsize C：误认为无增量}]
+  \addplot[black!25,thick] coordinates {(3.5,10)(5,13)(6.5,13)};
+  \addplot[badc,very thick] coordinates {(4,11)(6,11)}; \addplot[only marks,mark=*,mark options={fill=badc}] coordinates {(6,11)};
+\nextgroupplot[title={\scriptsize D：误用斜率 3}]
+  \addplot[black!25,thick] coordinates {(3.5,10)(5,13)(6.5,13)};
+  \addplot[badc,very thick] coordinates {(4,11)(6,17)}; \addplot[only marks,mark=*,mark options={fill=badc}] coordinates {(6,17)};
+\end{groupplot}
+\end{tikzpicture}
+
+\smallE{0.7}{\draw[shiftl] (1.8,4.2)--(6.3,-0.3); \fill[shiftc!20] (3,1)--(3,2)--(1.5,2.5)--cycle; \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (3,2) {}; \node[lab,right,font=\scriptsize] at (3.1,2.2) {$(3,2)$：\ding2 与 \ding3 的交点};}
+\fig{第 26 题解析图：上排为四个选项隐含的 $z^*(b_1)$ 路径（灰线为真实折线，共同坐标）；下图为 $b_1=6$ 时的新最优点}
+\end{center}
+\Lb{各选项（看图）}A 沿斜率 2 直线外推，忽略了 $b_1=5$ 处的折点；C 认为资源 \ding1 无价值；D 把 $c_1=3$ 当成影子价格。只有 B 的点落在真实折线上。下图说明：$b_1$ 超过 5 后，\ding1 的边界越过 \ding2 与 \ding3 的交点 $(3,2)$，不再起约束作用，所以增量封顶。\par
+\Lb{常见错误}不查范围直接乘影子价格。\quad\Lb{一句话总结}越界就重算，影子价格不能外推。
+
+% ---------------- 27 ----------------
+\A{27}
+\SolHead{A}{中等偏下}{K4 互补松弛 + K3 强对偶}
+\Lb{判断过程}对偶：$\min w=5y_1+8y_2$，$\st y_1+2y_2\ge4$，$y_1+y_2\ge3$，$y\ge0$。$x_1=3>0$、$x_2=2>0$，两条对偶约束取等号：$y_1+2y_2=4$，$y_1+y_2=3$，解得 $y_2=1$，$y_1=2$。验算 $w=10+8=18=z=12+6$ ✓。
+\begin{center}
+\begin{tikzpicture}[x=0.45cm,y=0.45cm]
+  \foreach \i/\L/\px/\py/\st in {0/A/2/1/0,1/B/1/2/1,2/C/0/4/1,3/D/3/0/2} {
+    \begin{scope}[xshift=\i*3.5cm]
+      \fill[feasreg] (0,5)--(0,3)--(2,1)--(4,0)--(5,0)--(5,5)--cycle;
+      \draw[ax] (-0.2,0)--(5.4,0) node[right,font=\tiny]{$y_1$}; \draw[ax] (0,-0.2)--(0,5.4) node[above,font=\tiny]{$y_2$};
+      \draw[con] (0,2)--(4.4,-0.2); \draw[con] (0,3)--(3.2,-0.2);
+      \draw[iso] (0,2.25)--(3.6,0);
+      \ifnum\st=0 \node[optpt,fill=greenline] at (\px,\py) {};\fi
+      \ifnum\st=1 \node[optpt,fill=auxblue] at (\px,\py) {};\fi
+      \ifnum\st=2 \node[badpt] at (\px,\py) {};\fi
+      \node[font=\scriptsize,align=center] at (2.5,6.3) {\textbf{\L}.\ $(\px,\py)$};
+    \end{scope}
+  }
+  \node[font=\scriptsize,align=center] at (2.5,-1.4) {可行且 $w=18$\\在最优等值线上 ✓};
+  \node[font=\scriptsize,align=center] at (10.3,-1.4) {可行，$w=21$\\不在最优等值线上};
+  \node[font=\scriptsize,align=center] at (18.1,-1.4) {可行，$w=32$\\离最优更远};
+  \node[font=\scriptsize,align=center] at (25.9,-1.4) {$y_1+2y_2=3<4$\\不可行};
+\end{tikzpicture}
+\fig{第 27 题选项图：四个选项画在同一张对偶可行域图上（虚线为最优等值线 $5y_1+8y_2=18$）}
+\end{center}
+\Lb{各选项}B、C 都对偶可行，但目标值大于 18，不是最优；D 不满足 $y_1+2y_2\ge4$，在可行域外。\par
+\Lb{常见错误}把对偶解写成 $(y_2,y_1)$ 的次序。\quad\Lb{一句话总结}已知原最优解，用“产量为正 $\Rightarrow$ 对偶约束取等”列方程。
+
+% ---------------- 28 ----------------
+\A{28}
+\SolHead{C}{中等偏下}{K6 入基判据}
+\Lb{判断过程}出基行负系数在 $x_1$（$-2$）、$x_3$（$-4$）：$\frac{-3}{-2}=1.5$，$\frac{-2}{-4}=0.5$，取最小者 $x_3$ 入基，主元 $-4$。旋转后 $b_r'=\frac{-6}{-4}=1.5>0$，$\sigma'=\sigma-0.5\,a_r=(-2,-1.5,0,0,-0.5)\le0$ ✓。
+\begin{center}
+\begin{tikzpicture}[x=0.4cm,y=0.42cm]
+  \foreach \i/\L/\vv/\a/\b/\c/\d/\e/\note/\ok in {
+     0/A/x_1/0/-2.5/4/0/-1.5/{$\sigma_3'=4>0$}/0,
+     1/B/x_2/-5/0/-6/0/1/{$\sigma_5'=1>0$，且 $b_r'=-6$}/0,
+     2/C/x_3/-2/-1.5/0/0/-0.5/{全部 $\le0$ ✓}/1} {
+    \begin{scope}[xshift=\i*4.4cm]
+      \draw[ax] (-0.3,0)--(6.6,0);
+      \draw[black!40] (0,-6.3)--(0,4.5);
+      \foreach \y in {-6,4} {\draw[gridl] (0,\y)--(6.3,\y); \node[left,font=\tiny] at (0,\y) {\y};}
+      \ifnum\ok=1 \def\cc{greenline}\else\def\cc{badc!70}\fi
+      \foreach \v [count=\k from 0] in {\a,\b,\c,\d,\e} {\fill[\cc] (0.3+\k*1.2,0) rectangle (1.1+\k*1.2,\v);}
+      \foreach \k in {1,...,5} \node[font=\tiny,below] at (-0.5+\k*1.2,-6.3) {$x_\k$};
+      \node[font=\scriptsize] at (3.2,5.4) {\textbf{\L}：选 $\vv$ 入基后的 $\sigma'$};
+      \node[font=\scriptsize] at (3.2,-7.9) {\note};
+    \end{scope}
+  }
+  \begin{scope}[xshift=12.6cm]
+    \node[font=\scriptsize,align=left,text width=3.0cm] at (4,0) {\textbf{D}：出基行中有负系数（$x_1,x_3$），存在可选的入基列，不是“无可行解”。只有当出基行全部 $\ge0$ 时才无可行解。};
+  \end{scope}
+\end{tikzpicture}
+\fig{第 28 题选项图：分别选 $x_1,x_2,x_3$ 入基后的新检验数行（同一纵轴）}
+\end{center}
+\Lb{各选项（看图）}A 的柱状图中 $x_3$ 一柱冲到正值 4：比值不是最小，旋转后破坏了对偶可行；B 选了正系数列：主元为正，$b_r'=-6$ 仍为负，而且 $\sigma_5'=1>0$；C 全部柱子都在 0 以下。\par
+\Lb{一句话总结}只在负系数列中比较，取 $\sigma_j/a_{rj}$ 最小者。
+
+\subsection*{提升多选题解析}
+
+% ---------------- 29 ----------------
+\A{29}
+\SolHead{ABD}{中等偏下}{K5、K7、K8 综合}
+\begin{center}
+\begin{tikzpicture}
+  \node at (0,0) {\smallE{0.42}{\draw[shiftl] (-0.3,2.43)--(6.3,0.23); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{A} ✓：\ding2 下移仍不过最优点};}};
+  \node at (4.1,0) {\smallE{0.42}{\draw[iso,greenline!60!black] (0.36,4.3)--(3.8,0); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{B} ✓：$c_1=2.5$ 等值线仍支撑 $(3,1)$};}};
+  \node at (8.2,0) {\smallE{0.42}{\fill[shiftc!20] (3,0)--(4,0)--(3,1)--cycle; \draw[shiftl] (5,-0.2)--(5,4.3); \node[optpt,fill=shiftc] at (4,0) {}; \node[font=\scriptsize,align=center] at (3,5.3) {\textbf{C} ✗：$b_3=5$ 时最优点 $(4,0)$\\$z=12$，只增 1};}};
+  \node at (12.3,0) {\smallE{0.42}{\draw[iso,greenline!60!black] (0.25,4.3)--(3.833,0); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{D} ✓：$c_2=2.5$ 仍支撑 $(3,1)$};}};
+\end{tikzpicture}
+\fig{第 29 题选项图：四个选项画在同一模型 E 底图上}
+\end{center}
+\Lb{A}正确。$\Delta b_2=-2\in[-3,+\infty)$，最优基不变；$y_2=0$，最优值不变；$x_B'=(3,1,3-2)=(3,1,1)$，只是材料剩余由 3 变为 1。图 A：\ding2 线下移到 $x_1+3x_2=7$，仍在 $(3,1)$ 上方（$3+3=6<7$）。\par
+\Lb{B}正确。$c_1=2.5\in[2,+\infty)$，最优解不变，$z=2.5\times3+2\times1=9.5$。\par
+\Lb{C}错误。$\Delta b_3=2>1$，越界。$b_3=5$ 时 \ding3 线右移到 $x_1=5$，但 \ding1 先把最优点卡在 $(4,0)$，$z=12$，只增加 1。\par
+\Lb{D}正确。$c_2=2.5\in[0,3]$，等值线 $3x_1+2.5x_2=11.5$ 仍在 $(3,1)$ 处支撑可行域。\par
+\Lb{哪个条件导致成立与否}A、B、D 的改动都落在各自的允许范围内；C 的改动越过了上界 4。\quad\Lb{正确答案}ABD。
+
+% ---------------- 30 ----------------
+\A{30}
+\SolHead{ABD}{中等偏下}{K9 新增变量 + K5 机会成本}
+\Lb{核心计算}$y\T P_6=2\cdot1+0\cdot2+1\cdot0=2$，所以 $\sigma_6=c_6-2$。
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ax] (0,0)--(9.4,0);
+  \draw[dashed,black!50] (0,2)--(9,2) node[right,font=\scriptsize]{机会成本 2};
+  \fill[auxblue!60] (0.5,0) rectangle (1.3,2); \node[font=\scriptsize,below,align=center] at (0.9,0) {$y\T P_6$\\（$=2\cdot1$）};
+  \fill[badc!60] (2.3,0) rectangle (3.1,1.5); \node[font=\scriptsize,below,align=center] at (2.7,0) {\textbf{A}：$c_6=1.5$\\$\sigma_6<0$，不生产 ✓};
+  \fill[greenline!70] (4.3,0) rectangle (5.1,3); \node[font=\scriptsize,below,align=center] at (4.7,0) {\textbf{B}：$c_6=3$\\$\sigma_6=1>0$，生产 ✓};
+  \node[box,font=\scriptsize,text width=2.4cm] at (7.4,1.0) {\textbf{D} ✓：$x_6=0$ 时\\原 $x_B$ 不变，仍 $\ge0$};
+  \node[rbox,font=\scriptsize,text width=2.4cm] at (7.4,2.9) {\textbf{C} ✗：只需算一个\\检验数};
+\end{tikzpicture}
+\fig{第 30 题选项图：利润柱与机会成本线的比较}
+\end{center}
+\Lb{A}正确：$\sigma_6=-0.5<0$。\quad\Lb{B}正确：$\sigma_6=1>0$；把 $B^{-1}P_6$ 写进表后继续单纯形法。$B^{-1}P_6$ 的计算：$B^{-1}=\begin{pmatrix}0&0&1\\1&0&-1\\-3&1&2\end{pmatrix}$（最优表 $x_3,x_4,x_5$ 三列），$B^{-1}P_6=(0,1,-1)\T$，比值只有 $x_2$ 行 $\frac11=1$，$x_2$ 出基。\par
+\Lb{C}错误：判断只需 $\sigma_6=c_6-y\T P_6$，不必重解。\quad\Lb{D}正确：新变量取 0，原约束与取值都不变。\par
+\Lb{正确答案}ABD。\quad\Lb{一句话总结}新产品利润高于其资源的影子价值之和才值得生产。
+
+\subsection*{提升填空题解析}
+
+% ---------------- 31 ----------------
+\A{31}
+\SolHead{1；4；12}{中等偏下}{K5 + K7}
+\Lb{推理过程}影子价格 $y_3=-\sigma_5=1$。范围（第 25 题）$b_3\in[1.5,4]$，最多增至 4，$z^*=11+1\times(4-3)=12$，最优点 $(4,0)$。
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=7.5cm,height=4.2cm,xmin=0,xmax=6,ymin=0,ymax=14,axis lines=left,xlabel={$b_3$},ylabel={$z^*$},
+  xtick={1.5,3,4},ytick={6,9.5,11,12},label style={font=\scriptsize},tick label style={font=\tiny},grid=major,grid style={black!8}]
+  \addplot[navy,very thick] coordinates {(0,6)(1.5,9.5)(4,12)(6,12)};
+  \addplot[greenline,ultra thick] coordinates {(1.5,9.5)(4,12)};
+  \addplot[only marks,mark=*,mark options={fill=optc}] coordinates {(3,11)};
+  \addplot[only marks,mark=*,mark options={fill=shiftc}] coordinates {(4,12)};
+  \node[font=\tiny,anchor=north west] at (axis cs:2.2,10.2) {斜率 $y_3=1$};
+\end{axis}
+\end{tikzpicture}
+\fig{第 31 题解析图：$z^*$ 随 $b_3$ 的折线，绿色段斜率为影子价格 1，右端点 $b_3=4$ 处 $z^*=12$}
+\end{center}
+\Lb{图的说明}$b_3\le1.5$ 时最优点在 \ding2 线上 $(b_3,\frac{9-b_3}{3})$，$z^*=3b_3+6-\frac23b_3$，斜率 $\frac73$；$b_3\ge4$ 后 \ding1 成为唯一瓶颈，折线变平。\quad\Lb{易错点}答成 $b_3$ 最多增至 $3+4=7$（把范围端点当增量）。
+
+% ---------------- 32 ----------------
+\A{32}
+\SolHead{$(3,0.5)$；10}{中等偏下}{K9 新增约束 + K6 对偶单纯形法}
+\Lb{推理过程}原解 $x_2=1>0.5$，不满足。新约束 $x_2+x_6=0.5$；由最优表 $x_2$ 行 $x_2+x_3-x_5=1$ 消去 $x_2$：$x_6-x_3+x_5=-0.5$。$x_6$ 出基，负系数只有 $x_3$（$-1$），$\theta=\frac{-2}{-1}=2$，$x_3$ 入基：$x_3=0.5$，$x_2=1-0.5=0.5$，$x_4=3+3\times0.5=4.5$，$x_1=3$。$\sigma_3'=0$，$\sigma_5'=-1-2\times1=-3$，$\sigma_6'=-2$，最优。$z=9+1=10$。
+\begin{center}
+\smallE{0.8}{\fill[shiftc!25] (0,0)--(3,0)--(3,0.5)--(0,0.5)--cycle; \draw[shiftl] (-0.2,0.5)--(6.3,0.5) node[right,font=\scriptsize]{$x_2=0.5$}; \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (3,0.5) {}; \draw[arr,optc] (3,0.95)--(3,0.6); \node[lab,right,font=\scriptsize] at (3.15,0.45) {$(3,0.5)$，$z=10$};}
+\fig{第 32 题解析图：新约束切掉可行域的上半部分（剩下橙色窄条），最优点沿 \ding3 线下移}
+\end{center}
+\Lb{合理性检查}$z$ 减少 $11-10=1=y_{\text{新}}\times0.5=2\times0.5$；加约束只会使最优值变差 ✓。\quad\Lb{易错点}忘记消去新行中的基变量 $x_2$。
+
+% ---------------- 33 ----------------
+\A{33}
+\SolHead{$[2,+\infty)$}{中等偏下}{K8 基变量的价值系数}
+\Lb{推理过程}$x_1$ 在第 1 行，非基列 $t_{13}=0$、$t_{15}=1$：$x_3$ 列 $-2-\Delta c_1\cdot0\le0$ 恒成立；$x_5$ 列 $-1-\Delta c_1\cdot1\le0\Rightarrow\Delta c_1\ge-1$。所以 $c_1\ge2$。
+\begin{center}
+\smallE{0.8}{\draw[very thick,dashed,shiftc] (-0.2,4.2)--(4.5,-0.5); \node[font=\scriptsize,shiftc!80!black] at (5.4,3.4) {$c_1=2$：与 \ding1 重合}; \draw[very thick,dashed,redline] (3,-0.3)--(3,4.4); \node[font=\scriptsize,redline] at (4.3,4.1) {$c_1\to\infty$：趋于竖直}; \node[optpt] at (3,1) {}; \fill[shiftc!50,opacity=.6] (1.5,2.5)--(3,1)--(3.1,1.1)--(1.6,2.6)--cycle;}
+\fig{第 33 题解析图：等值线 $c_1x_1+2x_2=$ 常数随 $c_1$ 旋转；$c_1=2$ 时与 \ding1 平行，整条棱（橙色）都最优}
+\end{center}
+\Lb{含义}$c_1<2$ 时等值线比 \ding1 线更平，最优点跳到 $(1.5,2.5)$；$c_1$ 再大，等值线趋于竖直，但 $x_1$ 已被设备卡在 3，最优点不变——所以没有上界。\quad\Lb{易错点}套用非基变量公式得到“只有上界”。
+
+\subsection*{提升综合大题解析}
+
+% ---------------- 34 ----------------
+\A{34}
+\Lb{1. 题目到底在问什么}已知面包坊的最优方案，要求写对偶、求三种资源的“内部价格”、判断租烤箱是否划算、求面粉的稳定范围。\par
+\Lb{2. 已知条件整理}
+\begin{center}\small
+\begin{tabular}{@{}lccccc@{}}\toprule
+资源 & 面包 & 蛋糕 & 可用量 & 最优方案耗用 & 剩余\\\midrule
+面粉 & 1 & 2 & 8 & $2+6=8$ & 0\\
+烤箱 & 3 & 2 & 12 & $6+6=12$ & 0\\
+奶油 & 0 & 1 & 3.5 & 3 & 0.5\\\midrule
+利润 & 5 & 4 & & $z^*=10+12=22$ & \\\bottomrule
+\end{tabular}
+\end{center}
+\Lb{3. 知识链定位}对偶构造（K2）$\to$ 互补松弛（K4）$\to$ 影子价格的使用（K5）$\to$ 右端项范围（K7）。
+
+\Lb{4. 第(1)问}对称形式直接转置：
+$\min w=8y_1+12y_2+3.5y_3$，$\st y_1+3y_2\ge5$（面包），$2y_1+2y_2+y_3\ge4$（蛋糕），$y_1,y_2,y_3\ge0$。
+
+\Lb{5. 第(2)问为什么这样做}已知原最优解，用互补松弛最省事。$x_1=2>0$、$x_2=3>0$ $\Rightarrow$ 两条对偶约束取等；奶油剩 0.5 $\Rightarrow$ $y_3=0$。于是
+\[
+y_1+3y_2=5,\qquad 2y_1+2y_2=4\ \Rightarrow\ y_1+y_2=2\ \Rightarrow\ 2y_2=3,\quad y_2=1.5,\quad y_1=0.5 .
+\]
+检查：$w=8\times0.5+12\times1.5+0=4+18=22=z^*$ ✓；也可用 $y\T=c_B\T B^{-1}=(5,4,0)B^{-1}=(-\frac52+3,\ \frac52-1,\ 0)=(0.5,1.5,0)$ 验证。
+
+\Lb{6. 第(3)问}烤箱影子价格 1.5（百元/小时）$>$ 租金 1，值得租。但要先确认“多 1 小时”仍在最优基不变的范围内：$\beta_2=(\frac12,-\frac14,\frac14)\T$，$x_B=(2,3,0.5)\T$：
+$2+\frac12\Delta\ge0\Rightarrow\Delta\ge-4$；$3-\frac14\Delta\ge0\Rightarrow\Delta\le12$；$0.5+\frac14\Delta\ge0\Rightarrow\Delta\ge-2$。范围 $\Delta b_2\in[-2,12]$，$\Delta=1$ 在内，可以直接用影子价格：净增 $1\times(1.5-1)=0.5$（百元）。新方案 $x_B'=(2.5,\,2.75,\,0.75)$，$z=12.5+11=23.5=22+1.5$ ✓。
+
+\Lb{7. 第(4)问}$\beta_1=(-\frac12,\frac34,-\frac34)\T$：
+$2-\frac12\Delta\ge0\Rightarrow\Delta\le4$；$3+\frac34\Delta\ge0\Rightarrow\Delta\ge-4$；$0.5-\frac34\Delta\ge0\Rightarrow\Delta\le\frac23$。交集 $[-4,\frac23]$，即 $b_1\in[4,\frac{26}{3}]$。
+\begin{center}
+\begin{tikzpicture}[x=0.75cm,y=0.75cm]
+  \begin{scope}
+  \fill[feasreg] (0,0)--(4,0)--(2,3)--(1,3.5)--(0,3.5)--cycle;
+  \axes{6}{5}{x_1}{x_2}
+  \draw[con] (4.13,-0.2)--(0.8,4.8); \draw[con] (-0.2,3.5)--(6.3,3.5);
+  \draw[con,black!35] (-0.4,4.2)--(6.3,0.85);
+  \draw[shiftl] (-0.2,2.1)--(4.4,-0.2) node[below,font=\tiny]{$b_1=4$};
+  \draw[shiftl] (-0.4,4.53)--(6.3,1.18) node[right,font=\tiny]{$b_1=\frac{26}{3}$};
+  \node[optpt,fill=shiftc] at (4,0) {}; \node[optpt,fill=shiftc] at (1.667,3.5) {}; \node[optpt] at (2,3) {};
+  \node[lab,font=\tiny,above left] at (1.6,3.5) {$(\frac53,\frac72)$};
+  \node[font=\scriptsize,align=center] at (3,-1.4) {第 (4) 问：面粉边界在两条虚线间平移，\\最优点沿烤箱线滑动};
+  \end{scope}
+  \begin{scope}[xshift=6.6cm]
+  \fill[feasreg] (0,0)--(4.333,0)--(2.5,2.75)--(1,3.5)--(0,3.5)--cycle;
+  \axes{6}{5}{x_1}{x_2}
+  \draw[con] (-0.4,4.2)--(6.3,0.85); \draw[con] (-0.2,3.5)--(6.3,3.5);
+  \draw[con,black!35] (4.13,-0.2)--(0.8,4.8);
+  \draw[shiftl] (4.47,-0.2)--(1.13,4.8) node[above,font=\tiny]{烤箱 13 h};
+  \node[badpt] at (2,3) {}; \node[optpt,fill=shiftc] at (2.5,2.75) {};
+  \node[lab,font=\tiny,right] at (2.6,2.85) {$(2.5,2.75)$};
+  \node[font=\scriptsize,align=center] at (3,-1.4) {第 (3) 问：多租 1 小时烤箱，\\最优点沿面粉线移动，$z$ 增 1.5};
+  \end{scope}
+\end{tikzpicture}
+\fig{第 34 题解析图：左为面粉的允许范围（端点为 $(4,0)$ 与 $(\frac53,\frac72)$），右为租烤箱后的新最优点}
+\end{center}
+\Lb{8. 结果合理性检查}$b_1=\frac{26}{3}$ 时最优点 $(\frac53,\frac72)$ 恰好碰到奶油上限（$x_5=0$），$b_1=4$ 时到达 $(4,0)$（$x_2=0$），与左图端点一致。\par
+\Lb{9. 最容易卡在哪里}第(3)问直接用影子价格而不核对范围；第(4)问把 $\beta_1$ 取成 $B^{-1}$ 的第一行。\par
+\Lb{10. 如果条件变化}若面粉增加 1 袋（$\Delta=1>\frac23$），就越过了奶油的限制，不能按 $0.5$ 计算增利，需用对偶单纯形法续解。\par
+\Lb{变式思考}奶油若只剩 3 盒，最优方案会变吗？（提示：$\beta_3=(0,0,1)\T$，范围 $b_3\ge3$，恰在端点，方案不变但出现退化。）
+
+% ---------------- 35 ----------------
+\A{35}
+\Lb{1. 题目到底在问什么}在第 34 题的最优表上加一条约束，用对偶单纯形法重新优化，并解释利润减少量。\par
+\Lb{2. 已知条件整理}$x_1=2+\frac12x_3-\frac12x_4$，$x_2=3-\frac34x_3+\frac14x_4$（由两行移项），$\sigma_3=-\frac12$，$\sigma_4=-\frac32$，$z^*=22$。\par
+\Lb{3. 知识链定位}原解代入（判断）$\to$ 用基变量行消元（K1 矩阵视角）$\to$ 对偶单纯形法（K6）$\to$ 影子价格解释（K5）。
+
+\Lb{4. 第(1)问}$x_1+x_2=2+3=5>4.5$，不满足。
+
+\Lb{5. 第(2)问为什么这样做}新行里出现基变量 $x_1,x_2$，必须用它们所在的行消去，表中基列才保持单位阵：
+\[
+x_1+x_2+x_6=4.5\ \Rightarrow\ \Bigl(2+\tfrac12x_3-\tfrac12x_4\Bigr)+\Bigl(3-\tfrac34x_3+\tfrac14x_4\Bigr)+x_6=4.5
+\ \Rightarrow\ \boxed{x_6-\tfrac14x_3-\tfrac14x_4=-\tfrac12}.
+\]
+
+\Lb{6. 第(3)问}$x_6$ 行右端 $-\frac12<0$，$x_6$ 出基。负系数列：$x_3$：$\frac{-1/2}{-1/4}=2$；$x_4$：$\frac{-3/2}{-1/4}=6$。$x_3$ 入基，主元 $-\frac14$。$x_3$ 行 $\times(-4)$：$x_3+x_4-4x_6=2$。代回：
+$x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$（$x_5$ 行 $x_5-\frac34x_3+\frac14x_4=0.5$）。新检验数 $\sigma'=\sigma-2\times(\text{原 }x_6\text{ 行})$：$\sigma_4'=-\frac32+\frac12=-1$，$\sigma_6'=-2$，$\sigma_3'=0$，全部 $\le0$；$b=(3,1.5,2,2)\ge0$，最优。
+\begin{center}
+\begin{tikzpicture}[x=0.8cm,y=0.8cm]
+  \fill[feasreg] (0,0)--(4,0)--(3,1.5)--(1,3.5)--(0,3.5)--cycle;
+  \fill[black!8] (3,1.5)--(2,3)--(1,3.5)--cycle;
+  \axes{6}{5}{x_1}{x_2}
+  \draw[con] (-0.4,4.2)--(6.3,0.85); \draw[con] (4.13,-0.2)--(0.8,4.8); \draw[con] (-0.2,3.5)--(6.3,3.5);
+  \draw[shiftl] (0,4.5)--(4.8,-0.3) node[below,font=\scriptsize]{$x_1+x_2=4.5$};
+  \node[badpt] at (2,3) {}; \node[optpt,fill=shiftc] at (3,1.5) {};
+  \draw[arr,optc,thick] (2.08,2.88)--(2.92,1.62);
+  \node[lab,font=\scriptsize,right] at (3.1,1.6) {$(3,1.5)$，$z=21$};
+  \node[lab,font=\scriptsize,left] at (1.9,3.05) {原 $(2,3)$};
+  \node[font=\scriptsize,black!60] at (2.3,2.75) {被切掉};
+\end{tikzpicture}
+\fig{第 35 题解析图：新约束切掉灰色三角形，原最优点 $(2,3)$ 被排除，最优点沿烤箱线滑到 $(3,1.5)$}
+\end{center}
+
+\Lb{7. 最终答案}新方案：面包 3 批、蛋糕 1.5 批；面粉剩 2 袋，奶油剩 2 盒，烤箱和包装用尽；$z^*=5\times3+4\times1.5=21$。
+
+\Lb{8. 第(4)问与合理性检查}利润减少 $22-21=1$。新约束的影子价格 $y_6=-\sigma_6'=2$，相当于“包装能力”从 5 批被压到 4.5 批，每少 1 批损失 2，少 0.5 批损失 $2\times0.5=1$ ✓。加约束后最优值只能变差 ✓。\par
+\Lb{9. 最容易卡在哪里}第(2)问直接把 $(1,1,0,0,0,1\mid4.5)$ 写进表而不消元，导致基列不是单位阵。\par
+\Lb{10. 如果条件变化}若包装上限为 5 批，原方案 $2+3=5$ 恰好满足，最优方案不变（结论 6.3 第 1 步）。\par
+\Lb{变式思考}若包装上限降为 4 批，新行右端为 $-1$，按同样方法 $x_3$ 入基后 $x_3=4$，$x_2=0$，$x_1=4$，$z=20$。这一结果是否仍满足面粉、奶油约束？
+
+% ============================================================
+\section*{跨学科迁移训练详细解析}
+\addcontentsline{toc}{section}{详细解析：跨学科迁移（36--38）}
+\markboth{详细解析：跨学科迁移}{}
+
+% ---------------- 36 ----------------
+\A{36}
+\SolHead{C}{基础～中等偏下}{K5 影子价格 $=\partial z^*/\partial b$}
+\Lb{判断过程}按成本从低到高安排：G1 满发 60 MW，剩下 20 MW 由 G2 承担，$C^*=20\times60+30\times20=1800$。负荷增至 81 MW 时，G1 已满，多出的 1 MW 只能由 G2 提供，$C^*=1830$，增加 30。所以边际电价为 30 元/MWh。
+\begin{center}
+\begin{tikzpicture}[x=0.021cm,y=0.05cm]
+  \foreach \i/\L/\p/\ok in {0/A/20/0,1/B/25/0,2/C/30/1,3/D/50/0} {
+    \begin{scope}[xshift=\i*4.1cm]
+      \fill[auxblue!35] (0,0) rectangle (60,20); \fill[auxblue!65] (60,0) rectangle (160,30);
+      \draw[ax] (0,0)--(170,0); \draw[ax] (0,0)--(0,58);
+      \draw[redline,dashed] (80,0)--(80,55);
+      \ifnum\ok=1 \def\cc{greenline}\else\def\cc{badc}\fi
+      \draw[\cc,very thick] (0,\p)--(165,\p);
+      \ifnum\ok=1 \fill[greenline] (80,30) circle (4pt);\fi
+      \node[font=\scriptsize] at (80,66) {\textbf{\L}.\ \p};
+    \end{scope}
+  }
+\end{tikzpicture}
+\fig{第 36 题选项图：机组按成本排成“阶梯”，红虚线为负荷 80 MW。只有 C 的价格线经过负荷处的阶梯高度}
+\end{center}
+\Lb{各选项（看图）}A：20 是 G1 的成本，但 G1 已满发，边际上用不到它；B：25 是平均值，没有意义；D：50 是两者之和，混淆了概念。\par
+\Lb{当前专题知识}影子价格 $y_i=\partial z^*/\partial b_i$（第 4 章定理 4.3）。\par
+\Lb{借用的外部情境}电力系统的经济调度与边际电价。\par
+\Lb{为什么不算超纲}题干给出了完整的线性规划模型和“边际电价”的定义，不需要任何电力系统知识。\par
+\Lb{迁移点}把“资源 $b_i$ 多一单位 $\to$ 利润增加 $y_i$”换成“负荷多 1 MW $\to$ 最低成本增加多少”：负荷就是右端项，边际电价就是这条等式约束的影子价格。
+
+% ---------------- 37 ----------------
+\A{37}
+\SolHead{ABC}{中等偏下}{K3 强对偶、K4 互补松弛、K5 影子价格}
+\begin{center}
+\begin{tikzpicture}
+  \node at (0,0) {\begin{tikzpicture}[x=0.33cm,y=0.33cm]
+    \fill[feasreg] (0,9.5)--(0,8)--(3,2)--(7,0)--(9.5,0)--(9.5,9.5)--cycle;
+    \draw[ax] (-0.2,0)--(9.8,0) node[right,font=\tiny]{$a$}; \draw[ax] (0,-0.2)--(0,9.8) node[above,font=\tiny]{$b$};
+    \draw[con] (0,8)--(4.4,-0.8); \draw[con] (-0.6,3.8)--(9.4,-1.2);
+    \draw[iso] (0,6.5)--(4.333,0);
+    \node[optpt] at (3,2) {};
+    \node[font=\scriptsize,align=center] at (4.8,11.2) {\textbf{A} ✓：最低花费\\$3\times3+2\times2=13$};
+  \end{tikzpicture}};
+  \node at (4.3,0) {\begin{tikzpicture}[x=0.33cm,y=0.33cm]
+    \fill[feasreg] (0,9.5)--(0,9)--(3.667,1.667)--(7,0)--(9.5,0)--(9.5,9.5)--cycle;
+    \draw[ax] (-0.2,0)--(9.8,0); \draw[ax] (0,-0.2)--(0,9.8);
+    \draw[con,black!30] (0,8)--(4.4,-0.8); \draw[shiftl] (0,9)--(4.9,-0.8); \draw[con] (-0.6,3.8)--(9.4,-1.2);
+    \node[badpt] at (3,2) {}; \node[optpt,fill=shiftc] at (3.667,1.667) {};
+    \node[font=\scriptsize,align=center] at (4.8,11.2) {\textbf{B} ✓：蛋白质 $8\to9$\\新点 $(\frac{11}{3},\frac53)$，$+\frac43$};
+  \end{tikzpicture}};
+  \node at (8.6,0) {\begin{tikzpicture}[x=1.5cm,y=1.5cm]
+    \fill[feasreg] (0,0)--(1.5,0)--(1.333,0.333)--(0,1)--cycle;
+    \draw[ax] (-0.05,0)--(1.75,0) node[right,font=\tiny]{$u$}; \draw[ax] (0,-0.05)--(0,1.65) node[above,font=\tiny]{$v$};
+    \draw[con] (1.55,-0.1)--(0.75,1.5); \draw[con] (-0.1,1.05)--(1.75,0.125);
+    \draw[iso] (0,1.857)--(1.625,0);
+    \node[optpt] at (1.333,0.333) {};
+    \node[font=\tiny,above right] at (1.34,0.34) {$(\frac43,\frac13)$};
+    \node[font=\scriptsize,align=center] at (0.85,2.25) {\textbf{C} ✓：对偶最优\\$8u+7v=13$};
+  \end{tikzpicture}};
+  \node at (12.6,0) {\begin{tikzpicture}[x=1cm,y=1cm]
+    \fill[auxblue!60] (0,0) rectangle (0.5,1.33); \node[font=\tiny,above] at (0.25,1.33) {$u=\frac43$};
+    \fill[auxblue!60] (0.9,0) rectangle (1.4,0.33); \node[font=\tiny,above] at (1.15,0.33) {$v=\frac13$};
+    \draw[ax] (-0.2,0)--(1.7,0);
+    \node[font=\scriptsize,align=center] at (0.75,2.25) {\textbf{D} ✗：两种营养\\都用“刚好够”，\\价格都为正};
+  \end{tikzpicture}};
+\end{tikzpicture}
+\fig{第 37 题选项图：A、B 在原问题可行域上看，C 在对偶可行域上看，D 看影子价格的符号}
+\end{center}
+\Lb{A}正确。最优点 $(3,2)$ 是两条营养约束的交点，$C^*=9+4=13$；图 A 中虚线等值线 $3a+2b=13$ 在此支撑可行域。\par
+\Lb{B}正确。由互补松弛：$a>0\Rightarrow2u+v=3$，$b>0\Rightarrow u+2v=2$，解得 $u=\frac43$，$v=\frac13$。蛋白质需求 $8\to9$：新顶点 $a=\frac{2\cdot9-7}{3}=\frac{11}{3}$，$b=\frac{2\cdot7-9}{3}=\frac53$，均 $\ge0$（最优基不变），$C=11+\frac{10}{3}=\frac{43}{3}=13+\frac43$ ✓。\par
+\Lb{C}正确。对偶问题恰是“营养片厂商”的定价问题；强对偶给出 $8u^*+7v^*=\frac{32}{3}+\frac73=13$。\par
+\Lb{D}错误。$a,b>0$ 推出的是\textbf{对偶约束}取等（产品侧互补松弛），而不是营养约束的影子价格为 0。两条营养约束在最优点都恰好满足（$2\cdot3+2=8$，$3+4=7$），影子价格 $\frac43,\frac13$ 都为正。\par
+\Lb{当前专题知识}强对偶、互补松弛、影子价格。\quad\Lb{借用的外部情境}营养学中的配餐问题（min 型，$\ge$ 约束）。\par
+\Lb{为什么不算超纲}题干给出了每种食物的营养含量和需求量，以及对偶问题的经济解释，不需要营养学知识。\par
+\Lb{迁移点}生产问题中“资源的影子价格”在配餐问题中变成“营养素的边际成本”：需求每多 1 单位，最低花费增加多少。
+
+% ---------------- 38 ----------------
+\A{38}
+\SolHead{40 元；1 元}{基础}{K3 强对偶 $z^*=y\T b$；K5 影子价格}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=0.12cm]
+  \draw[ax] (0,0)--(7.4,0);
+  \fill[auxblue!70] (0.6,0) rectangle (1.6,20); \node[font=\scriptsize,white] at (1.1,10) {$0.5\times40$};
+  \fill[shiftc!70] (0.6,20) rectangle (1.6,40); \node[font=\scriptsize] at (1.1,30) {$0.2\times100$};
+  \node[font=\scriptsize,right] at (1.7,40) {$=40$};
+  \node[font=\scriptsize,below] at (1.1,0) {最大收益 $y\T b$};
+  \fill[greenline!70] (4.4,0) rectangle (5.4,12.5); \node[font=\scriptsize,above] at (4.9,12.5) {增收 $0.5\times5=2.5$};
+  \fill[badc!60] (5.8,0) rectangle (6.8,7.5); \node[font=\scriptsize,above] at (6.3,7.5) {租金 1.5};
+  \node[font=\scriptsize,below] at (5.6,0) {净增 $2.5-1.5=1$};
+\end{tikzpicture}
+\fig{第 38 题解析图：左柱为收益按影子价格分摊到两种资源，右边两柱为租用 CPU 的增收与租金}
+\end{center}
+\Lb{推理过程}第一空：由强对偶，最大收益 $=y\T b=0.5\times40+0.2\times100=20+20=40$ 元。第二空：在允许范围内，多 5 核时增收 $0.5\times5=2.5$ 元，租金 $0.3\times5=1.5$ 元，净增 1 元。\par
+\Lb{当前专题知识}强对偶定理 $z^*=y^{*\mathsf T}b$；影子价格的“购入决策”用法。\quad\Lb{借用的外部情境}云计算平台的资源调度。\par
+\Lb{为什么不算超纲}题干直接给出影子价格与容量，并说明了约束形式，不需要了解任务调度的细节。\par
+\Lb{迁移点}第 4 章“影子价格加权求和等于最优值”（课件 P20）与“市场价低于影子价则买入”（课件 P29），原样搬到计算资源上。\par
+\Lb{易错点}第二空忘记扣除租金，答成 2.5。

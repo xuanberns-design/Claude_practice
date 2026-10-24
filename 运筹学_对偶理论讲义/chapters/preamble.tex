@@ -1,0 +1,181 @@
+% ============================================================
+%  导言区：宏包、配色、信息框、绘图样式
+% ============================================================
+\usepackage[a4paper,top=2.2cm,bottom=2.2cm,left=2.3cm,right=2.3cm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,tabularx,array,multirow,longtable}
+\usepackage[inline]{enumitem}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric,decorations.pathreplacing,patterns,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage{forest}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage[colorlinks=true,linkcolor=navy,urlcolor=navy,citecolor=navy,bookmarksnumbered=true]{hyperref}
+
+% ---------------- 配色 ----------------
+\definecolor{navy}{HTML}{173A63}
+\definecolor{auxblue}{HTML}{557A9E}
+\definecolor{lightblue}{HTML}{F3F6F9}
+\definecolor{formulablue}{HTML}{E8EFF7}
+\definecolor{warm}{HTML}{FAF8F4}
+\definecolor{warmline}{HTML}{C9B48A}
+\definecolor{lightred}{HTML}{FFF5F4}
+\definecolor{redline}{HTML}{C0504D}
+\definecolor{lightgreen}{HTML}{F4F8F5}
+\definecolor{greenline}{HTML}{5B8C6A}
+\definecolor{grayblue}{HTML}{EEF2F6}
+\definecolor{tagbase}{HTML}{DCE4EC}
+\definecolor{tagup}{HTML}{E3EFE4}
+\definecolor{tagcross}{HTML}{E9E5F1}
+\definecolor{feas}{HTML}{DCEBDF}
+\definecolor{optc}{HTML}{7A4FB5}
+\definecolor{shiftc}{HTML}{C08A1E}
+\definecolor{conA}{HTML}{2F6DAA}
+\definecolor{badc}{HTML}{C0504D}
+
+% ---------------- 章节格式 ----------------
+\ctexset{
+  section = {name={第,章},number=\arabic{section},format=\Large\bfseries\color{navy}\raggedright,beforeskip=1.2ex plus .3ex,afterskip=1ex},
+  subsection = {format=\large\bfseries\color{navy}\raggedright,beforeskip=1.4ex plus .3ex,afterskip=.8ex},
+  subsubsection = {format=\normalsize\bfseries\color{auxblue}\raggedright,beforeskip=1ex,afterskip=.5ex},
+}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{auxblue}运筹学 · 对偶理论与灵敏度分析}
+\fancyhead[R]{\small\color{auxblue}\leftmark}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{tagbase}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+
+\setlist{itemsep=2pt,topsep=3pt,parsep=0pt,leftmargin=2em}
+\captionsetup{font=small,labelfont={bf,color=navy},labelsep=quad,skip=4pt}
+\setlength{\parskip}{3pt}
+\linespread{1.18}
+
+% ---------------- 信息框 ----------------
+\tcbset{
+  common/.style={enhanced,breakable,arc=2pt,boxrule=0.5pt,left=7pt,right=7pt,top=5pt,bottom=5pt,
+    fonttitle=\bfseries\small,before skip=7pt,after skip=7pt,pad at break*=2pt},
+}
+% 一级：定义 / 定理 / 核心公式
+\newtcolorbox{definitionbox}[1][定义]{common,colback=lightblue,colframe=navy,coltitle=white,colbacktitle=navy,title={#1}}
+\newtcolorbox{theorembox}[1][定理]{common,colback=lightblue,colframe=navy,coltitle=white,colbacktitle=navy,title={#1}}
+\newtcolorbox{formulabox}[1][核心公式]{common,colback=formulablue,colframe=formulablue,coltitle=navy,colbacktitle=formulablue,title={#1},boxrule=0pt,attach title to upper={\quad},}
+% 二级：直观 / 推导 / 联系
+\newtcolorbox{intuitionbox}[1][直观理解]{common,colback=grayblue,colframe=auxblue,boxrule=0pt,leftrule=2.5pt,arc=0pt,coltitle=auxblue,colbacktitle=grayblue,title={#1},fonttitle=\bfseries\small}
+\newtcolorbox{proofbox}[1][证明]{common,colback=white,colframe=auxblue!60,boxrule=0pt,leftrule=1.5pt,arc=0pt,coltitle=auxblue,colbacktitle=white,title={#1}}
+\newtcolorbox{connectionbox}[1][知识联系]{common,colback=grayblue,colframe=auxblue!70,boxrule=0pt,leftrule=2.5pt,arc=0pt,coltitle=navy,colbacktitle=grayblue,title={#1}}
+\newtcolorbox{supplementbox}[1][教学补全]{common,colback=white,colframe=auxblue,boxrule=0.5pt,borderline={0.4pt}{1.5pt}{auxblue!40,dashed},coltitle=navy,colbacktitle=lightblue,title={#1}}
+% 米色：示例 / 生活 / 历史 / 科普
+\newtcolorbox{examplebox}[1][例题]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
+\newtcolorbox{lifebox}[1][生活中的它]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!60!warmline,title={\textbf{生活中的它}\quad #1}}
+\newtcolorbox{historybox}[1][学科小史]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
+\newtcolorbox{sciencebox}[1][从课本到现实]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
+% 红：易错 / 纠错
+\newtcolorbox{warningbox}[1][易错点]{common,colback=lightred,colframe=redline!70,coltitle=redline,colbacktitle=lightred,title={#1},boxrule=0.5pt}
+\newtcolorbox{correctionbox}[1][原图纠错]{common,colback=lightred,colframe=redline!70,coltitle=white,colbacktitle=redline!80,title={#1}}
+% 绿：总结 / 自检 / 方法
+\newtcolorbox{summarybox}[1][方法总结]{common,colback=lightgreen,colframe=greenline,coltitle=greenline,colbacktitle=lightgreen,title={#1},boxrule=0.5pt}
+\newtcolorbox{checkbox}[1][学完这里，你应该能够回答]{common,colback=lightgreen,colframe=greenline,coltitle=greenline,colbacktitle=lightgreen,title={#1},boxrule=0.5pt}
+
+% 三级提示（细线 + 普通正文）
+\newcommand{\tip}[2][提示]{\par\noindent{\color{auxblue}\rule[-.2ex]{1.5pt}{1.1em}}\hspace{4pt}\textbf{\color{auxblue}#1：}#2\par}
+
+% 原始资料 / 补全 / 推测标签
+\newcommand{\srcTag}[1]{\tikz[baseline=(t.base)]\node[fill=tagbase,rounded corners=1pt,inner sep=1.5pt,font=\scriptsize](t){原始资料·#1};}
+\newcommand{\fillTag}{\tikz[baseline=(t.base)]\node[fill=formulablue,draw=auxblue,dashed,rounded corners=1pt,inner sep=1.5pt,font=\scriptsize](t){教学补全};}
+
+% 练习区标签
+\newcommand{\tagBase}[1]{\tikz[baseline=(t.base)]\node[fill=tagbase,rounded corners=2pt,inner sep=2pt,font=\small\bfseries,text=navy](t){#1};}
+\newcommand{\tagUp}[1]{\tikz[baseline=(t.base)]\node[fill=tagup,rounded corners=2pt,inner sep=2pt,font=\small\bfseries,text=greenline!70!black](t){#1};}
+\newcommand{\tagCross}[1]{\tikz[baseline=(t.base)]\node[fill=tagcross,rounded corners=2pt,inner sep=2pt,font=\small\bfseries,text=optc!70!black](t){#1};}
+\newcommand{\diff}[1]{{\small\color{auxblue}[#1]}\ }
+
+% 题号
+\newcounter{qn}
+\newcommand{\Q}[1][]{\par\needspace{4\baselineskip}\medskip\refstepcounter{qn}\noindent\textbf{\color{navy}\theqn.}\ #1}
+\newcommand{\A}[1]{\par\needspace{5\baselineskip}\bigskip\noindent{\large\bfseries\color{navy}第 #1 题}\par\nobreak}
+\newcommand{\opt}[4]{\par\noindent\begin{tabularx}{\linewidth}{@{}XX@{}}A.\ #1 & B.\ #2\\ C.\ #3 & D.\ #4\end{tabularx}\par}
+
+% 图题
+\newcommand{\fig}[1]{\par\nopagebreak[4]\captionof{figure}{#1}}
+
+% 数学
+\newcommand{\T}{^{\mathsf T}}
+\newcommand{\Binv}{B^{-1}}
+\newcommand{\st}{\text{s.t.}\quad}
+\newcommand{\fr}[2]{\tfrac{#1}{#2}}
+
+% ---------------- 绘图样式 ----------------
+\tikzset{
+  every picture/.append style={font=\small},
+  ax/.style={-{Stealth[length=2mm]},thin,black!70},
+  gridl/.style={black!8,very thin},
+  con/.style={conA,thick},
+  conB/.style={auxblue!70,thick},
+  feasreg/.style={fill=feas,draw=none},
+  optpt/.style={circle,fill=optc,draw=white,inner sep=2pt},
+  vpt/.style={circle,fill=greenline,inner sep=1.4pt},
+  badpt/.style={circle,fill=badc,draw=white,inner sep=2pt},
+  shiftl/.style={shiftc,thick,dashed},
+  iso/.style={black!55,thick,dashed},
+  lab/.style={font=\scriptsize,fill=white,inner sep=1pt},
+  box/.style={draw=navy,rounded corners=2pt,fill=lightblue,align=center,inner sep=4pt,font=\small},
+  wbox/.style={draw=warmline,rounded corners=2pt,fill=warm,align=center,inner sep=4pt,font=\small},
+  rbox/.style={draw=redline!70,rounded corners=2pt,fill=lightred,align=center,inner sep=4pt,font=\small},
+  gbox/.style={draw=greenline,rounded corners=2pt,fill=lightgreen,align=center,inner sep=4pt,font=\small},
+  arr/.style={-{Stealth[length=2mm]},thick,auxblue},
+  hl/.style={fill=shiftc!25,draw=none},
+}
+
+% 坐标网格：\axes{xmax}{ymax}{xlabel}{ylabel}
+\newcommand{\axes}[4]{%
+  \draw[gridl] (0,0) grid (#1,#2);
+  \draw[ax] (-0.3,0) -- (#1+0.4,0) node[right,font=\scriptsize]{$#3$};
+  \draw[ax] (0,-0.3) -- (0,#2+0.4) node[above,font=\scriptsize]{$#4$};
+  \foreach \i in {1,...,#1} \node[below,font=\tiny,black!60] at (\i,0) {\i};
+  \foreach \i in {1,...,#2} \node[left,font=\tiny,black!60] at (0,\i) {\i};
+  \node[below left,font=\tiny,black!60] at (0,0) {0};
+}
+
+% 讲义主例（材料 A、材料 B、设备台时）：max z=2x1+3x2
+% 4x1<=16, 4x2<=12, x1+2x2<=8
+\newcommand{\lecRegion}{\fill[feasreg] (0,0)--(4,0)--(4,2)--(2,3)--(0,3)--cycle;}
+\newcommand{\lecLines}{%
+  \draw[con] (4,-0.2)--(4,5.2) node[above,font=\scriptsize]{$4x_1=16$};
+  \draw[con] (-0.2,3)--(9.3,3) node[right,font=\scriptsize]{$4x_2=12$};
+  \draw[con] (-0.4,4.2)--(9.3,-0.65) node[right,font=\scriptsize]{$x_1+2x_2=8$};
+}
+% 练习模型 E：max z=3x1+2x2；x1+x2<=4, x1+3x2<=9, x1<=3
+\newcommand{\exRegion}{\fill[feasreg] (0,0)--(3,0)--(3,1)--(1.5,2.5)--(0,3)--cycle;}
+\newcommand{\exLines}{%
+  \draw[con] (-0.2,4.2)--(4.5,-0.5) node[below,font=\scriptsize]{\ding1};
+  \draw[con] (-0.3,3.1)--(6.3,0.9) node[right,font=\scriptsize]{\ding2};
+  \draw[con] (3,-0.2)--(3,4.3) node[above,font=\scriptsize]{\ding3};
+}
+\newcommand{\ding}[1]{\textcircled{\scriptsize #1}}
+
+% 解析区标题行：\SolHead{答案}{难度}{考查知识点}
+\newcommand{\SolHead}[3]{\par\noindent\begin{tabularx}{\linewidth}{@{}>{\columncolor{lightblue}}l X@{}}
+\textbf{正确答案} & \textbf{\color{navy}#1}\quad{\small 难度：#2}\quad{\small 考查：#3}\\\end{tabularx}\par}
+\newcommand{\Lb}[1]{\par\noindent\textbf{\color{auxblue}#1}\ }
+% 练习模型 E 的小图：\smallE{缩放}{附加绘图命令}
+\newcommand{\smallE}[2]{\begin{tikzpicture}[x=#1cm,y=#1cm]\exRegion\draw[gridl] (0,0) grid (6,4);
+  \draw[ax] (-0.2,0)--(6.3,0); \draw[ax] (0,-0.2)--(0,4.3);
+  \draw[con] (-0.2,4.2)--(4.5,-0.5); \draw[con] (-0.3,3.1)--(6.3,0.9); \draw[con] (3,-0.2)--(3,4.3);#2\end{tikzpicture}}
+
+% 特殊字符：带圈数字交给中文字体，勾叉用数学符号
+\xeCJKsetcharclass{"2460}{"2473}{1}
+\usepackage{newunicodechar}
+\newunicodechar{✓}{\ensuremath{\checkmark}}
+\newunicodechar{✗}{\ensuremath{\times}}

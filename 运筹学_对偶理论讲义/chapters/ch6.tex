@@ -1,0 +1,445 @@
+% ============================================================
+%  第 6 章  灵敏度分析（K7、K8、K9）
+% ============================================================
+\section{灵敏度分析：数据变了，最优解还成立吗}
+
+前面几章已经把一个线性规划解到最优：最优解、最优值、最优基都已得出。然而模型里的每一个数都只是“当前状态的估计值”——资源可用量会变，产品利润会变，工艺改进会改变消耗定额，市场上还会出现新的产品和新的限制。本章要回答的核心问题是（课件 P2）：\textbf{参数改动之后，原先算得的最优解是否仍然最优？}
+
+\noindent\textbf{本章回答五个问题}（课件 P3）：
+\begin{enumerate*}[label=(\arabic*)]
+  \item 资源边际贡献：某种资源多给一个单位，最优值增加多少？（第 4 章已答：影子价格）
+  \item 资源量的稳定范围：资源可用量在什么范围内变动，最优基保持不变？
+  \item 利润系数的稳定范围：某个产品的单位利润在什么范围内变动，最优解保持不变？
+  \item 新增产品：新增一个产品，是否值得投产？
+  \item 新增约束：新增一条限制，最优解如何调整？
+\end{enumerate*}\par
+\noindent\textbf{本章知识路线：}三种情形 $\to$ 两条判据 $\to$ 四个步骤 $\to$ 右端项 $b$ $\to$ 价值系数 $c$ $\to$ 新增变量 $\to$ 新增约束。全章使用第 4 章的主例与表~\ref{tab:lec}。
+
+\subsection{总体思路：只核验两条判据}
+
+\begin{theorembox}[结论 6.1　最优表成立的两条判据 \srcTag{课件 P46--P48}]
+一个基 $B$ 给出最优表，当且仅当同时满足：
+\[
+\text{可行性判据：}\ x_B=B^{-1}b\ge0;\qquad\qquad
+\text{最优性判据：}\ \sigma\T=c\T-c_B\T B^{-1}A\le0 .
+\]
+可行性公式里没有 $c$，最优性公式里没有 $b$。所以\textbf{改 $b$ 只可能破坏可行性，改 $c$ 只可能破坏最优性}——两条判据可以分开核验，这是灵敏度分析能逐条单独处理的根本原因。
+\end{theorembox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,
+  p/.style={box,minimum width=2.6cm,minimum height=0.75cm,font=\small},
+  c1/.style={draw=auxblue,fill=grayblue,rounded corners=2pt,minimum width=2.6cm,minimum height=0.75cm,font=\small,align=center},
+  o/.style={gbox,minimum width=2.9cm,minimum height=0.75cm,font=\small}]
+  \node[font=\small\bfseries,navy] at (0,1.0) {改动的参数};
+  \node[font=\small\bfseries,navy] at (4.4,1.0) {需核验的判据};
+  \node[font=\small\bfseries,navy] at (9.2,1.0) {越界后的续解};
+  \node[p] (b) at (0,0) {右端项 $b_i$};
+  \node[p] (cn) at (0,-1.0) {非基变量 $c_k$};
+  \node[p] (cb) at (0,-2.0) {基变量 $c_j$};
+  \node[p] (nv) at (0,-3.0) {新增变量};
+  \node[p] (nc) at (0,-4.0) {新增约束};
+  \node[c1] (fe) at (4.4,-0.5) {可行性\\$B^{-1}b\ge0$};
+  \node[c1] (op) at (4.4,-2.5) {最优性\\$\sigma\le0$};
+  \node[o] (ds) at (9.2,-0.5) {对偶单纯形法\\{\scriptsize（$b$ 列出现负数）}};
+  \node[o] (sm) at (9.2,-2.5) {单纯形法\\{\scriptsize（$\sigma$ 行出现正数）}};
+  \draw[arr] (b.east)--(fe.west); \draw[arr] (nc.east)--(fe.west);
+  \draw[arr] (cn.east)--(op.west); \draw[arr] (cb.east)--(op.west); \draw[arr] (nv.east)--(op.west);
+  \draw[arr] (fe)--(ds); \draw[arr] (op)--(sm);
+  \node[rbox,font=\scriptsize,text width=3.0cm] at (9.2,-4.0) {两条同时不满足：\\引入人工变量重解};
+\end{tikzpicture}
+\fig{灵敏度分析的判定图（课件 P47、P50）：每类改动只需核验一条判据；越界后按缺失的判据选择续解算法}\label{fig:satree}
+\end{center}
+
+图~\ref{fig:satree} 从左往右读：先看改了哪类参数，再看它会影响哪条判据，最后看判据失效时用什么算法补救。改动之后最终只会落入三种情形之一（课件 P45）：
+\begin{enumerate}[label=\textbf{情形\arabic*}，,leftmargin=4em]
+  \item 最优基与最优解都不变，原最优表照用；
+  \item 最优基不变，但基变量的取值改变，按新右端项重算；
+  \item 最优基改变，原表失效，需继续迭代（对偶单纯形法或单纯形法）。
+\end{enumerate}
+
+\begin{summarybox}[灵敏度分析的四个步骤（课件 P49）]
+\begin{tikzpicture}[x=0.97cm,y=1cm,s/.style={box,text width=3.1cm,minimum height=1.25cm,font=\small}]
+  \node[s] (a) at (0,0) {\textbf{① 写出 $\Delta$ 形式}\\{\scriptsize 改了哪个参数、改多少}};
+  \node[s] (b) at (4.1,0) {\textbf{② 追踪传递路径}\\{\scriptsize 经 $B^{-1}$ 传到 $b$ 列还是 $\sigma$ 行}};
+  \node[s] (c) at (8.2,0) {\textbf{③ 建立不等式组}\\{\scriptsize 改动后仍满足判据}};
+  \node[s] (d) at (12.3,0) {\textbf{④ 求解集得范围}\\{\scriptsize 越界则按缺失判据续解}};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+\end{tikzpicture}
+\end{summarybox}
+
+\subsection{右端项 $b$ 的变化}
+
+\begin{proofbox}[推导：改动怎样传到 $b$ 列 \srcTag{课件 P52--P53}]
+设第 $r$ 项右端由 $b_r$ 改为 $b_r+\Delta b_r$，其余不变，即 $\Delta b=\Delta b_r\,e_r$。最优基不变时
+\[
+x_B'=B^{-1}(b+\Delta b)=B^{-1}b+\Delta b_r\,B^{-1}e_r=x_B+\Delta b_r\,\beta_r ,
+\]
+其中 $\beta_r=B^{-1}e_r$ 是 $B^{-1}$ 的\textbf{第 $r$ 列}，也就是最优表中第 $r$ 个约束的松弛变量所在的列。检验数公式中不含 $b$，所以 $\sigma$ 行不变，最优性自动保住，只需核验可行性：
+\[
+\boxed{\;x_{B_i}+\Delta b_r\,\beta_{ir}\ge0,\qquad i=1,\dots,m\;}
+\]
+逐行解这个不等式：$\beta_{ir}>0$ 给出\textbf{下界} $\Delta b_r\ge-x_{B_i}/\beta_{ir}$；$\beta_{ir}<0$ 给出\textbf{上界} $\Delta b_r\le-x_{B_i}/\beta_{ir}$；$\beta_{ir}=0$ 不构成条件。所有下界取最大、所有上界取最小，即得允许范围。
+\end{proofbox}
+
+\begin{examplebox}[例 6.1　材料 $A$ 的允许变动范围 \srcTag{课件 P54--P57}]
+\textbf{已知：}$\beta_1=(\frac12,-\frac18,\frac14)\T$（最优表 $x_3$ 列），$x_B=(4,2,4)\T$（基变量次序 $x_4,x_2,x_1$）。\quad\textbf{求：}$b_1$ 的允许范围。\par
+\textbf{逐行列出并求解：}
+\[
+\begin{array}{lll}
+x_4\text{ 行：} & 4+\frac12\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-8\quad(\text{系数为正，下界})\\[2pt]
+x_2\text{ 行：} & 2-\frac18\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\le16\quad(\text{系数为负，上界})\\[2pt]
+x_1\text{ 行：} & 4+\frac14\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-16\quad(\text{下界，被第一行覆盖})
+\end{array}
+\]
+\textbf{结果：}$-8\le\Delta b_1\le16$，即 $b_1\in[8,32]$。在此范围内最优基 $\{x_4,x_2,x_1\}$ 不变，材料 $A$ 的影子价格恒为 $\frac18$；最优解按 $x_B'=x_B+\Delta b_1\beta_1$ 重算，最优值按 $z^*+\frac18\Delta b_1$ 更新。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=0.36cm,y=1cm]
+  \draw[ax] (-20,0)--(21,0) node[right,font=\scriptsize]{$\Delta b_1$};
+  \foreach \x in {-16,-8,0,16} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.08) {\x};}
+  \draw[greenline,very thick,-{Stealth}] (-8,0.45)--(20.5,0.45); \node[font=\scriptsize,left] at (-8.3,0.45) {$x_4$ 行：$\ge-8$};
+  \draw[redline,very thick,-{Stealth}] (16,0.85)--(-19.5,0.85); \node[font=\scriptsize,right] at (16.3,0.85) {$x_2$ 行：$\le16$};
+  \draw[greenline!60,very thick,-{Stealth}] (-16,1.25)--(20.5,1.25); \node[font=\scriptsize,left] at (-16.3,1.25) {$x_1$ 行：$\ge-16$};
+  \fill[shiftc!35] (-8,-0.55) rectangle (16,-0.35);
+  \node[font=\scriptsize,shiftc!80!black] at (4,-0.85) {交集 $[-8,16]$，即 $b_1\in[8,32]$};
+\end{tikzpicture}
+\fig{例 6.1 的不等式在数轴上：三条射线的公共部分就是允许范围}\label{fig:db1}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[x=0.55cm,y=0.55cm]
+  \begin{scope}
+    \lecRegion
+    \axes{9}{5}{x_1}{x_2}
+    \draw[con] (-0.2,3)--(9.3,3);
+    \draw[con] (-0.4,4.2)--(9.3,-0.65);
+    \draw[con,black!35] (4,-0.2)--(4,5.2);
+    \draw[shiftl] (2,-0.2)--(2,5.2) node[above,font=\scriptsize]{$b_1=8$};
+    \draw[shiftl] (8,-0.2)--(8,5.2) node[above,font=\scriptsize]{$b_1=32$};
+    \node[optpt,fill=shiftc] at (2,3) {}; \node[optpt,fill=shiftc] at (8,0) {}; \node[optpt] at (4,2) {};
+    \node[lab,above left] at (2,3) {$(2,3)$}; \node[lab,above right] at (8,0) {$(8,0)$}; \node[lab,right] at (4.1,2.2) {$(4,2)$};
+    \draw[arr,optc,thick] (2.1,2.95)--(3.85,2.07); \draw[arr,optc,thick] (4.15,1.93)--(7.85,0.07);
+    \node[font=\scriptsize,align=center] at (4.5,-1.5) {(a) 材料 $A$：$b_1\in[8,32]$\\最优点沿台时斜线从 $(2,3)$ 滑到 $(8,0)$};
+  \end{scope}
+  \begin{scope}[xshift=7.2cm]
+    \lecRegion
+    \axes{9}{5}{x_1}{x_2}
+    \draw[con] (4,-0.2)--(4,5.2);
+    \draw[con] (-0.2,3)--(9.3,3);
+    \draw[con,black!35] (-0.4,4.2)--(9.3,-0.65);
+    \draw[shiftl] (-0.4,2.2)--(5.4,-0.7) node[right,font=\scriptsize]{$b_3=4$};
+    \draw[shiftl] (-0.4,5.2)--(9.3,0.35) node[above,font=\scriptsize,pos=0.85]{$b_3=10$};
+    \node[optpt,fill=shiftc] at (4,0) {}; \node[optpt,fill=shiftc] at (4,3) {}; \node[optpt] at (4,2) {};
+    \node[lab,below right] at (4,0) {$(4,0)$}; \node[lab,above right] at (4,3) {$(4,3)$}; \node[lab,right] at (4.1,1.8) {$(4,2)$};
+    \node[font=\scriptsize,align=center] at (4.5,-1.5) {(b) 台时：$b_3\in[4,10]$\\最优点沿材料 $A$ 竖线从 $(4,0)$ 升到 $(4,3)$};
+  \end{scope}
+\end{tikzpicture}
+\fig{右端项允许范围的几何直观（课件 P57--P58）：两条橙色虚线是范围的两个端点，端点之间最优顶点始终由同一对约束交出}\label{fig:brange}
+\end{center}
+
+图~\ref{fig:brange}(a) 中，材料 $A$ 的边界（竖线）在 $x_1=2$ 与 $x_1=8$ 之间平移时，最优顶点始终是“材料 $A$ 线与台时线的交点”，只是沿台时斜线滑动；到 $b_1=8$ 时滑到 $(2,3)$，碰上材料 $B$ 的边界；到 $b_1=32$ 时滑到 $(8,0)$，碰上 $x_2=0$。再往外，交点所在的约束组合就变了，最优基随之改变。图 (b) 同理：台时线在 $b_3=4$ 与 $b_3=10$ 之间平移，最优顶点沿材料 $A$ 竖线从 $(4,0)$ 升到 $(4,3)$。
+
+对另外两项右端作同样计算（课件 P56、P59）：$\beta_3=(-2,\frac12,0)\T$ 给出 $4-2\Delta b_3\ge0$、$2+\frac12\Delta b_3\ge0$，即 $b_3\in[4,10]$；$\beta_2=(1,0,0)\T$ 只有第一行 $4+\Delta b_2\ge0$ 起作用，上界不存在，$b_2\in[8,+\infty)$——材料 $B$ 本来就有 4 kg 富余，再多也不改变最优基，只有减少超过 4 kg 才会使它变为紧约束。
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcccl@{}}
+\toprule
+\rowcolor{lightblue}资源 & 现值 & 允许范围 & 影子价格 & 含义\\\midrule
+材料 $A$ & 16 & $[8,32]$ & $\frac18$ & 范围内每多 1 kg 增利 $\frac18$\\
+材料 $B$ & 12 & $[8,+\infty)$ & 0 & 有富余，多给无益\\
+设备台时 & 8 & $[4,10]$ & $\frac32$ & 最紧缺的资源\\\bottomrule
+\end{tabular}\par\nopagebreak[4]
+\captionof{table}{三条右端项范围汇总（课件 P60）}\label{tab:brange}
+\end{center}
+
+\begin{examplebox}[例 6.2　越出范围：材料 $A$ 增至 36 kg \fillTag]
+$\Delta b_1=20>16$，超出范围。按传递公式 $x_B'=(4,2,4)\T+20\cdot(\frac12,-\frac18,\frac14)\T=(14,\,-\frac12,\,9)\T$，$x_2$ 行变负。此时 $\sigma$ 行不变（仍 $\le0$），表处于“对偶可行而原始不可行”状态，直接用对偶单纯形法：\par
+$x_2$ 行出基，该行为 $(0,1,-\frac18,0,\frac12)$，负系数只有 $x_3$ 列，$\theta=\frac{-1/8}{-1/8}=1$，$x_3$ 入基。旋转后：
+\begin{center}\small
+\begin{tabular}{@{}ccc|ccccc@{}}\toprule
+$c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
+0 & $x_4$ & 12 & 0 & 4 & 0 & 1 & 0\\
+0 & $x_3$ & 4 & 0 & $-8$ & 1 & 0 & $-4$\\
+2 & $x_1$ & 8 & 1 & 2 & 0 & 0 & 1\\\midrule
+\multicolumn{3}{c|}{$\sigma_j$} & 0 & $-1$ & 0 & 0 & $-2$\\\bottomrule
+\end{tabular}
+\end{center}
+$b\ge0$，最优：$x^*=(8,0)$，$z^*=16$。新的影子价格为 $y=(0,0,2)$——材料 $A$ 不再紧缺（剩 4 kg），价格降为 0；与图~\ref{fig:zb1} 中 $b_1>32$ 后折线变平完全吻合。\textbf{只用了一次旋转。}
+\end{examplebox}
+
+\begin{warningbox}
+\textbf{错误做法：}“多买 100 kg 材料 $A$，利润增加 $100\times\frac18=12.5$。”\quad
+\textbf{正确做法：}先核对 $\Delta b_1=100$ 是否落在 $[-8,16]$ 内；超出范围时最优基已变，必须重新分析（课件 P61）。按例 6.2 的方法可知，$b_1\ge32$ 后最优值恒为 16，最多增利 2。
+\end{warningbox}
+
+\begin{lifebox}[阶梯电价：每度电的“边际价格”在档内不变]
+\begin{minipage}[t]{0.55\linewidth}
+\textbf{生活场景：}我国许多地区居民用电实行阶梯电价：月用电量在第一档内按较低单价计费，超过档位后，超出部分按更高单价计费。\par
+\textbf{对应关系：}月用电量 $\leftrightarrow$ 资源量 $b$；当前所在档的单价 $\leftrightarrow$ 影子价格（多用 1 度的边际花费）；档位分界点 $\leftrightarrow$ 允许范围的端点。\par
+\textbf{小估算}（示意数字，各地标准不同）：第一档 $0$--$200$ 度每度 0.5 元，第二档每度 0.55 元。本月已用 150 度，再多用 30 度仍在第一档，多花 $30\times0.5=15$ 元；若再多用 80 度，其中 50 度在第一档、30 度进入第二档，多花 $25+16.5=41.5$ 元，而不是 $80\times0.5=40$ 元。\par
+\textbf{边界说明：}电费是“花费”，用得越多边际价格越高（折线向上弯）；生产问题的最优利润是“收益”，资源越多影子价格越低（图~\ref{fig:zb1} 的折线向下弯）。两者共同点是：\textbf{边际值只在一段范围内是常数}。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.41\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}
+\begin{axis}[width=6.3cm,height=4.8cm,xmin=0,xmax=300,ymin=0,ymax=160,axis lines=left,
+  xlabel={月用电量（度）},ylabel={电费（元）},xtick={0,150,200,300},ytick={0,100,155},
+  label style={font=\scriptsize},tick label style={font=\scriptsize},grid=major,grid style={black!8}]
+  \addplot[navy,very thick] coordinates {(0,0)(200,100)(300,155)};
+  \addplot[only marks,mark=*,mark options={fill=optc,draw=white}] coordinates {(150,75)};
+  \draw[shiftc,dashed] (axis cs:200,0)--(axis cs:200,100);
+  \node[font=\scriptsize,anchor=south east] at (axis cs:120,62) {斜率 0.5};
+  \node[font=\scriptsize,anchor=north west] at (axis cs:215,118) {斜率 0.55};
+\end{axis}
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ 允许范围}
+\end{minipage}
+\end{lifebox}
+
+\subsection{价值系数 $c$ 的变化}
+
+价值系数只出现在检验数公式中，基变量取值 $x_B=B^{-1}b$ 与 $c$ 无关。因此改动 $c_j$ 时，最优解的\textbf{取值}不变，可能改变的只有最优性（课件 P63）。要分两类讨论。
+
+\begin{proofbox}[推导 \srcTag{课件 P64--P67}]
+\textbf{(1) 非基变量 $x_k$ 的 $c_k$ 改为 $c_k+\Delta c_k$。}$c_B$ 中不含 $c_k$，$y\T=c_B\T B^{-1}$ 不变，其余各列的检验数不变，只有 $x_k$ 自身：
+\[
+\sigma_k'=(c_k+\Delta c_k)-y\T P_k=\sigma_k+\Delta c_k\le0\quad\Longleftrightarrow\quad\boxed{\Delta c_k\le-\sigma_k}.
+\]
+因原来 $\sigma_k\le0$，故 $-\sigma_k\ge0$：非基变量的价值系数只有上界，向下没有限制。\par
+\textbf{(2) 基变量 $x_j$（位于最优表第 $r$ 行）的 $c_j$ 改为 $c_j+\Delta c_j$。}$c_B$ 的第 $r$ 个分量随之改变，新对偶变量 $y^{\prime\mathsf T}=y\T+\Delta c_j\,(B^{-1})_{r\cdot}$，其中 $(B^{-1})_{r\cdot}$ 是 $B^{-1}$ 的第 $r$ \textbf{行}。对任一非基列 $k$：
+\[
+\sigma_k'=c_k-y^{\prime\mathsf T} P_k=\sigma_k-\Delta c_j\,(B^{-1})_{r\cdot}P_k=\sigma_k-\Delta c_j\,t_{rk},
+\]
+$t_{rk}$ 是最优表第 $r$ 行、第 $k$ 列的元素。要求 $\sigma_k-\Delta c_j\,t_{rk}\le0$：$t_{rk}>0$ 给出下界 $\Delta c_j\ge\sigma_k/t_{rk}$；$t_{rk}<0$ 给出上界 $\Delta c_j\le\sigma_k/t_{rk}$；$t_{rk}=0$ 不构成条件。$x_j$ 自身是基变量，检验数恒为 0，不参与。
+\end{proofbox}
+
+\begin{examplebox}[例 6.3　产品二的价值系数 $c_2$ 的范围 \srcTag{课件 P68--P69}（已改正 P69 的排版笔误）]
+\textbf{已知：}$x_2$ 在最优表第 2 行（$r=2$），非基列为 $x_3,x_5$：$t_{23}=-\frac18$，$t_{25}=\frac12$，$\sigma_3=-\frac18$，$\sigma_5=-\frac32$。\par
+\textbf{列式求解：}
+\[
+\begin{array}{lll}
+x_3\text{ 列：} & -\frac18-\Delta c_2\cdot(-\frac18)\le0 & \Rightarrow\ \Delta c_2\le1\quad(t_{23}<0\text{，上界})\\[2pt]
+x_5\text{ 列：} & -\frac32-\Delta c_2\cdot\frac12\le0 & \Rightarrow\ \Delta c_2\ge-3\quad(t_{25}>0\text{，下界})
+\end{array}
+\]
+\textbf{结果：}$-3\le\Delta c_2\le1$，即 $c_2\in[0,4]$。在此范围内最优解仍为 $(4,2)$，最优值按新的 $c_2$ 重算 $z^*=8+2c_2$。\par
+同理，产品一（第 3 行）：$t_{33}=\frac14$ 给出 $-\frac18-\frac14\Delta c_1\le0\Rightarrow\Delta c_1\ge-\frac12$；$t_{35}=0$ 不构成条件。故 $c_1\in[\frac32,+\infty)$（课件 P71）。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=0.62cm,y=0.62cm]
+  \lecRegion
+  \axes{9}{5}{x_1}{x_2}
+  \draw[con,black!40] (-0.2,3)--(9.3,3);
+  \draw[con,black!40] (4,-0.2)--(4,5.2);
+  \draw[con,black!40] (-0.4,4.2)--(9.3,-0.65);
+  % c2=3 当前等值线 2x1+3x2=14
+  \draw[iso,black] (0,4.667)--(7,0) node[below,font=\scriptsize]{$c_2=3$（当前）};
+  % c2=0: 2x1=8 竖线 x1=4
+  \draw[very thick,dashed,redline] (4.0,-0.3)--(4.0,5.3) node[above,font=\scriptsize]{$c_2=0$};
+  % c2=4: 2x1+4x2=16 与台时平行
+  \draw[very thick,dashed,shiftc] (-0.4,4.2)--(8.5,-0.25);
+  \node[font=\scriptsize,shiftc!80!black,anchor=west] at (5.6,2.0) {$c_2=4$：与台时线重合};
+  \fill[shiftc!50,opacity=0.6] (2,3)--(4,2)--(4.1,2.15)--(2.1,3.15)--cycle;
+  \fill[redline!40,opacity=0.6] (3.9,0)--(4.1,0)--(4.1,2)--(3.9,2)--cycle;
+  \node[optpt] at (4,2) {};
+  \node[vpt,fill=shiftc] at (2,3) {}; \node[vpt,fill=redline] at (4,0) {};
+  \node[lab,left] at (1.9,3.2) {$(2,3)$}; \node[lab,below right] at (4,0) {$(4,0)$};
+  \draw[arr,thick,optc] (6.4,3.8) arc[start angle=10,end angle=60,radius=1.6];
+  \node[font=\scriptsize,optc] at (7.4,4.6) {$c_2$ 增大，等值线变缓};
+\end{tikzpicture}
+\fig{价值系数范围的几何直观（课件 P70--P71）：等值线随 $c_2$ 旋转，在两个端点处与某条边界重合，此时整条棱上的点都是最优解}\label{fig:c2}
+\end{center}
+
+图~\ref{fig:c2} 中黑色虚线是当前等值线 $2x_1+3x_2=14$。$c_2$ 变化时等值线绕最优点旋转：$c_2$ 减到 0，等值线变成竖直线，与材料 $A$ 的边界 $x_1=4$ 重合，$(4,0)$ 到 $(4,2)$ 整条竖棱（红色）都是最优解；$c_2$ 增到 4，等值线与台时线 $x_1+2x_2=8$ 平行，$(4,2)$ 到 $(2,3)$ 整条斜棱（橙色）都是最优解。$c_2$ 在 $[0,4]$ 内，等值线的斜率夹在两条边界线的斜率之间，最优顶点始终是 $(4,2)$。产品一的范围无上界：$x_1$ 已被材料 $A$ 顶到上限 4，利润再高也没有资源再扩产。
+
+\begin{examplebox}[例 6.4　越出范围：$c_2$ 增至 5 \fillTag]
+$\Delta c_2=2>1$。按公式：$\sigma_3'=-\frac18-2\cdot(-\frac18)=\frac18>0$，$\sigma_5'=-\frac32-2\cdot\frac12=-\frac52$。$b$ 列不变（仍可行），$\sigma$ 行出现正数，表处于“原始可行而未达最优”状态，续走单纯形法（课件 P73）：$x_3$ 入基，$x_3$ 列为 $(\frac12,-\frac18,\frac14)\T$，正系数行的比值 $x_4$：$\frac{4}{1/2}=8$，$x_1$：$\frac{4}{1/4}=16$，$x_4$ 出基。旋转后 $x_3=8$，$x_2=2+\frac18\cdot8=3$，$x_1=4-\frac14\cdot8=2$，即最优点移到 $(2,3)$，$z^*=2\cdot2+5\cdot3=19$。这与图~\ref{fig:c2} 的预言一致：$c_2>4$ 后最优顶点跳到相邻顶点 $(2,3)$。
+\end{examplebox}
+
+\begin{lifebox}[地图导航：小幅拥堵不改路线]
+\begin{minipage}[t]{0.55\linewidth}
+\textbf{生活场景：}导航推荐你走高架（全程 20 分钟），备选的地面道路全程 24 分钟。高架上突然轻微拥堵，导航并没有立刻改道。\par
+\textbf{对应关系：}各路段用时 $\leftrightarrow$ 价值系数 $c_j$；当前推荐路线 $\leftrightarrow$ 最优基；“改走地面道路”的临界拥堵时间 $\leftrightarrow$ 价值系数允许范围的端点。最短路问题本身就可以写成线性规划。\par
+\textbf{小估算：}高架上那一段原来用时 8 分钟。只要这一段的用时增加不超过 $24-20=4$ 分钟（即不超过 12 分钟），高架路线仍然最快；超过 12 分钟，最优路线就会切换——这就是“范围的端点”。\par
+\textbf{边界说明：}真实导航基于预测路况，并考虑红绿灯、换道等因素，还会避免频繁改道；线性模型只刻画“哪条更快”。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.41\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[circle,fill=navy,inner sep=2pt,label=left:{\scriptsize 出发}] (s) at (0,0) {};
+  \node[circle,fill=navy,inner sep=2pt,label=right:{\scriptsize 到达}] (t) at (4,0) {};
+  \draw[very thick,auxblue] (s) to[bend left=35] node[above,font=\scriptsize,align=center]{高架 20 分\\（其中一段 8 分）} (t);
+  \draw[very thick,black!40] (s) to[bend right=35] node[below,font=\scriptsize]{地面 24 分} (t);
+  \draw[ax] (0,-1.9)--(4.2,-1.9) node[right,font=\tiny]{该段用时};
+  \fill[greenline!50] (0.4,-1.95) rectangle (2.4,-1.85);
+  \node[font=\tiny,below] at (0.4,-1.95) {8}; \node[font=\tiny,below] at (2.4,-1.95) {12};
+  \node[font=\scriptsize,greenline] at (1.4,-1.55) {路线不变};
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ $c_j$ 的范围}
+\end{minipage}
+\end{lifebox}
+
+\subsection{新增一个变量（新产品）}
+
+\begin{theorembox}[结论 6.2　新产品是否值得生产 \fillTag]
+新增变量 $x_{n+1}$，价值系数 $c_{n+1}$，消耗列 $P_{n+1}$。它进入模型时取值为 0，原最优解仍可行，$B^{-1}$ 也不变，只需计算它的检验数：
+\[
+\boxed{\;\sigma_{n+1}=c_{n+1}-y\T P_{n+1}\;}
+\]
+若 $\sigma_{n+1}\le0$，不值得生产，原最优解不变；若 $\sigma_{n+1}>0$，值得生产，把 $B^{-1}P_{n+1}$ 作为新列写进最优表，继续单纯形法。\par
+\textbf{经济含义：}$y\T P_{n+1}$ 是新产品占用的资源按影子价格折算的“机会成本”。利润超过机会成本才值得生产。
+\end{theorembox}
+
+\begin{examplebox}[例 6.5　主例新增产品三]
+产品三每件耗材料 $A$ 1 kg、材料 $B$ 0、台时 1，单位利润 2。$P_6=(1,0,1)\T$，$y=(\frac18,0,\frac32)$：
+\[
+y\T P_6=\tfrac18\cdot1+0\cdot0+\tfrac32\cdot1=\tfrac{13}{8},\qquad \sigma_6=2-\tfrac{13}{8}=\tfrac38>0 .
+\]
+值得生产。$B^{-1}P_6=(\frac12-2,\,-\frac18+\frac12,\,\frac14)\T=(-\frac32,\frac38,\frac14)\T$，比值 $x_2$：$\frac{2}{3/8}=\frac{16}{3}$，$x_1$：$\frac{4}{1/4}=16$，$x_2$ 出基。旋转后 $x_6=\frac{16}{3}$，$x_1=4-\frac14\cdot\frac{16}{3}=\frac83$，$x_4=4+\frac32\cdot\frac{16}{3}=12$，$z^*=2\cdot\frac83+2\cdot\frac{16}{3}=16$。新的对偶解 $y=(0,0,2)$ 使 $\sigma_2=3-2\cdot2=-1\le0$，确为最优。\par
+\textbf{本题真正想说明什么：}判断“是否值得生产”只需一次内积，不必重解整个问题。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ax] (0,0)--(7.6,0);
+  \fill[auxblue!60] (0.6,0) rectangle (1.6,0.25); \node[font=\scriptsize,above] at (1.1,0.25) {材料 $A$ $\frac18$};
+  \fill[auxblue!60] (0.6,0.25) rectangle (1.6,3.25); \node[font=\scriptsize] at (1.1,1.75) {台时 $\frac32$};
+  \node[font=\scriptsize,below,align=center] at (1.1,0) {机会成本\\$y\T P_6=\frac{13}{8}$};
+  \fill[greenline!70] (2.6,0) rectangle (3.6,4); \node[font=\scriptsize,below,align=center] at (3.1,0) {利润 2\\（$\sigma_6=\frac38>0$）};
+  \node[gbox,font=\scriptsize] at (3.1,4.5) {值得生产};
+  \fill[redline!60] (5.2,0) rectangle (6.2,3.0); \node[font=\scriptsize,below,align=center] at (5.7,0) {若利润 1.5\\（$\sigma_6<0$）};
+  \node[rbox,font=\scriptsize] at (5.7,3.5) {不值得};
+  \draw[dashed,black!50] (0.4,3.25)--(7.0,3.25) node[right,font=\scriptsize]{$\frac{13}{8}$};
+\end{tikzpicture}
+\fig{新增变量的判断：利润柱是否高过机会成本线（纵轴每格 0.5 元）}\label{fig:newvar}
+\end{center}
+
+图~\ref{fig:newvar} 中左边的叠柱是产品三占用资源的机会成本：材料 $A$ 只贡献 $\frac18$，台时贡献 $\frac32$，合计 $\frac{13}{8}$（虚线）。绿柱是利润 2，高过虚线，所以值得生产；若利润只有 1.5（红柱），低于虚线，不值得。修改\textbf{非基变量的技术系数}（某个现在不生产的产品改进了工艺）与此完全相同：把新的 $P_k$ 代入 $\sigma_k=c_k-y\T P_k$ 即可；修改\textbf{基变量的技术系数}会同时改变 $B$ 与 $B^{-1}$，两条判据都要核验，是最复杂的情形（课件 P47），本课程一般不要求。
+
+\subsection{新增一条约束}
+
+\begin{theorembox}[结论 6.3　新增约束的处理步骤 \srcTag{课件《对偶单纯形法》P73--P83}]
+\begin{enumerate}[label=\textbf{第\arabic*步}，,leftmargin=4.2em]
+  \item 把原最优解代入新约束。若满足，原最优解仍最优，结束；
+  \item 若不满足，给新约束加松弛变量，作为新的一行添入最优表；
+  \item 用表中基变量所在行把新行里基变量的系数消为 0（使基列重新成为单位阵）；
+  \item 此时新行右端为负，检验数不变（$\le0$）：表对偶可行而原始不可行，用对偶单纯形法续解。
+\end{enumerate}
+\end{theorembox}
+
+\begin{examplebox}[例 6.6　产品搭配题新增约束 $x_2\le500$ \srcTag{课件 P73--P82}]
+第 5 章例 5.1 的原问题（$\max z=10x_1+14x_2+12x_3$）最优表为：
+\begin{center}\small
+\begin{tabular}{@{}ccc|ccccc@{}}\toprule
+$c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
+12 & $x_3$ & $\frac{3000}{11}$ & $-\frac{6}{11}$ & 0 & 1 & $\frac{4}{11}$ & $-\frac{5}{11}$\\
+14 & $x_2$ & $\frac{20000}{33}$ & $\frac{70}{33}$ & 1 & 0 & $-\frac{10}{33}$ & $\frac{40}{33}$\\\midrule
+\multicolumn{3}{c|}{$\sigma_j$} & $-\frac{434}{33}$ & 0 & 0 & $-\frac{4}{33}$ & $-\frac{380}{33}$\\\bottomrule
+\end{tabular}
+\end{center}
+\textbf{第 1 步：}$x_2=\frac{20000}{33}\approx606.06>500$，不满足。\par
+\textbf{第 2--3 步：}加松弛变量 $x_6$：$x_2+x_6=500$，即行 $(0,1,0,0,0,1\mid500)$。$x_2$ 是基变量，减去 $x_2$ 行消去它的系数：
+\[
+(0,1,0,0,0,1\mid500)-(\tfrac{70}{33},1,0,-\tfrac{10}{33},\tfrac{40}{33},0\mid\tfrac{20000}{33})
+=(-\tfrac{70}{33},0,0,\tfrac{10}{33},-\tfrac{40}{33},1\mid-\tfrac{3500}{33}).
+\]
+\textbf{第 4 步：}$x_6$ 行右端 $-\frac{3500}{33}<0$，$x_6$ 出基。负系数在 $x_1,x_5$：比值 $x_1$：$\frac{-434/33}{-70/33}=\frac{31}{5}=6.2$，$x_5$：$\frac{-380/33}{-40/33}=\frac{19}{2}=9.5$，$x_1$ 入基。旋转后得
+\begin{center}\small
+\begin{tabular}{@{}ccc|cccccc@{}}\toprule
+$c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$ & $x_6$\\\midrule
+12 & $x_3$ & 300 & 0 & 0 & 1 & $\frac27$ & $-\frac17$ & $-\frac{9}{35}$\\
+14 & $x_2$ & 500 & 0 & 1 & 0 & 0 & 0 & 1\\
+10 & $x_1$ & 50 & 1 & 0 & 0 & $-\frac17$ & $\frac47$ & $-\frac{33}{70}$\\\midrule
+\multicolumn{3}{c|}{$\sigma_j$} & 0 & 0 & 0 & $-2$ & $-4$ & $-\frac{31}{5}$\\\bottomrule
+\end{tabular}
+\end{center}
+$b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000+3600=11100$。\par
+\textbf{检查：}$50+\frac32\cdot500+4\cdot300=2000$ ✓，$2\cdot50+\frac65\cdot500+300=1000$ ✓。
+\end{examplebox}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[ybar,width=11cm,height=4.6cm,bar width=13pt,ymin=0,ymax=700,
+  symbolic x coords={$x_1$,$x_2$,$x_3$},xtick=data,ylabel={产量},
+  legend style={font=\scriptsize,at={(0.5,1.03)},anchor=south,legend columns=2},
+  label style={font=\scriptsize},tick label style={font=\scriptsize},
+  nodes near coords,every node near coord/.append style={font=\tiny},enlarge x limits=0.25]
+  \addplot[fill=auxblue!60,draw=none] coordinates {($x_1$,0) ($x_2$,606.06) ($x_3$,272.73)};
+  \addplot[fill=shiftc!70,draw=none] coordinates {($x_1$,50) ($x_2$,500) ($x_3$,300)};
+  \legend{新增约束前（$z\approx11757.58$）,新增约束后（$z=11100$）}
+  \draw[redline,dashed,thick] (axis cs:$x_1$,500) -- (axis cs:$x_3$,500);
+\end{axis}
+\end{tikzpicture}
+\fig{新增约束前后的生产方案对比（课件 P82）：$x_2$ 被压到上限 500，腾出的资源转给 $x_3$ 和原来不生产的 $x_1$}\label{fig:newcon}
+\end{center}
+
+图~\ref{fig:newcon} 中红色虚线是新约束 $x_2\le500$。约束迫使 $x_2$ 从 606 降到 500，腾出的资源一部分给 $x_3$（272.7 $\to$ 300），一部分让原来不生产的 $x_1$ 开始生产（0 $\to$ 50）。总利润从约 11757.58 降到 11100——\textbf{加约束只会让可行域变小，最优值不会变好}。整个过程只做了一次旋转，而重新建模求解要从头算起。
+
+\begin{lifebox}[航空公司新规：随身行李限重 7 kg]
+\begin{minipage}[t]{0.55\linewidth}
+\textbf{生活场景：}你已经按“最想带的东西”收拾好随身包，共 8 kg。登机前得知新规：随身行李不得超过 7 kg。\par
+\textbf{对应关系：}新规 $\leftrightarrow$ 新增约束；原装包方案 $\leftrightarrow$ 原最优解（代入新约束后超重 1 kg，即新行右端为负）；从当前方案出发调整，而不是全部倒出来重装 $\leftrightarrow$ 对偶单纯形法从旧表续解；拿出“每千克价值最低”的东西 $\leftrightarrow$ 比值最小者入基。\par
+\textbf{小判断：}可拿出的有：充电宝 0.5 kg（很重要）、两本书 1 kg（每千克价值较低）、外套 1.2 kg（可以穿在身上）。按每千克价值损失最小的原则，先考虑把外套穿上或把书放进托运。\par
+\textbf{边界说明：}物品不能拆分（整数），且“价值”是主观的；对偶单纯形法只描述“以最小代价恢复可行”的思想。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.41\linewidth}\vspace{0pt}\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ax] (0,0)--(3.6,0);
+  \fill[auxblue!60] (0.5,0) rectangle (1.3,3.2); \node[font=\scriptsize,above] at (0.9,3.2) {8 kg};
+  \fill[shiftc!70] (2.1,0) rectangle (2.9,2.8); \node[font=\scriptsize,above] at (2.5,2.8) {7 kg};
+  \draw[redline,dashed,thick] (0.2,2.8)--(3.4,2.8) node[right,font=\scriptsize]{新规};
+  \node[font=\scriptsize,below] at (0.9,0) {原方案}; \node[font=\scriptsize,below] at (2.5,0) {调整后};
+  \node[font=\scriptsize,rbox] at (0.9,3.9) {超 1 kg};
+\end{tikzpicture}
+\fig{生活场景 $\leftrightarrow$ 新增约束}
+\end{minipage}
+\end{lifebox}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{lightblue}比较维度 & 右端项 $b$ 的范围 & 价值系数 $c$ 的范围 & 新增约束\\\midrule
+改动传到 & $b$ 列：$x_B+\Delta b_r\beta_r$ & $\sigma$ 行 & 新增一行\\
+用到的数 & $B^{-1}$ 的第 $r$ \textbf{列} & 最优表第 $r$ \textbf{行}（基变量）或本列（非基） & 基变量所在行\\
+几何图像 & 边界线平移（图~\ref{fig:brange}） & 等值线旋转（图~\ref{fig:c2}） & 切去一块可行域\\
+范围内 & 最优基不变，解的取值变 & 最优解不变，最优值变 & ---\\
+越界后 & 对偶单纯形法 & 单纯形法 & 对偶单纯形法\\
+常见错误 & 用最优表的 $b$ 代替原 $b$ & 基变量误用“只改本列”的公式 & 忘记消去新行中的基变量系数\\\bottomrule
+\end{tabularx}\par\nopagebreak[4]
+\captionof{table}{相近概念辨析：三类灵敏度分析}\label{tab:sacmp}
+\end{center}
+
+\begin{checkbox}
+\begin{enumerate}[leftmargin=1.5em]
+  \item 为什么改 $b$ 只需核验可行性、改 $c$ 只需核验最优性？
+  \item 右端项范围的上下界分别来自 $\beta_r$ 中什么符号的分量？
+  \item 非基变量和基变量的价值系数范围，公式有何不同？为什么？
+  \item 新产品是否值得生产，怎样一步判断？$y\T P_{n+1}$ 的经济含义是什么？
+  \item 新增约束后为什么一定用对偶单纯形法续解？
+  \item 用图~\ref{fig:c2} 解释 $c_2$ 范围的两个端点。
+\end{enumerate}
+\end{checkbox}
+
+\paragraph{到这里，我们已经解决了什么？}我们能对资源量、价格、新产品、新约束的改动做出完整判断，并在原表失效时用一两次迭代恢复最优。
+\paragraph{整个专题解决了什么？}从第 1 章的 $B^{-1}$ 出发，我们依次得到：修正单纯形法（只维护 $B^{-1}$）、对偶问题与对偶定理（$y\T=c_B\T B^{-1}$ 是对偶最优解）、影子价格（$y_i=\partial z^*/\partial b_i$）、对偶单纯形法（保住 $\sigma\le0$ 找可行）、灵敏度分析（两条判据分开核验）。下一章把这些内容汇总成便于复习的总表。
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
+  \node[k] (a) {两条判据};
+  \node[k,right=of a] (b) {改 $b$：可行性};
+  \node[k,right=of b] (c) {$x_B+\Delta b\beta_r\ge0$};
+  \node[gbox,right=of c] (d) {越界：对偶单纯形};
+  \node[k,below=0.5cm of b] (e) {改 $c$：最优性};
+  \node[k,right=of e] (f) {$\sigma_k-\Delta c\,t_{rk}\le0$};
+  \node[gbox,right=of f] (g) {越界：单纯形法};
+  \node[k,below=0.5cm of e] (h) {新增变量 / 约束};
+  \node[k,right=of h] (i) {$\sigma_{n+1}=c-y\T P$ / 新行};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+  \draw[arr] (a)|-(e); \draw[arr] (e)--(f); \draw[arr] (f)--(g);
+  \draw[arr] (a)|-(h); \draw[arr] (h)--(i);
+\end{tikzpicture}
+\fig{本章知识地图}
+\end{center}

@@ -1,0 +1,571 @@
+% ============================================================
+%  基础巩固 25 题详细解析
+% ============================================================
+\section*{基础巩固训练详细解析}
+\addcontentsline{toc}{section}{详细解析：基础巩固（1--25）}
+\markboth{详细解析：基础巩固}{}
+
+\subsection*{基础单选题解析}
+
+% ---------------- 1 ----------------
+\A{1}
+\SolHead{A}{基础}{K2 对称形式的对偶}
+\Lb{对应公式}$\max c\T x,\ Ax\le b,\ x\ge0\ \Longleftrightarrow\ \min b\T y,\ A\T y\ge c,\ y\ge0$。
+\begin{center}
+\begin{tikzpicture}[x=0.75cm,y=0.6cm]
+  \foreach \r/\a/\b/\bb in {0/1/1/4,1/1/3/9,2/1/0/3} {
+    \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (0,-\r) {$\a$};
+    \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (1,-\r) {$\b$};
+    \node[draw=navy,fill=warm,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (2.3,-\r) {$\bb$};
+  }
+  \foreach \c/\v in {0/3,1/2} \node[draw=navy,fill=lightgreen,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (\c,1.2) {$\v$};
+  \draw[-{Stealth[length=3mm]},very thick,shiftc] (3.3,-0.5)--(5.2,-0.5) node[midway,above,font=\scriptsize]{转置};
+  \begin{scope}[xshift=4.8cm]
+    \foreach \r/\a/\b/\cc/\cv in {0/1/1/1/3,1/1/3/0/2} {
+      \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (0,-\r) {$\a$};
+      \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (1,-\r) {$\b$};
+      \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (2,-\r) {$\cc$};
+      \node[draw=navy,fill=lightgreen,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (3.3,-\r) {$\cv$};
+    }
+    \foreach \c/\v in {0/4,1/9,2/3} \node[draw=navy,fill=warm,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (\c,1.2) {$\v$};
+    \node[font=\scriptsize] at (1,2.0) {对偶目标系数 $b\T$};
+    \node[font=\scriptsize,align=center] at (3.3,0.8) {右端 $c$};
+    \node[font=\scriptsize] at (1,-2.0) {$A\T$：第 1 行 $(1,1,1)$，第 2 行 $(1,3,0)$};
+  \end{scope}
+\end{tikzpicture}
+\fig{第 1 题解析图：数据块整体转置后，按行读出两条对偶约束}
+\end{center}
+\Lb{解题思路}模型 E 是标准的对称形式（max、$\le$、$x\ge0$），直接转置。\par
+\Lb{判断过程}由图：对偶目标系数是原右端项 $(4,9,3)$；对偶约束的系数是 $A$ 的列：$x_1$ 列 $(1,1,1)$、$x_2$ 列 $(1,3,0)$；右端是原目标系数 3、2；方向为 $\ge$，$y\ge0$。所以对偶为 $\min 4y_1+9y_2+3y_3$，$y_1+y_2+y_3\ge3$，$y_1+3y_2\ge2$。\par
+\Lb{各选项}A 正确。B 把 $b$ 与 $c$ 放反了：目标用了 $c$，右端用了 $b$。C 把 min 写成 max、$\ge$ 写成 $\le$。D 没有转置：用 $A$ 的行 $(1,1)$、$(1,3)$ 作系数，且把 $y_3$ 错放到第二个约束。\par
+\Lb{常见错误}只换了目标方向而忘记转置。\quad\Lb{一句话总结}对称形式的对偶 $=$ 数据块整体转置 $+$ max 变 min $+$ $\le$ 变 $\ge$。
+
+% ---------------- 2 ----------------
+\A{2}
+\SolHead{B}{基础}{K2 一般形式的对应规则}
+\Lb{对应规则}max 问题中，“$\le$”约束是正常的，对应 $y_i\ge0$；“$\ge$”是反常的，对应 $y_i\le0$；“$=$”对应 $y_i$ 无约束。
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \i/\L/\t/\c in {0/A/{$y_i\ge0$}/0,1/B/{$y_i\le0$}/1,2/C/{无约束}/2,3/D/{$y_i=0$}/3} {
+    \begin{scope}[xshift=\i*3.9cm]
+      \draw[ax] (-1.5,0)--(1.6,0) node[right,font=\tiny]{$y_i$};
+      \draw (0,0.08)--(0,-0.08) node[below,font=\tiny]{0};
+      \ifnum\c=0 \draw[very thick,badc,-{Stealth}] (0,0.25)--(1.5,0.25); \fill[badc] (0,0.25) circle (2pt);\fi
+      \ifnum\c=1 \draw[very thick,greenline,-{Stealth}] (0,0.25)--(-1.4,0.25); \fill[greenline] (0,0.25) circle (2pt);\fi
+      \ifnum\c=2 \draw[very thick,badc,{Stealth}-{Stealth}] (-1.4,0.25)--(1.5,0.25);\fi
+      \ifnum\c=3 \fill[badc] (0,0.25) circle (3pt);\fi
+      \node[font=\scriptsize] at (0,0.75) {\textbf{\L}.\ \t};
+      \ifnum\c=1 \node[font=\scriptsize,greenline] at (0,-0.65) {✓ 反常约束 $\to$ 反常变量};\else \node[font=\scriptsize,badc] at (0,-0.65) {✗};\fi
+    \end{scope}
+  }
+\end{tikzpicture}
+\fig{第 2 题选项图：四个选项分别对应数轴上的四种取值范围}
+\end{center}
+\Lb{判断过程}把“$\ge$”约束两边乘 $-1$ 化成正常的“$\le$”，它对应 $y_i'\ge0$；换回原约束时令 $y_i=-y_i'$，故 $y_i\le0$（第 2 章推导第 1 条）。图中只有 B 的射线指向负半轴。\par
+\Lb{各选项}A 是“$\le$”约束对应的情形；C 是等式约束对应的情形；D 没有对应的约束类型——对偶变量从不被强制为 0。\par
+\Lb{常见错误}把 min 问题的规则（$\ge$ 对应 $y_i\ge0$）套用到 max 问题上。\quad\Lb{一句话总结}正常对正常，反常对反常。
+
+% ---------------- 3 ----------------
+\A{3}
+\SolHead{B}{基础}{K3 弱对偶性}
+\Lb{对应定理}弱对偶：原可行值 $\le$ 对偶可行值；故任一原可行值是 $z^*$ 的下界，任一对偶可行值是 $z^*$ 的上界。
+\begin{center}
+\begin{tikzpicture}[x=0.32cm,y=1cm]
+  \foreach \i/\L/\a/\b/\ok in {0/A/8/12/0,1/B/12/15/1,2/C/15/19/0,3/D/13.5/13.5/0} {
+    \begin{scope}[xshift=\i*4.1cm]
+      \draw[ax] (8,0)--(19.5,0);
+      \foreach \x in {12,15} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.08) {\x};}
+      \ifnum\ok=1 \def\cc{greenline}\else\def\cc{badc}\fi
+      \ifdim \a pt=\b pt \fill[\cc] (\a,0.3) circle (2.5pt); \else \draw[very thick,\cc] (\a,0.3)--(\b,0.3);\fi
+      \fill[navy] (12,0) circle (1.5pt); \fill[greenline!60!black] (15,0) circle (1.5pt);
+      \node[font=\scriptsize] at (13.7,0.8) {\textbf{\L}};
+    \end{scope}
+  }
+\end{tikzpicture}
+\fig{第 3 题选项图：各选项声称的 $z^*$ 所在范围（同一数轴，绿色为正确）}
+\end{center}
+\Lb{判断过程}由弱对偶，$12\le z^*$（原问题已有目标值 12 的可行解，最优值不会更小）；又 $z^*\le15$（任一原可行值都不超过对偶可行值 15）。所以 $12\le z^*\le15$。\par
+\Lb{各选项}A 方向反了：12 是下界不是上界；C 方向也反了；D 没有依据：区间内任何值都可能，不能断定是中点。\par
+\Lb{常见错误}以为 $z^*$ 就是两个数的平均值。\quad\Lb{一句话总结}一对可行解给出最优值的一个“夹逼区间”。
+
+% ---------------- 4 ----------------
+\A{4}
+\SolHead{C}{基础}{K3 无界性推论}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \foreach \i/\t in {0/有最优解,1/无界,2/无可行解} {
+    \node[font=\scriptsize\bfseries,navy] at (2.2+\i*2.4,0.55) {对偶：\t};
+    \node[font=\scriptsize\bfseries,navy,anchor=east] at (0.8,-\i*0.8) {原问题：\t};
+  }
+  \foreach \r/\c/\t/\s in {0/0/可能/lightgreen,0/1/不可能/lightred,0/2/不可能/lightred,
+     1/0/{不可能（B）}/lightred,1/1/{不可能（A）}/lightred,1/2/{必然（C）}/lightgreen,
+     2/0/不可能/lightred,2/1/可能/lightgreen,2/2/可能/lightgreen} {
+    \node[draw=white,fill=\s,minimum width=2.35cm,minimum height=0.75cm,font=\scriptsize] at (2.2+\c*2.4,-\r*0.8) {\t};
+  }
+  \draw[shiftc,very thick,rounded corners] (0.95,-1.2) rectangle (8.65,-0.4);
+\end{tikzpicture}
+\fig{第 4 题解析图：在状态矩阵中，“原问题无界”一行（橙框）只有“对偶无可行解”这一格可能}
+\end{center}
+\Lb{判断过程}反证：若对偶有可行解 $\bar y$，由弱对偶，所有原可行解满足 $c\T x\le b\T\bar y$，目标值有上界，与题图中“等值线可以无限外推”矛盾。故对偶无可行解。可以直接验证：对偶为 $\min 2y$，$\st -y\ge2$（$x_1$ 列），$y\ge1$（$x_2$ 列），$y\ge0$；$-y\ge2$ 要求 $y\le-2$，与 $y\ge1$ 矛盾。\par
+\Lb{各选项}A、B 都落在橙框中的红格，不可能；D：由推论 3.3 可以判断，并非无法判断。\par
+\Lb{常见错误}把逆命题当成立：对偶无可行解时原问题不一定无界。\quad\Lb{一句话总结}一方无界 $\Rightarrow$ 另一方无可行解。
+
+% ---------------- 5 ----------------
+\A{5}
+\SolHead{A}{基础}{K1 修正单纯形法 $x_B=B^{-1}b$}
+\begin{center}
+\begin{tikzpicture}
+  \node at (0,0) {$\begin{pmatrix}\frac12&0\\[2pt]-\frac12&1\end{pmatrix}\begin{pmatrix}8\\7\end{pmatrix}=\begin{pmatrix}\frac12\cdot8+0\cdot7\\[2pt]-\frac12\cdot8+1\cdot7\end{pmatrix}=\begin{pmatrix}4\\3\end{pmatrix}$};
+  \fill[shiftc!25,opacity=0.5] (-3.05,0.05) rectangle (-1.65,0.55);
+  \fill[auxblue!25,opacity=0.5] (-3.05,-0.6) rectangle (-1.65,-0.08);
+  \node[font=\scriptsize,shiftc!80!black] at (-2.35,0.95) {第 1 行};
+  \node[font=\scriptsize,auxblue] at (-2.35,-0.95) {第 2 行};
+\end{tikzpicture}
+\fig{第 5 题解析图：$B^{-1}$ 的每一行与 $b$ 做内积}
+\end{center}
+\Lb{判断过程}第 1 行 $\frac12\cdot8+0\cdot7=4$；第 2 行 $-\frac12\cdot8+1\cdot7=3$。这就是例 1.1 第二轮的结果 $x_3=4$、$x_5=3$。\par
+\Lb{各选项}B 是没乘 $B^{-1}$ 的原 $b$；C 把第 2 行算成 $-\frac12\cdot8+0\cdot7$，用错了元素；D 是行次序颠倒。\par
+\Lb{一句话总结}$x_B=B^{-1}b$，$b$ 用原模型的右端项。
+
+% ---------------- 6 ----------------
+\A{6}
+\SolHead{B}{基础}{K5 从最优表读影子价格}
+\Lb{对应公式}$\sigma(s_i)=0-y\T e_i=-y_i$，即 $y_i=-\sigma(s_i)$。
+\begin{center}
+\begin{tikzpicture}[x=0.45cm,y=0.45cm]
+  \foreach \i/\L/\a/\b/\c/\ok in {0/A/-2/0/-1/0,1/B/2/0/1/1,2/C/0/2/1/0,3/D/1/0/2/0} {
+    \begin{scope}[xshift=\i*4.0cm]
+      \draw[ax] (-0.3,0)--(4.4,0);
+      \draw[black!40] (0,-2.3)--(0,2.5);
+      \foreach \y in {-2,2} {\draw[gridl] (0,\y)--(4,\y); \node[left,font=\tiny] at (0,\y) {\y};}
+      \ifnum\ok=1 \def\cc{greenline}\else\def\cc{badc!70}\fi
+      \fill[\cc] (0.4,0) rectangle (1.2,\a); \fill[\cc] (1.6,0) rectangle (2.4,\b); \fill[\cc] (2.8,0) rectangle (3.6,\c);
+      \node[font=\tiny,below] at (0.8,-2.3) {$y_1$}; \node[font=\tiny,below] at (2.0,-2.3) {$y_2$}; \node[font=\tiny,below] at (3.2,-2.3) {$y_3$};
+      \node[font=\scriptsize] at (2,3.2) {\textbf{\L}.\ $(\a,\b,\c)$};
+    \end{scope}
+  }
+\end{tikzpicture}
+\fig{第 6 题选项图：四个选项的影子价格柱状图（同一纵轴）}
+\end{center}
+\Lb{判断过程}检验数 $(-2,0,-1)$ 取相反数得 $(2,0,1)$。验算：$y\T b=2\cdot4+0\cdot9+1\cdot3=11=z^*$ ✓；对偶约束 $2+0+1=3\ge3$、$2+0=2\ge2$ ✓。\par
+\Lb{各选项（看图）}A 的柱子朝下：影子价格为负，违反“$\le$ 型问题影子价格非负”，是忘了取负号；C 的高柱错位到 $y_2$——资源 \ding2 有剩余，柱高应为 0；D 把 $y_1,y_3$ 对调了。只有 B 满足非负且 $y_2=0$。\par
+\Lb{一句话总结}影子价格 $=$ 松弛变量检验数的相反数。
+
+% ---------------- 7 ----------------
+\A{7}
+\SolHead{B}{基础}{K4 互补松弛（资源侧）}
+\begin{center}
+\smallE{0.7}{\draw[con,shiftc,very thick] (-0.3,3.1)--(6.3,0.9); \node[optpt] at (3,1) {}; \draw[{Stealth}-{Stealth},redline,thick] (3,1)--(3,2); \node[font=\scriptsize,right,redline] at (3.05,1.55) {未触及 \ding2};}
+\fig{第 7 题解析图：资源 \ding2 的边界（橙色）没有经过最优点 $(3,1)$}
+\end{center}
+\Lb{判断过程}互补松弛：$y_2\cdot s_2=0$。已知 $s_2=3>0$，所以 $y_2=0$。几何上，\ding2 的边界线在最优点上方，最优点不在它上面，把这条线再往外推也不会改变最优点，所以多给材料毫无价值。\par
+\Lb{各选项}A：只有资源用尽时影子价格才可能为正；C：$\le$ 型问题影子价格非负；D：把剩余量和价格混为一谈。\par
+\Lb{一句话总结}有剩余 $\Rightarrow$ 影子价格为 0。
+
+% ---------------- 8 ----------------
+\A{8}
+\SolHead{B}{基础}{K6 对偶单纯形法的迭代次序}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,s/.style={box,minimum width=2.6cm,font=\small}]
+  \node[font=\small\bfseries] at (-1.6,0) {单纯形法}; \node[font=\small\bfseries] at (-1.6,-1) {对偶单纯形法};
+  \node[s] (a1) at (1.5,0) {① 定入基列}; \node[s] (a2) at (4.6,0) {② 定出基行}; \node[s] (a3) at (7.7,0) {③ 旋转};
+  \node[s,fill=shiftc!25] (b1) at (1.5,-1) {① 定出基行}; \node[s] (b2) at (4.6,-1) {② 定入基列}; \node[s] (b3) at (7.7,-1) {③ 旋转};
+  \draw[arr] (a1)--(a2); \draw[arr] (a2)--(a3); \draw[arr] (b1)--(b2); \draw[arr] (b2)--(b3);
+\end{tikzpicture}
+\fig{第 8 题解析图：两种算法每一轮的次序相反}
+\end{center}
+\Lb{判断过程}对偶单纯形法要消除 $b$ 列中的负数，所以先在 $b$ 为负的行中选出基行（取最负者），再在该行负系数的列中用 $\min\sigma_j/a_{rj}$ 选入基列。\par
+\Lb{各选项}A、C 是单纯形法的第一步；D 是单纯形法定出基行的比值规则。\par
+\Lb{一句话总结}对偶单纯形法：先出基，后入基。
+
+% ---------------- 9 ----------------
+\A{9}
+\SolHead{B}{基础}{K5、K7 影子价格的使用}
+\begin{center}
+\begin{minipage}{0.45\linewidth}\centering
+\smallE{0.75}{\draw[shiftl] (0.3,4.2)--(5.0,-0.5); \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (3,1.5) {}; \node[lab,right,font=\scriptsize] at (3.1,1.75) {$(3,1.5)$};}
+\end{minipage}\hfill
+\begin{minipage}{0.52\linewidth}\centering
+\begin{tikzpicture}
+\begin{axis}[width=7cm,height=4.6cm,xmin=0,xmax=7,ymin=0,ymax=15,axis lines=left,xlabel={$b_1$},ylabel={$z^*$},
+  xtick={3,4,4.5,5},ytick={9,11,12,13},label style={font=\scriptsize},tick label style={font=\tiny},grid=major,grid style={black!8}]
+  \addplot[navy,very thick] coordinates {(0,0)(3,9)(5,13)(7,13)};
+  \addplot[only marks,mark=*,mark options={fill=greenline,draw=white},mark size=2.5pt] coordinates {(4.5,12)};
+  \addplot[only marks,mark=x,mark options={draw=badc,thick},mark size=3pt] coordinates {(4.5,11)(4.5,11.5)(4.5,13)};
+  \node[font=\tiny,anchor=west] at (axis cs:4.6,12) {B};
+  \node[font=\tiny,anchor=west] at (axis cs:4.6,11) {A}; \node[font=\tiny,anchor=west] at (axis cs:4.6,11.5) {C}; \node[font=\tiny,anchor=west] at (axis cs:4.6,13.3) {D};
+\end{axis}
+\end{tikzpicture}
+\end{minipage}
+\fig{第 9 题解析图：左为新的最优顶点；右为 $z^*$ 随 $b_1$ 的折线，四个选项中只有 B 落在折线上}
+\end{center}
+\Lb{判断过程}$\Delta b_1=0.5\in[-1,1]$（允许范围 $[3,5]$ 换成增量），最优基不变，$z^*$ 增加 $y_1\Delta b_1=2\times0.5=1$，新最优值 12。几何验证：新顶点由 $x_1=3$ 与 $x_1+x_2=4.5$ 交出，为 $(3,1.5)$，$z=9+3=12$ ✓。\par
+\Lb{各选项}A 认为最优值不变（误以为资源 \ding1 有剩余）；C 用了 $y_1=1$；D 误把增量算成 $2\times1$。右图中三个红叉都不在折线上。\par
+\Lb{一句话总结}范围内：新最优值 $=z^*+y_i\Delta b_i$。
+
+% ---------------- 10 ----------------
+\A{10}
+\SolHead{B}{基础}{K8 价值系数越界后的续解}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\smallE{0.62}{\draw[iso,badc] (0,3.25)--(4.333,0); \node[badpt] at (3,1) {}; \node[font=\scriptsize,badc] at (3.0,4.6) {A：最优解仍为 $(3,1)$？};}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\smallE{0.62}{\draw[iso,greenline!60!black] (0,3.625)--(4.833,0); \node[optpt,fill=greenline] at (1.5,2.5) {}; \node[font=\scriptsize,greenline!60!black] at (3.0,4.6) {B：最优点移到 $(1.5,2.5)$};}
+\end{minipage}
+\fig{第 10 题选项图：$c_2=4$ 时的等值线 $3x_1+4x_2=$ 常数。左图过 $(3,1)$ 的等值线（$z=13$）仍穿过可行域内部，说明还能更大；右图等值线在 $(1.5,2.5)$ 处支撑可行域（$z=14.5$）}
+\end{center}
+\Lb{判断过程}$\Delta c_2=2>1$，超出 $[0,3]$。$x_2$ 在第 2 行，$t_{23}=1$、$t_{25}=-1$：$\sigma_3'=-2-2\cdot1=-4$，$\sigma_5'=-1-2\cdot(-1)=1>0$。$b$ 列不受影响（仍可行），$\sigma$ 行出现正数——“原始可行而未达最优”，从原表继续用单纯形法（$x_5$ 入基）。\par
+\Lb{各选项（看图）}A：左图过 $(3,1)$ 的等值线下方仍有可行点被切到另一侧，$(1.5,2.5)$ 的目标值 14.5 大于 13，原解不再最优；C：对偶单纯形法用于 $b$ 出现负数，本题 $b$ 没变；D：可行域有界，不会无界。\par
+\Lb{一句话总结}改 $c$ 越界 $\to$ $\sigma$ 出现正数 $\to$ 单纯形法。
+
+\subsection*{基础多选题解析}
+
+% ---------------- 11 ----------------
+\A{11}
+\SolHead{ABC}{基础}{K2 对偶问题的构造}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,p/.style={box,minimum width=1.6cm,font=\scriptsize},q/.style={gbox,minimum width=1.6cm,font=\scriptsize}]
+  \begin{scope}
+    \node[p] (a) at (0,0) {第 $i$ 个约束}; \node[q] (b) at (0,-1.2) {第 $i$ 个变量 $y_i$};
+    \draw[arr] (a)--(b); \node[font=\scriptsize] at (0,0.75) {\textbf{A} ✓};
+  \end{scope}
+  \begin{scope}[xshift=3.6cm]
+    \node[p] (a) at (0,0) {$x_j\ge0$}; \node[q] (b) at (0,-1.2) {第 $j$ 约束 $\ge c_j$};
+    \draw[arr] (a)--(b); \node[font=\scriptsize] at (0,0.75) {\textbf{B} ✓};
+  \end{scope}
+  \begin{scope}[xshift=7.2cm]
+    \node[p] (a) at (0,0) {右端项 $b$}; \node[q] (b) at (0,-1.2) {目标系数};
+    \draw[arr] (a)--(b); \node[font=\scriptsize] at (0,0.75) {\textbf{C} ✓};
+  \end{scope}
+  \begin{scope}[xshift=10.8cm]
+    \node[p] (a) at (0,0) {原问题 P}; \node[q] (b) at (0,-1.2) {对偶 D};
+    \draw[arr] (a.south east)to[bend left=40](b.north east); \draw[arr] (b.north west)to[bend left=40]node[left,font=\tiny]{再取对偶}(a.south west);
+    \node[font=\scriptsize] at (0,0.75) {\textbf{D} ✗：回到 P};
+  \end{scope}
+\end{tikzpicture}
+\fig{第 11 题选项图：每个选项对应的映射关系}
+\end{center}
+\Lb{A}正确。原问题有 $m$ 个约束，对偶有 $m$ 个变量，一一对应（$A$ 的行 $\to$ $A\T$ 的列）。\par
+\Lb{B}正确。max 问题的正常变量 $x_j\ge0$ 对应 min 问题的正常约束“$\ge$”。\par
+\Lb{C}正确。对偶目标为 $b\T y$。\par
+\Lb{D}错误。对偶的对偶就是原问题（第 2 章的对称性证明），如图最右：取两次对偶回到起点。\par
+\Lb{正确答案}ABC。\quad\Lb{一句话总结}约束 $\leftrightarrow$ 变量，$b\leftrightarrow c$，两次对偶回到原问题。
+
+% ---------------- 12 ----------------
+\A{12}
+\SolHead{ABC}{基础}{K3 对偶的基本性质}
+\begin{center}
+\begin{tikzpicture}[x=0.5cm,y=0.5cm]
+  \begin{scope}
+    \draw[ax] (0,0)--(6.4,0); \fill[navy] (1.5,0) circle (3pt); \fill[greenline] (4.5,0) circle (3pt);
+    \node[font=\tiny,below] at (1.5,0) {$c\T\bar x$}; \node[font=\tiny,below] at (4.5,0) {$b\T\bar y$};
+    \node[font=\scriptsize] at (3,1.5) {\textbf{A} ✓：左 $\le$ 右};
+  \end{scope}
+  \begin{scope}[xshift=4cm]
+    \draw[ax] (0,0)--(6.4,0); \node[optpt] at (3,0) {};
+    \node[font=\tiny,below] at (3,0) {重合};
+    \node[font=\scriptsize] at (3,1.5) {\textbf{B} ✓：重合即最优};
+  \end{scope}
+  \begin{scope}[xshift=8cm]
+    \draw[ax] (0,0)--(6.4,0);
+    \foreach \x in {0.6,1.4,2.2} \fill[navy!60] (\x,0) circle (2pt);
+    \foreach \x in {3.8,4.6,5.6} \fill[greenline!70] (\x,0) circle (2pt);
+    \node[optpt] at (3,0) {};
+    \node[font=\scriptsize] at (3,1.5) {\textbf{C} ✓：两侧逼近同一点};
+  \end{scope}
+  \begin{scope}[xshift=12.2cm,x=0.42cm,y=0.42cm]
+    \fill[feasreg] (0,0)--(0,4)--(4,4)--(4,3)--(1,0)--cycle;
+    \fill[pattern=north east lines,pattern color=redline!60] (2,0)--(4,2)--(4,0)--cycle;
+    \draw[ax] (0,0)--(4.4,0); \draw[ax] (0,0)--(0,4.4);
+    \draw[con] (1,0)--(4.2,3.2); \draw[con,redline] (2,0)--(4.2,2.2);
+    \node[font=\scriptsize,align=center] at (2.2,5.6) {\textbf{D} ✗：两区域不相交，\\原问题也不可行};
+  \end{scope}
+\end{tikzpicture}
+\fig{第 12 题选项图：A--C 用数轴表示目标值的关系；D 用第 3 章的反例说明“对偶不可行”时原问题也可能不可行}
+\end{center}
+\Lb{A}正确，弱对偶性。\quad\Lb{B}正确，推论 3.2（数轴上两点重合）。\quad\Lb{C}正确，强对偶定理。\par
+\Lb{D}错误。反例（图右，第 3 章图~\ref{fig:unb}b）：$\max 2x_1-x_2$，$x_1-x_2\le1$，$-x_1+x_2\le-2$，$x\ge0$。原问题的两个半平面（绿色与红色斜线区）不相交，无可行解；其对偶同样矛盾。所以“对偶不可行”推不出“原问题无界”。\par
+\Lb{正确答案}ABC。\quad\Lb{一句话总结}无界 $\Rightarrow$ 对方不可行；反过来不成立。
+
+% ---------------- 13 ----------------
+\A{13}
+\SolHead{AC}{基础}{K5 影子价格的含义与使用}
+\begin{center}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.6cm},width=6.2cm,height=4.2cm,xmin=0,xmax=7,ymin=0,ymax=15,
+  axis lines=left,xlabel={$b_1$},ylabel={$z^*$},label style={font=\scriptsize},tick label style={font=\tiny},xtick={3,4,5},ytick={9,11,13}]
+\nextgroupplot[title={\scriptsize \textbf{A} ✓：范围内斜率恒为 $y_1=2$}]
+  \addplot[navy,very thick] coordinates {(0,0)(3,9)(5,13)(7,13)};
+  \addplot[greenline,ultra thick] coordinates {(3,9)(5,13)};
+  \addplot[only marks,mark=*,mark options={fill=optc}] coordinates {(4,11)};
+\nextgroupplot[title={\scriptsize \textbf{D} ✗：越过 $b_1=5$ 后斜率变 0}]
+  \addplot[navy,very thick] coordinates {(0,0)(3,9)(5,13)(7,13)};
+  \addplot[badc,dashed,thick] coordinates {(5,13)(7,17)};
+  \node[font=\tiny,badc] at (axis cs:5.6,14.6) {外推};
+\end{groupplot}
+\end{tikzpicture}
+
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ax] (0,0)--(8.4,0) node[right,font=\scriptsize]{元/单位};
+  \fill[shiftc] (5,0) circle (3pt) node[above=3pt,font=\scriptsize]{影子价格 $y_i$};
+  \fill[greenline] (2.5,0) circle (3pt) node[above=3pt,font=\scriptsize,align=center]{市场价更低：\\买入有利（C ✓）};
+  \fill[auxblue] (7.4,0) circle (3pt) node[above=3pt,font=\scriptsize,align=center]{市场价：由供求决定，\\与 $y_i$ 无必然关系（B ✗）};
+\end{tikzpicture}
+\fig{第 13 题选项图：上排为模型 E 的 $z^*(b_1)$ 折线（A、D），下排为价格数轴（B、C）}
+\end{center}
+\Lb{A}正确，$y_i=\partial z^*/\partial b_i$，前提是最优基不变（上左图绿色段）。\par
+\Lb{B}错误，影子价格是企业内部的机会成本，由本企业的技术结构决定，不同企业不同。\par
+\Lb{C}正确，市场价低于影子价格时，每买 1 单位净增 $y_i-$ 市场价 $>0$（下图绿点）。\par
+\Lb{D}错误，上右图：$b_1>5$ 后折线变平，按 $y_1=2$ 外推（红虚线）会高估。\par
+\Lb{正确答案}AC。\quad\Lb{一句话总结}影子价格是“范围内的内部边际价值”。
+
+% ---------------- 14 ----------------
+\A{14}
+\SolHead{ABC}{基础}{K4 互补松弛}
+\begin{center}
+\begin{tikzpicture}
+  \node at (0,0) {\smallE{0.42}{\draw[con,greenline,very thick] (-0.3,3.1)--(6.3,0.9); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.0) {\textbf{A} ✓：\ding2 不过最优点};}};
+  \node at (4.1,0) {\begin{tikzpicture}[x=1cm,y=1cm]
+     \fill[auxblue!60] (0,0) rectangle (0.6,1.2); \node[font=\tiny,below] at (0.3,0) {$x_1^*=3$};
+     \fill[shiftc!70] (1.2,0) rectangle (1.8,0.02); \node[font=\tiny,below] at (1.5,0) {$y_{s1}=0$};
+     \node[font=\scriptsize,align=center] at (0.9,2.0) {\textbf{B} ✓：$x_1>0$\\$\Rightarrow$ 对偶剩余为 0};
+   \end{tikzpicture}};
+  \node at (8.2,0) {\smallE{0.42}{\draw[con,greenline,very thick] (-0.2,4.2)--(4.5,-0.5); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.0) {\textbf{C} ✓：\ding1 过最优点};}};
+  \node at (12.4,0) {\begin{tikzpicture}[x=0.42cm,y=0.42cm]\fill[feasreg] (0,0)--(3,0)--(3,1)--(0,2)--cycle;
+     \draw[ax] (-0.2,0)--(6.3,0); \draw[ax] (0,-0.2)--(0,4.3);
+     \draw[con] (-0.2,4.2)--(4.5,-0.5); \draw[con,redline,very thick] (-0.3,2.1)--(6.3,-0.1); \draw[con] (3,-0.2)--(3,4.3);
+     \node[optpt] at (3,1) {}; \node[font=\scriptsize,align=center] at (3,5.6) {\textbf{D} ✗：$b_2=6$ 时 \ding2 恰过最优点，\\可取 $y_2=0$ 而资源用尽};\end{tikzpicture}};
+\end{tikzpicture}
+\fig{第 14 题选项图：A、C 看约束是否经过最优点；B 看产量与对偶剩余；D 是退化反例}
+\end{center}
+\Lb{A}正确：资源 \ding2 剩余 $9-6=3>0$，由 $y_2s_2=0$ 得 $y_2=0$（图 A：绿色的 \ding2 线不经过最优点）。\par
+\Lb{B}正确：产品侧 $x_1\cdot y_{s1}=0$，$x_1=3>0$，所以 $y_{s1}=0$，第一个对偶约束取等号；验证 $2+0+1=3$ ✓。\par
+\Lb{C}正确：由 $y_1(4-x_1-x_2)=0$，$y_1>0$ 时 $x_1+x_2=4$；图 C 中 \ding1 线恰好经过最优点。\par
+\Lb{D}错误：互补松弛只保证两个因子至少一个为零。图 D 把 $b_2$ 改为 6，\ding2 线（红）也经过 $(3,1)$，此时最优基 $\{x_1,x_2,x_4\}$ 中 $x_4=0$，资源 \ding2 恰好用尽，而影子价格仍可取 $y_2=0$。\par
+\Lb{正确答案}ABC。\quad\Lb{一句话总结}“有剩余 $\Rightarrow$ 价格为 0”成立，反过来不一定。
+
+% ---------------- 15 ----------------
+\A{15}
+\SolHead{ABD}{基础}{K7、K8、K9 灵敏度分析的传递路径}
+\begin{center}
+\begin{tikzpicture}[x=0.42cm,y=0.42cm]
+  \foreach \i/\L/\mode in {0/A/1,1/B/2,2/C/3,3/D/4} {
+    \begin{scope}[xshift=\i*4.1cm]
+      \ifnum\mode=1 \fill[shiftc!50] (0,1) rectangle (1,4); \fill[lightgreen] (1,0) rectangle (6,1); \fi
+      \ifnum\mode=2 \fill[shiftc!50] (4,0) rectangle (5,1); \fi
+      \ifnum\mode=3 \fill[shiftc!50] (1,0) rectangle (6,1); \fill[lightgreen] (0,1) rectangle (1,4); \fi
+      \ifnum\mode=4 \fill[auxblue!25] (0,4) rectangle (7,5); \fill[auxblue!25] (6,0) rectangle (7,5); \fi
+      \draw[navy] (0,0) grid (6,4); \ifnum\mode=4 \draw[navy,dashed] (0,4) grid (7,5); \draw[navy,dashed] (6,0) grid (7,4);\fi
+      \draw[navy,thick] (1,0)--(1,4); \draw[navy,thick] (0,1)--(6,1);
+      \node[font=\tiny] at (0.5,4.4) {$b$}; \node[font=\tiny] at (-0.6,0.5) {$\sigma$};
+    \end{scope}
+  }
+  \node[font=\scriptsize,align=center] at (3,-1.6) {\textbf{A} ✓ 改 $b$：只动 $b$ 列\\$\sigma$ 行（绿）不变};
+  \node[font=\scriptsize,align=center] at (12.8,-1.6) {\textbf{B} ✓ 改非基 $c_k$：\\只动 $\sigma_k$ 一格};
+  \node[font=\scriptsize,align=center] at (22.6,-1.6) {\textbf{C} ✗ 改基 $c_j$：动整行 $\sigma$，\\$b$ 列（绿）不变};
+  \node[font=\scriptsize,align=center] at (32.4,-1.6) {\textbf{D} ✓ 新增约束：\\添一行一列（蓝）};
+\end{tikzpicture}
+\fig{第 15 题选项图：同一张示意单纯形表上，橙色表示改动波及的区域，绿色表示不受影响的区域}
+\end{center}
+\Lb{A}正确：$\sigma\T=c\T-c_B\T B^{-1}A$ 中没有 $b$。\par
+\Lb{B}正确：$c_B$ 不含 $c_k$，$y$ 不变，只有 $\sigma_k=c_k-y\T P_k$ 变。\par
+\Lb{C}错误：$x_B=B^{-1}b$ 中没有 $c$，基变量取值不变，变的是全部非基检验数与最优值。\par
+\Lb{D}正确：原最优解若满足新约束，它在更小的可行域中仍可行，而原问题中它已是最好的，故仍最优（结论 6.3 第 1 步）。\par
+\Lb{正确答案}ABD。\quad\Lb{一句话总结}改 $b$ 动可行性，改 $c$ 动最优性，各管一行（列）。
+
+\subsection*{基础填空题解析}
+
+% ---------------- 16 ----------------
+\A{16}
+\SolHead{$\max w=2y_1+3y_2$；$y_1+y_2\le1$；$y_1+3y_2\le2$}{基础}{K2 min 问题的对偶}
+\begin{center}
+\begin{tikzpicture}[x=2.2cm,y=2.2cm]
+  \fill[feasreg] (0,0)--(1,0)--(0.5,0.5)--(0,0.667)--cycle;
+  \draw[gridl,step=0.25] (0,0) grid (1.4,1.1);
+  \draw[ax] (-0.05,0)--(1.5,0) node[right,font=\scriptsize]{$y_1$};
+  \draw[ax] (0,-0.05)--(0,1.2) node[above,font=\scriptsize]{$y_2$};
+  \foreach \x in {0.5,1} \node[below,font=\tiny] at (\x,0) {\x};
+  \foreach \y in {0.5,1} \node[left,font=\tiny] at (0,\y) {\y};
+  \draw[con] (0,1)--(1.1,-0.1) node[below,font=\scriptsize]{$y_1+y_2=1$};
+  \draw[con] (-0.05,0.683)--(1.4,0.2) node[right,font=\scriptsize]{$y_1+3y_2=2$};
+  \draw[iso] (0,0.833)--(1.25,0);
+  \node[optpt] at (0.5,0.5) {}; \node[lab,above right,font=\scriptsize] at (0.5,0.52) {$(\frac12,\frac12)$，$w=\frac52$};
+\end{tikzpicture}
+\fig{第 16 题解析图：对偶问题的可行域（有界），最优点 $(\frac12,\frac12)$}
+\end{center}
+\Lb{推理过程}原问题 min、约束 $\ge$（min 的正常约束）$\Rightarrow$ $y\ge0$；变量 $\ge0$ $\Rightarrow$ 对偶约束为 max 的正常约束“$\le$”。目标系数取原右端 $(2,3)$，约束系数取 $A$ 的列：$x_1$ 列 $(1,1)$、$x_2$ 列 $(1,3)$，右端取 $c=(1,2)$。\par
+\Lb{图的作用}解析图画出了对偶可行域：它是有界的四边形，最优点在两条边界的交点 $(\frac12,\frac12)$，$w^*=1+\frac32=\frac52$。这与第 24 题用对偶单纯形法求得的 $z^*=\frac52$ 相等，正是强对偶定理。\par
+\Lb{易错点}忘了 min 问题要“从右往左”查表，把约束写成 $\ge$。\quad\Lb{等价答案}约束可写为 $y_1+y_2\le1$，$y_1+3y_2\le2$，次序可换。
+
+% ---------------- 17 ----------------
+\A{17}
+\SolHead{11}{基础}{K5、强对偶 $z^*=y\T b$}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=0.3cm]
+  \draw[ax] (0,0)--(5.2,0);
+  \fill[auxblue!70] (0.5,0) rectangle (1.5,8); \node[font=\scriptsize] at (1,4) {\color{white}$2\times4$};
+  \fill[auxblue!40] (0.5,8) rectangle (1.5,8.05);
+  \fill[shiftc!70] (0.5,8) rectangle (1.5,11); \node[font=\scriptsize] at (1,9.5) {$1\times3$};
+  \node[font=\scriptsize,right] at (1.6,11) {$=11$};
+  \node[font=\scriptsize,below] at (1,0) {$y\T b$};
+  \node[font=\scriptsize,align=left,right] at (2.4,6) {资源 \ding1 贡献 8\\资源 \ding2 贡献 $0\times9=0$\\资源 \ding3 贡献 3};
+\end{tikzpicture}
+\fig{第 17 题解析图：总利润按影子价格分摊到各资源}
+\end{center}
+\Lb{推理过程}$z^*=y\T b=2\times4+0\times9+1\times3=11$，与最优表 $z^*=3\times3+2\times1=11$ 一致。\par
+\Lb{含义}资源 \ding2 有剩余，分摊为 0；利润全部来自紧缺的 \ding1 和 \ding3。\quad\Lb{易错点}用最优表的 $b$ 列 $(3,1,3)$ 代替原 $b$。
+
+% ---------------- 18 ----------------
+\A{18}
+\SolHead{$B^{-1}=\frac15\,(3,\,-1;\ -1,\,2)$，即第 1 行 $(\frac35,-\frac15)$，第 2 行 $(-\frac15,\frac25)$}{基础}{K1 $2\times2$ 求逆}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node (a) at (0,0) {$\begin{pmatrix}2&1\\1&3\end{pmatrix}$};
+  \node (b) at (3.4,0) {$\begin{pmatrix}3&1\\1&2\end{pmatrix}$};
+  \node (c) at (6.8,0) {$\begin{pmatrix}3&-1\\-1&2\end{pmatrix}$};
+  \node (d) at (10.4,0) {$\frac15\begin{pmatrix}3&-1\\-1&2\end{pmatrix}$};
+  \draw[arr] (a)--node[above,font=\scriptsize]{主对角互换}(b);
+  \draw[arr] (b)--node[above,font=\scriptsize]{副对角变号}(c);
+  \draw[arr] (c)--node[above,font=\scriptsize]{$\div\det=5$}(d);
+  \node[font=\scriptsize,gbox] at (5.2,-1.2) {检验：$\begin{pmatrix}2&1\\1&3\end{pmatrix}\cdot\frac15\begin{pmatrix}3&-1\\-1&2\end{pmatrix}=\frac15\begin{pmatrix}5&0\\0&5\end{pmatrix}=I$ ✓};
+\end{tikzpicture}
+\fig{第 18 题解析图：$2\times2$ 求逆的三步与乘法检验}
+\end{center}
+\Lb{易错点}笔记 P3 曾把它写成 $\begin{pmatrix}-\frac25&\frac15\\\frac15&-\frac35\end{pmatrix}$（纠错 2），用乘法检验立刻能发现。
+
+% ---------------- 19 ----------------
+\A{19}
+\SolHead{$x_4$；$x_2$；$\frac23$}{基础}{K6 出基与入基判据}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1.6cm]
+  \draw[ax] (0,0)--(4.5,0);
+  \fill[auxblue!40] (0.6,0) rectangle (1.4,1); \node[font=\scriptsize,above] at (1,1) {$\frac{-1}{-1}=1$};
+  \fill[greenline!70] (2.4,0) rectangle (3.2,0.667); \node[font=\scriptsize,above] at (2.8,0.667) {$\frac{-2}{-3}=\frac23$};
+  \node[font=\scriptsize,below] at (1,0) {$x_1$}; \node[font=\scriptsize,below] at (2.8,0) {$x_2$};
+  \node[font=\scriptsize,align=left,right] at (4.6,0.5) {出基行：$x_4$ 行（$b=-3$ 最负）\\只对负系数列取比值\\最小者 $x_2$ 入基};
+\end{tikzpicture}
+\fig{第 19 题解析图：出基行中两个负系数列的比值 $\sigma_j/a_{rj}$}
+\end{center}
+\Lb{推理过程}$b=(-2,-3)$，最负的是 $-3$，$x_4$ 出基。出基行 $(-1,-3,0,1)$ 中负系数在 $x_1,x_2$：$\frac{\sigma_1}{a_{r1}}=\frac{-1}{-1}=1$，$\frac{\sigma_2}{a_{r2}}=\frac{-2}{-3}=\frac23$。最小者为 $x_2$，$\theta=\frac23$，主元 $-3$。\par
+\Lb{易错点}用 $b/a$ 计算比值，或在 $x_4$ 列（系数 $+1$）上也取比值。
+
+% ---------------- 20 ----------------
+\A{20}
+\SolHead{2}{基础}{K8 非基变量的价值系数}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[ax] (-3.4,0)--(3.4,0) node[right,font=\scriptsize]{$\Delta$};
+  \foreach \x in {-2,0,2} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.08) {\x};}
+  \draw[greenline,very thick,-{Stealth}] (2,0.3)--(-3.3,0.3); \fill[greenline] (2,0.3) circle (2.5pt);
+  \node[font=\scriptsize,above] at (-0.8,0.35) {$\sigma_3'=-2+\Delta\le0$};
+  \node[font=\scriptsize,redline] at (2.8,0.65) {$\Delta>2$：$\sigma_3'>0$};
+\end{tikzpicture}
+\fig{第 20 题解析图：$\Delta$ 只有上界 2，向下没有限制}
+\end{center}
+\Lb{推理过程}$x_3$ 非基，$\sigma_3'=\sigma_3+\Delta=-2+\Delta\le0\Rightarrow\Delta\le2$。\par
+\Lb{含义}$x_3$ 是资源 \ding1 的松弛变量。“给闲置的 \ding1 每单位一个价值 $\Delta$”超过它的影子价格 2 时，留着不用比投入生产更划算，最优解就会改变。\quad\Lb{易错点}套用基变量的公式。
+
+\subsection*{基础解答题解析}
+
+% ---------------- 21 ----------------
+\A{21}
+\Lb{题意分析}原问题为 max 型，约束与变量都不规矩，按“四步法”逐项对应。\par
+\Lb{知识定位}K2 对应规则：max 问题约束“$\le$/$\ge$/$=$” $\to$ $y_i\ge0/\le0/$自由；变量“$\ge0/\le0/$自由” $\to$ 对偶约束“$\ge/\le/=$”。
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm,pv/.style={draw=navy,fill=lightblue,rounded corners=2pt,minimum width=1.7cm,minimum height=0.55cm,font=\small},dv/.style={draw=greenline,fill=lightgreen,rounded corners=2pt,minimum width=3.2cm,minimum height=0.55cm,font=\small}]
+  \foreach \i/\a/\b in {0/{\le6}/{y_1\ge0},1/{\ge2}/{y_2\le0},2/{=4}/{y_3\text{ 自由}}} {\node[pv] (p\i) at (0,-\i*0.75) {$\a$}; \node[dv,minimum width=2cm] (d\i) at (3.0,-\i*0.75) {$\b$}; \draw[arr] (p\i)--(d\i);}
+  \foreach \i/\a/\b in {0/{x_1\ge0}/{y_1+2y_2\ge1},1/{x_2\le0}/{y_1-y_2+y_3\le2},2/{x_3\text{ 自由}}/{y_1+y_3=-1}} {\node[pv] (q\i) at (7.0,-\i*0.75) {$\a$}; \node[dv] (e\i) at (10.6,-\i*0.75) {$\b$}; \draw[arr] (q\i)--(e\i);}
+  \node[font=\scriptsize\bfseries] at (1.5,0.7) {第 4 步：约束 $\to$ 变量};
+  \node[font=\scriptsize\bfseries] at (8.8,0.7) {第 3 步：变量 $\to$ 约束};
+\end{tikzpicture}
+\fig{第 21 题解析图：逐项对应的推导路线}
+\end{center}
+\Lb{分步求解}\textbf{第 1 步}：对偶目标 $\min w=6y_1+2y_2+4y_3$。\textbf{第 2 步}：max 问题，左 $\to$ 右查表。\textbf{第 3 步}：$A=\begin{pmatrix}1&1&1\\2&-1&0\\0&1&1\end{pmatrix}$，按列：$x_1$ 列 $(1,2,0)$，$x_1\ge0\Rightarrow y_1+2y_2\ge1$；$x_2$ 列 $(1,-1,1)$，$x_2\le0\Rightarrow y_1-y_2+y_3\le2$；$x_3$ 列 $(1,0,1)$，$x_3$ 自由 $\Rightarrow y_1+y_3=-1$。\textbf{第 4 步}：见图左。\par
+\Lb{结果}
+$\min w=6y_1+2y_2+4y_3$，$\st y_1+2y_2\ge1$，$y_1-y_2+y_3\le2$，$y_1+y_3=-1$，$y_1\ge0$，$y_2\le0$，$y_3$ 无约束。\par
+\Lb{结果检查}3 个约束、3 个变量 $\to$ 3 个变量、3 个约束 ✓；对偶约束右端 $(1,2,-1)$ 恰为原目标系数 ✓。\par
+\Lb{易错点}$x_2$ 列的系数是 $(1,-1,1)$，注意第二个约束中 $x_2$ 前是负号。\quad\Lb{同类题以后怎么做}先画两张“连线表”，再写式子。
+
+% ---------------- 22 ----------------
+\A{22}
+\Lb{题意分析}从原点 $(0,0)$ 出发做一轮修正单纯形法，不写整张表。\par
+\Lb{已知}$c=(3,2,0,0,0)$，$b=(4,9,3)\T$，$P_1=(1,1,1)\T$，$P_2=(1,3,0)\T$，初始 $B=I$，$c_B=0$。\par
+\Lb{分步求解}\textbf{(1)} $y\T=c_B\T B^{-1}=0$，$\sigma_1=3$，$\sigma_2=2$，$x_1$ 入基。$\bar P_1=B^{-1}P_1=(1,1,1)\T$，比值 $\frac41,\frac91,\frac31$，最小为 3，第 3 行的 $x_5$ 出基。\par
+\textbf{(2)} 新基按行次序 $\{x_3,x_4,x_1\}$：$B=(P_3,P_4,P_1)=\begin{pmatrix}1&0&1\\0&1&1\\0&0&1\end{pmatrix}$，$B^{-1}=\begin{pmatrix}1&0&-1\\0&1&-1\\0&0&1\end{pmatrix}$（检验 $BB^{-1}=I$ ✓），$x_B=B^{-1}b=(4-3,\,9-3,\,3)\T=(1,6,3)\T$。\par
+\textbf{(3)} $c_B=(0,0,3)\T$，$y\T=c_B\T B^{-1}=(0,0,3)$。非基变量：$\sigma_2=2-y\T P_2=2-0=2>0$；$\sigma_5=0-y\T e_3=-3$。$\sigma_2>0$，未达最优，下一轮 $x_2$ 入基。
+\begin{center}
+\begin{minipage}{0.4\linewidth}\centering
+\smallE{0.7}{\node[vpt] at (0,0) {}; \draw[arr,optc,very thick] (0,0)--(2.9,0); \node[optpt] at (3,0) {}; \node[lab,above,font=\scriptsize] at (3.3,0.15) {$(3,0)$}; \draw[arr,optc,dashed] (3,0)--(3,0.9); \node[font=\scriptsize,optc] at (4.2,0.6) {下一轮};}
+\end{minipage}\hfill
+\begin{minipage}{0.56\linewidth}\small
+\begin{tabular}{@{}lccc@{}}\toprule
+ & 第一轮前 & 第一轮后 & \\\midrule
+基 & $\{x_3,x_4,x_5\}$ & $\{x_3,x_4,x_1\}$ & \\
+$x_B$ & $(4,9,3)$ & $(1,6,3)$ & \\
+$y$ & $(0,0,0)$ & $(0,0,3)$ & \\
+$\sigma_{\text{非基}}$ & $\sigma_1=3,\ \sigma_2=2$ & $\sigma_2=2,\ \sigma_5=-3$ & \\
+$z$ & 0 & 9 & \\\bottomrule
+\end{tabular}
+\end{minipage}
+\fig{第 22 题解析图：基解从原点沿 $x_1$ 轴移到 $(3,0)$，$z$ 由 0 升到 9；下一轮将沿设备约束上移}
+\end{center}
+\Lb{结果检查}$(3,0)$：\ding1 剩 $1=x_3$，\ding2 剩 $6=x_4$，\ding3 用尽 ✓。\par
+\Lb{易错点}$\theta$ 只对 $\bar P_1$ 中正系数行取比值；$B$ 的列次序必须与行次序 $\{x_3,x_4,x_1\}$ 一致。\par
+\Lb{同类题以后怎么做}每一轮固定算四样：$x_B$、$y$、$\sigma_{\text{非基}}$、$\bar P_k$。
+
+% ---------------- 23 ----------------
+\A{23}
+\Lb{题意分析}比较租金与影子价格，并核对增量是否在允许范围内。\par
+\Lb{已知}$y_3=1$，$b_3=3\in[1.5,4]$，租金 0.8。\quad\Lb{知识定位}K5 影子价格的用法；K7 允许范围。\par
+\Lb{分步求解}\textbf{第 1 步}：$0.8<1$，租入有利。\textbf{第 2 步}：$b_3$ 上限为 4，最多租 $4-3=1$ 台时。\textbf{第 3 步}：净增利润 $=1\times(1-0.8)=0.2$。\textbf{第 4 步}：$x_B'=x_B+\Delta b_3\beta_3=(3,1,3)\T+1\cdot(1,-1,2)\T=(4,0,5)\T$，即 $x_1=4$，$x_2=0$，$z=12$（比 11 多 1）。
+\begin{center}
+\smallE{0.75}{\draw[shiftl] (4,-0.2)--(4,4.3) node[above,font=\scriptsize]{$x_1=4$}; \fill[shiftc!20] (3,0)--(4,0)--(3,1)--cycle; \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (4,0) {}; \node[lab,below right,font=\scriptsize] at (4,0) {$(4,0)$，$z=12$};}
+\fig{第 23 题解析图：设备边界由 $x_1=3$ 右移到 $x_1=4$，可行域多出橙色三角形，最优点移到 $(4,0)$}
+\end{center}
+\Lb{结果检查}在 $(4,0)$：\ding1 $4\le4$（恰好用尽），\ding2 $4\le9$，\ding3 $4\le4$ ✓。若再多租，$b_3>4$ 后 \ding1 成为唯一瓶颈，最优点停在 $(4,0)$，设备的影子价格变为 0。\par
+\Lb{易错点}不核对范围，以为租得越多越好。\quad\Lb{同类题以后怎么做}先比价格，再看范围，最后乘增量。
+
+% ---------------- 24 ----------------
+\A{24}
+\Lb{题意分析}min 问题、系数非负、约束全为 $\ge$，乘 $-1$ 后起始表对偶可行。\par
+\Lb{分步求解}\textbf{起始表}见第 19 题。\textbf{第一轮}：$x_4$ 出基，$x_2$ 入基（$\theta=\frac23$），主元 $-3$。$x_2$ 行 $=(\frac13,1,0,-\frac13\mid1)$；$x_3$ 行加上新行的 1 倍：$(-\frac23,0,1,-\frac13\mid-1)$；$\sigma'=\sigma-\frac23\times$（原 $x_4$ 行）：$\sigma_1=-1-\frac23\cdot(-1)=-\frac13$，$\sigma_4=0-\frac23\cdot1=-\frac23$。\par
+\textbf{第二轮}：$b=(-1,1)$，$x_3$ 出基；负系数在 $x_1$（$-\frac23$）与 $x_4$（$-\frac13$）：比值 $\frac{-1/3}{-2/3}=\frac12$，$\frac{-2/3}{-1/3}=2$，$x_1$ 入基，主元 $-\frac23$。新 $x_1$ 行 $=(1,0,-\frac32,\frac12\mid\frac32)$；$x_2$ 行减去新行的 $\frac13$ 倍：$(0,1,\frac12,-\frac12\mid\frac12)$；$\sigma_3=-\frac12$，$\sigma_4=-\frac12$。\par
+\textbf{结果}：$b=(\frac32,\frac12)\ge0$，最优。$x^*=(\frac32,\frac12)$，$z^*=\frac32+2\cdot\frac12=\frac52$。
+\begin{center}
+\begin{tikzpicture}[x=1.1cm,y=1.1cm]
+  \fill[feasreg] (0,3)--(0,2)--(1.5,0.5)--(3,0)--(4,0)--(4,3)--cycle;
+  \draw[gridl] (0,0) grid (4,3);
+  \draw[ax] (-0.2,0)--(4.3,0) node[right,font=\scriptsize]{$x_1$};
+  \draw[ax] (0,-0.2)--(0,3.3) node[above,font=\scriptsize]{$x_2$};
+  \foreach \i in {1,2,3,4} \node[below,font=\tiny] at (\i,0) {\i};
+  \foreach \i in {1,2,3} \node[left,font=\tiny] at (0,\i) {\i};
+  \draw[con] (0,2)--(2.2,-0.2); \draw[con] (0,1)--(4,-0.333);
+  \draw[iso] (0,1.25)--(2.5,0);
+  \draw[arr,badc,very thick,dashed] (0,0)--(0,0.93);
+  \draw[arr,optc,very thick] (0.05,1)--(1.43,0.53);
+  \node[badpt] at (0,0) {}; \node[badpt] at (0,1) {}; \node[optpt] at (1.5,0.5) {};
+  \node[lab,right,font=\scriptsize,text=badc] at (0.1,0.3) {表一 $(0,0)$};
+  \node[lab,left,font=\scriptsize,text=badc] at (-0.1,1.2) {表二 $(0,1)$};
+  \node[lab,above right,font=\scriptsize,text=optc] at (1.5,0.55) {表三 $(\frac32,\frac12)$};
+\end{tikzpicture}
+\fig{第 24 题解析图：前两个基解在可行域外（$(0,1)$ 满足 $x_1+3x_2\ge3$ 但不满足 $x_1+x_2\ge2$），第三个落在顶点上}
+\end{center}
+\Lb{结果检查}$\frac32+\frac12=2$ ✓，$\frac32+\frac32=3$ ✓，两个约束都取等号；对偶最优解 $y=(\frac12,\frac12)$（$x_3,x_4$ 检验数取负），$w=1+\frac32=\frac52=z^*$ ✓（与第 16 题吻合）。\par
+\Lb{易错点}最后一步忘记把 $\max z'$ 换回 $\min z$ 的符号（纠错 4）。\par
+\Lb{同类题以后怎么做}每轮写出 $b$ 列中负数的个数，它应逐步减少到 0。
+
+% ---------------- 25 ----------------
+\A{25}
+\Lb{题意分析}右端项范围：只核验可行性。\par
+\Lb{已知}$\beta_3=x_5$ 列 $=(1,-1,2)\T$，$x_B=(3,1,3)\T$（次序 $x_1,x_2,x_4$）。\par
+\Lb{分步求解}$x_1$ 行：$3+\Delta b_3\ge0\Rightarrow\Delta b_3\ge-3$；$x_2$ 行：$1-\Delta b_3\ge0\Rightarrow\Delta b_3\le1$；$x_4$ 行：$3+2\Delta b_3\ge0\Rightarrow\Delta b_3\ge-1.5$。交集 $-1.5\le\Delta b_3\le1$，即 $b_3\in[1.5,4]$。
+\begin{center}
+\smallE{0.8}{\draw[shiftl] (1.5,-0.2)--(1.5,4.3) node[above,font=\scriptsize]{$b_3=1.5$}; \draw[shiftl] (4,-0.2)--(4,4.3) node[above,font=\scriptsize]{$b_3=4$};
+  \node[optpt,fill=shiftc] at (1.5,2.5) {}; \node[optpt,fill=shiftc] at (4,0) {}; \node[optpt] at (3,1) {};
+  \draw[arr,optc,thick] (1.6,2.4)--(2.9,1.1); \draw[arr,optc,thick] (3.1,0.9)--(3.9,0.1);
+  \node[lab,above right,font=\scriptsize] at (1.55,2.55) {$(1.5,2.5)$：碰到 \ding2}; \node[lab,below,font=\scriptsize] at (4,-0.1) {$(4,0)$：碰到 $x_2=0$};}
+\fig{第 25 题解析图：设备边界在两条橙色虚线之间平移时，最优点沿 \ding1 线滑动}
+\end{center}
+\Lb{端点含义}$b_3=1.5$ 时最优点滑到 $(1.5,2.5)$，恰好碰上 \ding2 的边界（$x_4=0$），再往左 \ding2 就成为紧约束；$b_3=4$ 时滑到 $(4,0)$，碰上 $x_2=0$，再往右 $x_2$ 会变负，最优基改变。\par
+\Lb{易错点}$\beta_3$ 要取 $x_5$ 列（第 3 个约束的松弛变量），而不是第 3 行。\quad\Lb{同类题以后怎么做}“正系数给下界，负系数给上界，取交集”。
