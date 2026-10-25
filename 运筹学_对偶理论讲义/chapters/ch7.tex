@@ -7,7 +7,9 @@
 
 \subsection{全专题知识地图}
 
-\begin{center}
+下图从根节点 $B^{-1}$ 出发，把六章内容串成三条主干：算法、对偶理论与灵敏度分析。
+
+\begin{figure}[!htbp]\centering
 \begin{forest}
   for tree={draw=navy,fill=lightblue,rounded corners=2pt,font=\small,align=center,
     grow'=east,parent anchor=east,child anchor=west,edge={auxblue,thick},
@@ -28,13 +30,14 @@
         [{新增变量 / 约束}]]]]
 \end{forest}
 \fig{全专题知识地图：从根节点 $B^{-1}$ 出发的三条主干，分别通向算法、对偶理论与灵敏度分析}\label{fig:allmap}
-\end{center}
+\end{figure}
 
 \subsection{基础解题步骤总结}
 
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
+下表把各章的计算题型归纳成固定步骤，做题时可以直接对照。
+
+{\small
+\begin{xltabular}{\linewidth}{@{}>{\bfseries}p{2.3cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{lightgreen}题型 & 标准步骤\\\midrule
 写对偶问题 & ① 看原目标 max/min，定对偶目标；② 定查表方向（max 左 $\to$ 右）；③ 原变量的符号 $\to$ 对偶约束的方向；④ 原约束的方向 $\to$ 对偶变量的符号；⑤ 检查：变量数与约束数互换。\\
@@ -45,17 +48,41 @@ $b_r$ 的范围 & ① 读 $\beta_r$（$x_{s_r}$ 列）与 $x_B$；② 逐行 $x_
 $c_j$ 的范围 & 非基：$\Delta c_k\le-\sigma_k$。基（第 $r$ 行）：对每个非基列 $\sigma_k-\Delta c_jt_{rk}\le0$，$t_{rk}>0$ 给下界、$<0$ 给上界，取交集。\\
 新增变量 & $\sigma_{n+1}=c_{n+1}-y\T P_{n+1}$；$>0$ 则把 $B^{-1}P_{n+1}$ 写入表、续单纯形法。\\
 新增约束 & ① 原解代入；② 不满足则加松弛变量成新行；③ 消去新行中基变量的系数；④ 对偶单纯形法。\\\bottomrule
-\end{tabularx}\par\nopagebreak[4]
-\captionof{table}{基础解题步骤总表}
-\end{center}
+\caption{基础解题步骤总表}\\
+\end{xltabular}}
+
+
+\subsection{后续课程连接}
+
+本专题的方法在后续课程中还会以不同的名字反复出现，下图只列出真实存在的直接联系。
+
+\begin{figure}[!htbp]\centering
+\begin{tikzpicture}[x=1cm,y=1cm,k/.style={box,text width=2.9cm,minimum height=1.0cm,font=\small},
+  n/.style={wbox,text width=3.6cm,minimum height=1.0cm,font=\scriptsize}]
+  \node[k] (c) at (0,0) {本专题：\\对偶与灵敏度};
+  \node[n] (a) at (-4.6,1.6) {\textbf{整数规划}\\分支定界每加一条约束，用对偶单纯形法重新优化};
+  \node[n] (b) at (0,2.4) {\textbf{运输问题}\\位势法中的 $u_i,v_j$ 就是对偶变量};
+  \node[n] (d) at (4.6,1.6) {\textbf{非线性规划}\\KKT 条件、拉格朗日乘子是影子价格的推广};
+  \node[n] (e) at (-4.6,-1.6) {\textbf{博弈论}\\零和博弈的极小极大定理与 LP 对偶等价};
+  \node[n] (f) at (0,-2.4) {\textbf{微观经济学}\\边际收益、机会成本、要素定价};
+  \node[n] (g) at (4.6,-1.6) {\textbf{电力系统 / 自动控制}\\经济调度、节点电价、模型预测控制中的 LP/QP};
+  \foreach \x in {a,b,d,e,f,g} \draw[arr] (c)--(\x);
+\end{tikzpicture}
+\fig{本专题与后续课程的联系（只列出真实存在的直接联系）}
+\end{figure}
+
+\begin{connectionbox}[拓展联想：以下内容只用于建立知识联系，当前阶段不要求掌握]
+对一般的约束优化问题 $\max f(x)$，$g_i(x)\le b_i$，可以构造拉格朗日函数 $L(x,y)=f(x)+\sum_iy_i\,(b_i-g_i(x))$。线性规划时 $f=c\T x$、$g=Ax$，对 $x\ge0$ 取上确界再对 $y\ge0$ 取下确界，得到的恰好就是本专题的对偶问题；$y_i$ 依然表示“第 $i$ 个约束放松一单位时最优值的变化率”。笔记 P7 旁注的“拉格朗日乘子”指的就是这件事。
+\end{connectionbox}
 
 \subsection{高频易错点总表}
 
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.6cm}@{}}
+下表汇总了全书标出的高频错误，右栏注明在哪一章讲过。
+
+{\small
+\begin{xltabular}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.6cm}@{}}
 \toprule
-\rowcolor{lightred}错误想法 & 正确想法 & 出处\\\midrule
+\rowcolor{lightred}错误想法 & 正确想法 & 出处\\\midrule\endhead
 $x_B=B^{-1}b$ 中用最优表的 $b$ 列 & $b$ 是原模型右端项 & 第 1、4 章\\
 $B$ 的列随意排列 & 与基变量的行次序一致，$c_B$ 同序 & 第 1 章\\
 写对偶时 $b$、$c$ 放反 & $b\to$ 对偶目标系数，$c\to$ 对偶约束右端 & 第 2 章\\
@@ -70,15 +97,16 @@ min 问题也从左往右查表 & min 问题从右往左查，不等号全反 & 
 基变量 $c_j$ 改变只影响本列 & 影响全部非基列的检验数 & 第 6 章\\
 改 $c$ 会改变最优解的取值 & 范围内取值不变，只有最优值变 & 第 6 章\\
 新增约束直接写进表 & 先消去新行中基变量的系数 & 第 6 章\\\bottomrule
-\end{tabularx}\par\nopagebreak[4]
-\captionof{table}{高频易错点总表}
-\end{center}
+\caption{高频易错点总表}\\
+\end{xltabular}}
+
 
 \subsection{相近概念总对比}
 
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
+最后把容易混淆的概念成对列出，说明本质区别和判断方法。
+
+{\small
+\begin{xltabular}{\linewidth}{@{}>{\bfseries\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{lightblue}概念对 & 本质区别 & 判断方法\\\midrule
 单纯形法 / 修正单纯形法 & 判据相同；后者只维护 $B^{-1}$ & 是否写出整张表\\
@@ -89,36 +117,15 @@ min 问题也从左往右查表 & min 问题从右往左查，不等号全反 & 
 原始可行 / 对偶可行 & $B^{-1}b\ge0$ / $\sigma\le0$ & 看 $b$ 列还是 $\sigma$ 行\\
 松弛变量 / 剩余变量 & $\le$ 约束加上 / $\ge$ 约束减去 & 系数为 $+1$ 还是 $-1$\\
 改 $b$ / 改 $c$ & 动可行性（边界平移）/ 动最优性（等值线旋转） & 改动出现在哪个公式里\\\bottomrule
-\end{tabularx}\par\nopagebreak[4]
-\captionof{table}{相近概念总对比}
-\end{center}
+\caption{相近概念总对比}\\
+\end{xltabular}}
 
-\subsection{后续课程连接}
-
-\begin{center}
-\begin{tikzpicture}[x=1cm,y=1cm,k/.style={box,text width=2.9cm,minimum height=1.0cm,font=\small},
-  n/.style={wbox,text width=3.6cm,minimum height=1.0cm,font=\scriptsize}]
-  \node[k] (c) at (0,0) {本专题：\\对偶与灵敏度};
-  \node[n] (a) at (-4.6,1.6) {\textbf{整数规划}\\分支定界每加一条约束，用对偶单纯形法重新优化};
-  \node[n] (b) at (0,2.4) {\textbf{运输问题}\\位势法中的 $u_i,v_j$ 就是对偶变量};
-  \node[n] (d) at (4.6,1.6) {\textbf{非线性规划}\\KKT 条件、拉格朗日乘子是影子价格的推广};
-  \node[n] (e) at (-4.6,-1.6) {\textbf{博弈论}\\零和博弈的极小极大定理与 LP 对偶等价};
-  \node[n] (f) at (0,-2.4) {\textbf{微观经济学}\\边际收益、机会成本、要素定价};
-  \node[n] (g) at (4.6,-1.6) {\textbf{电力系统 / 自动控制}\\经济调度、节点电价、模型预测控制中的 LP/QP};
-  \foreach \x in {a,b,d,e,f,g} \draw[arr] (c)--(\x);
-\end{tikzpicture}
-\fig{本专题与后续课程的联系（只列出真实存在的直接联系）}
-\end{center}
-
-\begin{connectionbox}[拓展联想：以下内容只用于建立知识联系，当前阶段不要求掌握]
-对一般的约束优化问题 $\max f(x)$，$g_i(x)\le b_i$，可以构造拉格朗日函数 $L(x,y)=f(x)+\sum_iy_i\,(b_i-g_i(x))$。线性规划时 $f=c\T x$、$g=Ax$，对 $x\ge0$ 取上确界再对 $y\ge0$ 取下确界，得到的恰好就是本专题的对偶问题；$y_i$ 依然表示“第 $i$ 个约束放松一单位时最优值的变化率”。笔记 P7 旁注的“拉格朗日乘子”指的就是这件事。
-\end{connectionbox}
 
 \subsection{知识点—题目对应表}
 
 下表说明 38 道正式练习分别检查哪个知识点。做完练习后，可以按此表找到自己的薄弱环节，回到对应章节复习。
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabular}{@{}lllll@{}}
 \toprule
@@ -134,4 +141,8 @@ K8 价值系数灵敏度 & 第 6 章 & 10, 15, 20 & 29, 33 & \\
 K9 新增变量 / 约束 & 第 6 章 & 15 & 30, 32, 35 & \\\bottomrule
 \end{tabular}\par\nopagebreak[4]
 \captionof{table}{知识点—题目对应表}\label{tab:cover}
-\end{center}
+\end{table}
+
+\begin{summarybox}[全篇一句话]
+单纯形表里的 $B^{-1}$ 既是计算的工具（修正单纯形法），也是对偶的解（$y\T=c_B\T B^{-1}$），更是资源的价格（影子价格）；守住 $\sigma\le0$ 去找可行，就是对偶单纯形法；分开核验 $B^{-1}b\ge0$ 与 $\sigma\le0$，就是灵敏度分析。
+\end{summarybox}

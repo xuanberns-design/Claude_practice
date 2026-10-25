@@ -15,7 +15,7 @@
 
 \srcTag{笔记 P1}\ 笔记里写道：“任何一种初等行变换都可以被若干次特定顺序的矩阵乘法来表示”，并给了一个交换两行的例子。先看图。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[every node/.style={font=\small}]
   \node (A) at (0,0) {$\begin{pmatrix}1&2&3\\4&5&6\\7&8&9\end{pmatrix}$};
   \node (B) at (5.4,0) {$\begin{pmatrix}4&5&6\\1&2&3\\7&8&9\end{pmatrix}$};
@@ -29,7 +29,7 @@
   \node[font=\scriptsize,auxblue,right] at (5.6,-1.0) {结果相同};
 \end{tikzpicture}
 \fig{初等行变换 $=$ 左乘初等矩阵：先对单位阵 $I$ 做同样的行变换得到 $E$，再用 $E$ 左乘 $A$}
-\end{center}
+\end{figure}
 
 图上半部分是我们熟悉的“直接交换两行”；下半部分是同一件事的矩阵写法：$E$ 由单位阵交换 1、2 行得到，$EA$ 的第 1 行等于 $E$ 的第 1 行 $(0,1,0)$ 去“挑选”$A$ 的第 2 行。右侧注释写出了第 1 行的“挑选”过程。
 
@@ -73,7 +73,7 @@ z&=c_B\T x_B+c_N\T x_N
 \]
 \end{formulabox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \fill[lightblue] (0,0) rectangle (1.6,2.4);
   \fill[formulablue] (1.6,0) rectangle (8,2.4);
@@ -96,7 +96,7 @@ z&=c_B\T x_B+c_N\T x_N
   \draw[decorate,decoration={brace,amplitude=5pt,mirror},thick,auxblue] (-0.2,2.4)--(-0.2,0) node[midway,left=6pt,font=\scriptsize,align=right]{$m$ 行};
 \end{tikzpicture}
 \fig{标注公式图：任意一张单纯形表都可以由 $B^{-1}$ 和原始数据 $A,b,c$ 写出}
-\end{center}
+\end{figure}
 
 图中蓝色块是约束部分，绿色块是检验数行。最值得注意的是右侧橙色块：如果初始表中某几列恰好是单位阵（例如松弛变量所在的列），那么在任何一张后续表中，这几列都变成 $B^{-1}I=B^{-1}$。也就是说，\textbf{$B^{-1}$ 不用另算，它就印在当前表上}。这是课件反复强调的结论，后面读影子价格时还要用到。
 
@@ -125,7 +125,7 @@ $\sigma_j$ & 检验数：非基变量 $x_j$ 增加 1 单位时目标函数的变
 \textbf{正确想法：}$B$ 的第 $r$ 列必须是第 $r$ 行基变量的系数列，$c_B$ 也按同样次序排；否则 $B^{-1}b$ 算出的数会对应到错误的变量上。
 \end{warningbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[gbox,text width=6.2cm,align=left] (ok) at (0,0) {\textbf{正确}：基按行次序 $\{x_3,x_1\}$\\[2pt]
   $B=(P_3,P_1)=\begin{pmatrix}2&1\\1&3\end{pmatrix}$，$c_B=(3,5)\T$\\[2pt]
@@ -135,7 +135,7 @@ $\sigma_j$ & 检验数：非基变量 $x_j$ 增加 1 单位时目标函数的变
   $c_B$ 把价值 3 配给了 $x_1$，$z$ 与 $\sigma$ 全部算错};
 \end{tikzpicture}
 \fig{易错对照：$B$ 的列次序、$c_B$ 的次序、表中基变量的行次序，三者必须一致}
-\end{center}
+\end{figure}
 
 \subsection{修正单纯形法：只维护 $B^{-1}$}
 
@@ -158,7 +158,7 @@ $\sigma_j$ & 检验数：非基变量 $x_j$ 增加 1 单位时目标函数的变
 \end{enumerate}
 \end{definitionbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.42cm,
   s/.style={box,minimum width=4.6cm,minimum height=0.8cm},
   d/.style={diamond,aspect=2.6,draw=navy,fill=white,font=\small,inner sep=1pt,align=center}]
@@ -178,7 +178,7 @@ $\sigma_j$ & 检验数：非基变量 $x_j$ 增加 1 单位时目标函数的变
   \node[font=\scriptsize,auxblue,align=left,right] at (3.2,-6.1) {每轮只算：\\一行 $y\T$、若干个数 $\sigma_j$、\\一列 $\bar P_k$、一个 $B^{-1}$};
 \end{tikzpicture}
 \fig{修正单纯形法流程图：与普通单纯形法的判据完全相同，只是不再维护整张表}
-\end{center}
+\end{figure}
 
 流程图左侧的回路就是一轮迭代。与普通单纯形法相比，入基、出基的\textbf{判据一字未改}，改变的只是“算哪些数”。笔记 P2 页眉写的“计算机：用特定的矩阵乘法运算（微观）”，指的就是这一点：计算机程序里实际执行的是修正单纯形法。
 
@@ -239,7 +239,7 @@ $x_1$ 入基；$\bar P_1=B^{-1}P_1=(\frac12,\frac52)\T$，$\theta=\min\{\frac{4}
 \textbf{本题真正想说明什么：}三轮中我们一次也没有写出完整的 $2\times5$ 表，每轮只算了一个 $2\times2$ 逆矩阵、一行 $y\T$ 和一列 $\bar P_k$。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \i/\bs/\z/\sig in {0/{\{x_4,x_5\}}/-1/{(3,0,4)},1/{\{x_3,x_5\}}/15/{(1,-4,-2)},2/{\{x_3,x_1\}}/{\tfrac{81}{5}}/{(-\tfrac{26}{5},-\tfrac95,-\tfrac25)}}{
     \node[box,minimum width=3.6cm,minimum height=1.35cm,align=center] (n\i) at (\i*4.8,0) {基 $\bs$\\$z=\z$\\[1pt]{\scriptsize 非基 $\sigma=\sig$}};
@@ -257,7 +257,7 @@ $x_1$ 入基；$\bar P_1=B^{-1}P_1=(\frac12,\frac52)\T$，$\theta=\min\{\frac{4}
   \end{scope}
 \end{tikzpicture}
 \fig{例 1.1 的迭代路径：三个基、两次换基，目标值单调上升直至检验数全部非正}
-\end{center}
+\end{figure}
 
 上图上半部分把三轮迭代压缩成三个“状态盒”，箭头上写出换基依据；下半部分的柱高表示每个基对应的目标值。读图可以看出：每换一次基，目标值就上升一次（$-1\to15\to16.2$），而换基的理由都来自检验数。笔记 P2 右栏用普通单纯形表算了同一道题，两种方法每一轮的基、检验数完全相同（见纠错 1）。
 
@@ -303,7 +303,7 @@ $x_1$ 入基；$\bar P_1=B^{-1}P_1=(\frac12,\frac52)\T$，$\theta=\min\{\frac{4}
 \paragraph{到这里，我们已经解决了什么？}我们把单纯形表“拆开”了：表中每个数都由 $B^{-1}$ 和原始数据决定，检验数可以写成 $\sigma_j=c_j-y\T P_j$，其中 $y\T=c_B\T B^{-1}$。
 \paragraph{下一步还需要解决什么？}这个 $y$ 只是计算中的一个中间量，还是有独立含义？下一章我们将看到：$y$ 恰好是另一个线性规划——对偶问题——的解，而且它有非常直观的经济含义：资源的价格。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.35cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {初等行变换};
   \node[k,right=of a] (b) {左乘 $E$};
@@ -316,4 +316,4 @@ $x_1$ 入基；$\bar P_1=B^{-1}P_1=(\frac12,\frac52)\T$，$\theta=\min\{\frac{4}
   \draw[arr] (d)--(f); \draw[arr] (c)--(e); \draw[arr] (e)--(f); \draw[arr] (e)--(g);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}

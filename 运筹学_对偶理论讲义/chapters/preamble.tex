@@ -3,7 +3,7 @@
 % ============================================================
 \usepackage[a4paper,top=2.2cm,bottom=2.2cm,left=2.3cm,right=2.3cm,headheight=14pt]{geometry}
 \usepackage{amsmath,amssymb,mathtools,bm}
-\usepackage{booktabs,tabularx,array,multirow,longtable}
+\usepackage{booktabs,tabularx,array,multirow,longtable,xltabular}
 \usepackage[inline]{enumitem}
 \usepackage[table]{xcolor}
 \usepackage[most]{tcolorbox}
@@ -78,7 +78,7 @@
 \newtcolorbox{supplementbox}[1][教学补全]{common,colback=white,colframe=auxblue,boxrule=0.5pt,borderline={0.4pt}{1.5pt}{auxblue!40,dashed},coltitle=navy,colbacktitle=lightblue,title={#1}}
 % 米色：示例 / 生活 / 历史 / 科普
 \newtcolorbox{examplebox}[1][例题]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
-\newtcolorbox{lifebox}[1][生活中的它]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!60!warmline,title={\textbf{生活中的它}\quad #1}}
+\newtcolorbox{lifebox}[1][生活中的它]{common,float=!htbp,unbreakable,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!60!warmline,title={\textbf{生活中的它}\quad #1}}
 \newtcolorbox{historybox}[1][学科小史]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
 \newtcolorbox{sciencebox}[1][从课本到现实]{common,colback=warm,colframe=warmline,coltitle=black,colbacktitle=warm!70!warmline,title={#1}}
 % 红：易错 / 纠错
@@ -179,3 +179,19 @@
 \usepackage{newunicodechar}
 \newunicodechar{✓}{\ensuremath{\checkmark}}
 \newunicodechar{✗}{\ensuremath{\times}}
+
+% 浮动体参数：让图表就近放置，正文填满空白
+\usepackage[section]{placeins}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\setlength{\textfloatsep}{8pt plus 3pt minus 2pt}
+\setlength{\floatsep}{8pt plus 3pt minus 2pt}
+\setlength{\intextsep}{6pt plus 3pt minus 2pt}
+\setlength{\LTpre}{4pt}\setlength{\LTpost}{4pt}\LTchunksize=3
+% 小节标题前预留空间，避免标题孤立在页底
+\preto\subsection{\needspace{4\baselineskip}}

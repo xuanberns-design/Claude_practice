@@ -33,7 +33,7 @@
 \textbf{条件为什么不能删：}若允许 $\bar y_i<0$，第一步乘负数要变号，结论就不成立。这正是纠错 6 第 2 条强调 $\bar y\ge0$ 的原因。
 \end{proofbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.84cm,y=1cm]
   \draw[ax] (-0.3,0)--(14.5,0) node[right,font=\scriptsize]{目标值};
   \foreach \x/\v in {1.9/190, 4.28/{z^*=w^*=428}, 8.6/860} {\draw (\x,0.1)--(\x,-0.1);}
@@ -49,7 +49,7 @@
   \node[font=\scriptsize,shiftc!80!black] at (5.25,-1.1) {仅凭两个可行解就能断定 $190\le z^*\le860$};
 \end{tikzpicture}
 \fig{弱对偶性的数轴图（煤电油例）：所有原可行值落在左侧，所有对偶可行值落在右侧，二者在最优值处相遇}\label{fig:weak}
-\end{center}
+\end{figure}
 
 图中蓝点是原问题若干可行解的目标值，绿点是对偶问题若干可行解的目标值。例如 $\bar x=(10,10)$ 原可行，$c\T\bar x=190$；$\bar y=(1,1,1)$ 满足 $9+4+3=16\ge7$、$4+5+10=19\ge12$，对偶可行，$b\T\bar y=860$。橙色区间说明：\textbf{任意一对可行解都给出最优值的一个上下界}，这在大型问题中用来判断“离最优还有多远”。
 
@@ -68,7 +68,7 @@
 
 \noindent\textbf{反过来不一定成立}（笔记红字“反过来不一定”）：对偶无可行解时，原问题可能无界，也可能同样无可行解。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.62cm,y=0.62cm]
   \begin{scope}
     \fill[feasreg] (0,0)--(1,0)--(5,4)--(5,5)--(0,5)--cycle;
@@ -92,7 +92,7 @@
   \end{scope}
 \end{tikzpicture}
 \fig{无界性推论与它的反例：(a) 原问题无界 $\Rightarrow$ 对偶无可行解；(b) 对偶无可行解时，原问题也可能无可行解，而不是无界}\label{fig:unb}
-\end{center}
+\end{figure}
 
 图 (a) 中可行域向右上方无限延伸，等值线（虚线）可以一直往外推，目标值无界；它的对偶由两条互相矛盾的约束组成，没有可行解。图 (b) 中原问题的两条约束 $x_1-x_2\le1$（绿色一侧）与 $-x_1+x_2\le-2$ 即 $x_1-x_2\ge2$（红色斜线一侧）没有公共部分，对偶也矛盾——这说明“对偶无可行解”推不出“原问题无界”。
 
@@ -115,7 +115,7 @@
 \textbf{严格性说明：}上述证明默认单纯形法能在有限步内终止于最优表（需要防循环规则，前面章节已讲）。不借助单纯形法的证明要用到 Farkas 引理，属于后续“最优化方法”课程的内容。
 \end{proofbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.4cm and 0.55cm,s/.style={box,minimum height=0.95cm,text width=2.7cm}]
   \node[s] (a) {原问题最优表\\基 $B$};
   \node[s,right=of a] (b) {令\\$y\T=c_B\T B^{-1}$};
@@ -126,7 +126,7 @@
   \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (b)--(d); \draw[arr] (c)--(e); \draw[arr] (d)--(e); \draw[arr] (e)--(f);
 \end{tikzpicture}
 \fig{强对偶定理的推导路线图：每一步的依据都来自最优表}
-\end{center}
+\end{figure}
 
 \begin{examplebox}[例 3.1　验证煤电油问题 $z^*=w^*$ \srcTag{笔记 P13}]
 \begin{minipage}[t]{0.5\linewidth}
@@ -151,7 +151,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
 \end{examplebox}
 表中橙色单元格是松弛变量的检验数，它们取相反数恰好就是对偶最优解。这就是笔记 P12 红字：“\textbf{对偶问题的最优解就是原问题松弛变量检验数的负值}。”
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm,c/.style={draw=navy,minimum width=3.3cm,minimum height=0.7cm,font=\small}]
   \node[c,fill=lightblue] (a) at (0,0) {$x_B$（基变量）};
   \node[c,fill=lightblue] (b) at (3.4,0) {$x_N$（非基决策变量）};
@@ -169,11 +169,11 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[font=\scriptsize,auxblue,align=left] at (10.4,-1.3) {$y_s$：对偶约束的\\剩余变量};
 \end{tikzpicture}
 \fig{原问题最优表的检验数行与对偶最优解的对应（笔记 P12 第 7 条）：检验数取负号就是对偶的变量值}
-\end{center}
+\end{figure}
 
 图中第三行是对偶问题各变量的取值：松弛变量列对应对偶决策变量 $y$；决策变量列对应对偶约束的剩余变量 $y_s$（如 $x_j$ 的检验数为 $-\frac{434}{33}$ 时，对偶第 $j$ 条约束多出 $\frac{434}{33}$，见第 5 章）。笔记还提醒：这一读法要求原问题是“$Ax\le b$ 加松弛变量”的形式；若约束是 $\ge$ 或 $=$，要按第 2 章的符号规则调整正负号。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \small
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \i/\t in {0/有最优解,1/无界,2/无可行解} {
@@ -187,7 +187,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   }
 \end{tikzpicture}
 \fig{原问题与对偶问题解的状态只有四种组合可能出现（绿色），其余五种由弱对偶性与强对偶定理排除（红色）}
-\end{center}
+\end{figure}
 
 这张 $3\times3$ 表是本节所有结论的总结：对角线左上角“都有最优解且相等”是强对偶定理；“一个无界、另一个无可行解”是推论 3.3；右下角“都不可行”由图~\ref{fig:unb}(b) 给出例子。
 
@@ -244,7 +244,7 @@ b\T\hat y-c\T\hat x
 \textbf{一句话直观解释：}对偶间隙 $b\T y-c\T x$ 恰好等于“资源剩余量 $\times$ 资源单价”与“产品的亏损额 $\times$ 产量”之和；最优时间隙为 0，所以每一对乘积都只能为 0。
 \end{proofbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \i/\n/\s/\y in {0/煤/84/0, 1/电/0/1.36, 2/油/0/0.52} {
     \begin{scope}[xshift=\i*4.4cm]
@@ -263,7 +263,7 @@ b\T\hat y-c\T\hat x
   }
 \end{tikzpicture}
 \fig{互补松弛的“成对柱状图”（煤电油例）：每一种资源的两根柱子中至少有一根高度为 0}
-\end{center}
+\end{figure}
 
 图中蓝柱是资源剩余量 $(x_3,x_4,x_5)=(84,0,0)$，橙柱是对偶最优解 $(y_1,y_2,y_3)=(0,1.36,0.52)$（两组柱子用了不同的纵向比例尺，只用来看“是否为零”）。煤有剩余，影子价格为 0；电和油用完了，才可能有正的价格。产品侧同理：$x_1=20>0$、$x_2=24>0$，所以两条对偶约束都取等号（例 3.1 中两条约束恰好等于 7 和 12）。
 
@@ -284,7 +284,7 @@ b\T\hat y-c\T\hat x
 \textbf{错在哪里：}定理说的是“二者\textbf{都最优}当且仅当满足互补松弛”。对于非最优的可行解对，对偶间隙 $>0$，必有某一项乘积为正。
 \end{warningbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.6cm,y=0.6cm]
   \begin{scope}
   \fill[feasreg] (0,0)--(4,0)--(4,2)--(0,2)--cycle;
@@ -298,7 +298,7 @@ b\T\hat y-c\T\hat x
   \node[font=\small,align=left,text width=7.2cm] at (14.6,2) {把讲义主例中材料 $B$ 的可用量由 12 改为 8，三条边界线交于同一点 $(4,2)$，出现退化。此时一个最优基为 $\{x_4,x_2,x_1\}$，其中 $x_4=0$ 是取值为零的基变量：材料 $B$ \textbf{恰好用尽}，但它的检验数为 0，影子价格 $y_2=0$。两个因子同时为零，互补松弛照样成立（$0\times0=0$），只是不再“恰有一个为零”。};
 \end{tikzpicture}
 \fig{退化时的互补松弛（对应课件 P42“退化时的互补松弛”）}\label{fig:degen}
-\end{center}
+\end{figure}
 
 \begin{lifebox}[冰箱里剩下的鸡蛋与用光的酱油]
 \begin{minipage}[t]{0.56\linewidth}
@@ -320,7 +320,7 @@ b\T\hat y-c\T\hat x
 \end{minipage}
 \end{lifebox}
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabularx}{\linewidth}{@{}>{\bfseries}lXX@{}}
 \toprule
@@ -334,7 +334,7 @@ b\T\hat y-c\T\hat x
 \bottomrule
 \end{tabularx}\par\nopagebreak[4]
 \captionof{table}{相近概念辨析：弱对偶性与强对偶定理}
-\end{center}
+\end{table}
 
 \begin{checkbox}
 \begin{enumerate}[leftmargin=1.5em]
@@ -350,7 +350,7 @@ b\T\hat y-c\T\hat x
 \paragraph{到这里，我们已经解决了什么？}原问题与对偶问题的目标值“左小右大、最优时相等”，对偶最优解可以从终表直接读出，也可以用互补松弛求出。
 \paragraph{下一步还需要解决什么？}$y^*=(0,1.36,0.52)$ 这组数在经济上究竟意味着什么？“电”的价格 1.36 能指导什么决策？下一章专门讨论这组数——影子价格。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {弱对偶性 $c\T\bar x\le b\T\bar y$};
   \node[k,right=of a] (b) {最优性判别};
@@ -361,4 +361,4 @@ b\T\hat y-c\T\hat x
   \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (a)--(d); \draw[arr] (b)--(d); \draw[arr] (d)--(e); \draw[arr] (d)--(f); \draw[arr] (e)--(f);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}

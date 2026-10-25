@@ -1,7 +1,6 @@
 % ============================================================
 %  正式练习（38 题）：题目区只给题意图，不泄露答案
 % ============================================================
-\clearpage
 \section*{正式练习}
 \addcontentsline{toc}{section}{正式练习（38 题）}
 \markboth{正式练习}{}
@@ -11,8 +10,17 @@
 请先独立完成全部题目，再查“答案速查”，最后读“详细解析”。题目区的图只画题目已经给出的信息；解析区的图另行绘制，画出解题时添加的辅助信息。
 \end{summarybox}
 
+\begin{figure}[!htbp]\centering
+\begin{tikzpicture}[x=0.85cm,y=0.85cm]
+  \exRegion
+  \axes{6}{4}{x_1}{x_2}
+  \exLines
+  \foreach \p in {(0,0),(3,0),(3,1),(1.5,2.5),(0,3)} \node[vpt] at \p {};
+  \node[lab] at (1.2,1.0) {可行域};
+\end{tikzpicture}
+\fig{练习模型 E 的可行域与三条约束边界}\label{fig:exE}
+\end{figure}
 \begin{definitionbox}[公共数据：练习模型 E（第 6、7、9、10、13、14、17、20、22、23、25、26、29--33 题使用）]
-\begin{minipage}[t]{0.52\linewidth}
 某车间生产两种零件，单位利润分别为 3 和 2：
 \[
 \begin{aligned}
@@ -33,27 +41,17 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
 \multicolumn{3}{c|}{$\sigma_j$} & 0 & 0 & $-2$ & 0 & $-1$\\\bottomrule
 \end{tabular}
 \end{center}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.44\linewidth}\vspace{0pt}\centering
-\begin{tikzpicture}[x=0.85cm,y=0.85cm]
-  \exRegion
-  \axes{6}{4}{x_1}{x_2}
-  \exLines
-  \foreach \p in {(0,0),(3,0),(3,1),(1.5,2.5),(0,3)} \node[vpt] at \p {};
-  \node[lab] at (1.2,1.0) {可行域};
-\end{tikzpicture}
-\fig{练习模型 E 的可行域与三条约束边界}\label{fig:exE}
-\end{minipage}
+
 \end{definitionbox}
 
 % ============================================================
 \subsection*{A. 基础巩固训练（25 题）}
 \addcontentsline{toc}{subsection}{A. 基础巩固训练（25 题）}
 
-\needspace{10\baselineskip}\noindent\tagBase{A1. 单项选择题（每题只有一个正确选项）}
+\needspace{5\baselineskip}\noindent\tagBase{A1. 单项选择题（每题只有一个正确选项）}
 
 \Q[\diff{基础·K2}] 练习模型 E 的对偶问题是（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.6cm]
   \foreach \r/\a/\b/\bb in {0/1/1/4,1/1/3/9,2/1/0/3} {
     \node[draw=navy,fill=formulablue,minimum width=0.75cm,minimum height=0.6cm,font=\small] at (0,-\r) {$\a$};
@@ -66,25 +64,25 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[font=\scriptsize] at (0.5,-3.0) {$A$};
 \end{tikzpicture}
 \fig{第 1 题题意图：模型 E 的数据块}
-\end{center}
+\end{figure}
 \opt{$\min w=4y_1+9y_2+3y_3$，$\st y_1+y_2+y_3\ge3$，$y_1+3y_2\ge2$，$y\ge0$}
     {$\min w=3y_1+2y_2$，$\st y_1+y_2\ge4$，$y_1+3y_2\ge9$，$y_1\ge3$，$y\ge0$}
     {$\max w=4y_1+9y_2+3y_3$，$\st y_1+y_2+y_3\le3$，$y_1+3y_2\le2$，$y\ge0$}
     {$\min w=4y_1+9y_2+3y_3$，$\st y_1+y_2\ge3$，$y_1+3y_2+y_3\ge2$，$y\ge0$}
 
 \Q[\diff{基础·K2}] 原问题为 $\max$ 型，它的第 $i$ 个约束是“$\ge$”型，则对偶变量 $y_i$ 应满足（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[box] (p) at (0,0) {原问题（max）\\第 $i$ 个约束：$a_i\T x\ \ge\ b_i$};
   \node[box] (d) at (5.4,0) {对偶问题（min）\\第 $i$ 个变量：$y_i\ \ ?$};
   \draw[arr] (p)--(d);
 \end{tikzpicture}
 \fig{第 2 题题意图}
-\end{center}
+\end{figure}
 \opt{$y_i\ge0$}{$y_i\le0$}{$y_i$ 无符号限制}{$y_i=0$}
 
 \Q[\diff{基础·K3}] 某 max 型线性规划有一个可行解，目标值为 12；它的对偶问题有一个可行解，目标值为 15。关于原问题的最优值 $z^*$，正确的是（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.7cm,y=1cm]
   \draw[ax] (8,0)--(19,0) node[right,font=\scriptsize]{目标值};
   \foreach \x in {10,12,15,17} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.08) {\x};}
@@ -92,11 +90,11 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \fill[greenline] (15,0) circle (2.5pt) node[above,font=\scriptsize,align=center]{对偶某可行解};
 \end{tikzpicture}
 \fig{第 3 题题意图：两个已知的可行目标值}
-\end{center}
+\end{figure}
 \opt{$z^*\le12$}{$12\le z^*\le15$}{$z^*\ge15$}{$z^*=13.5$}
 
 \Q[\diff{基础·K3}] 线性规划 $\max z=2x_1+x_2$，$\st -x_1+x_2\le2$，$x_1,x_2\ge0$ 的可行域如图，目标函数在可行域上无上界。则它的对偶问题（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.55cm,y=0.55cm]
   \fill[feasreg] (0,0)--(5,0)--(5,5)--(3,5)--(0,2)--cycle;
   \axes{5}{5}{x_1}{x_2}
@@ -106,31 +104,31 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[font=\scriptsize,shiftc!80!black] at (5.6,3.4) {$z$ 增大};
 \end{tikzpicture}
 \fig{第 4 题题意图：可行域向右无限延伸，虚线为等值线}
-\end{center}
+\end{figure}
 \opt{也无界}{有最优解}{没有可行解}{无法判断}
 
 \Q[\diff{基础·K1}] 用修正单纯形法计算时，当前基 $B$ 的逆为 $B^{-1}=\begin{pmatrix}\frac12&0\\-\frac12&1\end{pmatrix}$，原模型右端项 $b=(8,7)\T$，则基变量的取值 $x_B$ 为（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
   \node at (0,0) {$\underbrace{\begin{pmatrix}\frac12&0\\[2pt]-\frac12&1\end{pmatrix}}_{B^{-1}}\ \underbrace{\begin{pmatrix}8\\7\end{pmatrix}}_{b}=\ \begin{pmatrix}?\\?\end{pmatrix}$};
 \end{tikzpicture}
 \fig{第 5 题题意图}
-\end{center}
+\end{figure}
 \opt{$(4,3)\T$}{$(8,7)\T$}{$(4,-1)\T$}{$(3,4)\T$}
 
 \Q[\diff{基础·K5}] 在练习模型 E 的最优表中，三种资源的影子价格 $(y_1,y_2,y_3)$ 为（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \small
 \begin{tabular}{@{}l|ccc@{}}\toprule
 最优表中的列 & $x_3$（\ding1 的松弛） & $x_4$（\ding2 的松弛） & $x_5$（\ding3 的松弛）\\\midrule
 检验数 $\sigma_j$ & $-2$ & 0 & $-1$\\\bottomrule
 \end{tabular}
 \captionof{figure}{第 6 题题意图：最优表中松弛变量的检验数}
-\end{center}
+\end{figure}
 \opt{$(-2,0,-1)$}{$(2,0,1)$}{$(0,2,1)$}{$(1,0,2)$}
 
 \Q[\diff{基础·K4}] 练习模型 E 的最优解中，资源 \ding2（材料）还剩 3 kg 未用。则资源 \ding2 的影子价格 $y_2$（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \fill[auxblue!60] (0,0) rectangle (4,0.5); \draw[navy] (0,0) rectangle (6,0.5);
   \node[font=\scriptsize] at (2,0.25) {已用 6};
@@ -138,14 +136,14 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[font=\scriptsize,left] at (0,0.25) {材料 9 kg};
 \end{tikzpicture}
 \fig{第 7 题题意图：资源 \ding2 的使用情况}
-\end{center}
+\end{figure}
 \opt{必为正数}{必为 0}{可能为负数}{等于 3}
 
 \Q[\diff{基础·K6}] 用对偶单纯形法迭代时，每一轮\textbf{首先}确定的是（\quad）。
 \opt{入基变量}{出基变量}{检验数最大的列}{$b$ 列除以入基列的最小比值所在行}
 
 \Q[\diff{基础·K7}] 练习模型 E 中，资源 \ding1 的影子价格 $y_1=2$，其允许变动范围为 $b_1\in[3,5]$。若 $b_1$ 由 4 增至 4.5，则新的最优值为（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.75cm]
   \exRegion
   \axes{6}{4}{x_1}{x_2}
@@ -153,24 +151,24 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \draw[shiftl] (0.3,4.2)--(5.0,-0.5) node[below,font=\scriptsize]{$x_1+x_2=4.5$};
 \end{tikzpicture}
 \fig{第 9 题题意图：橙色虚线为资源 \ding1 增加后的新边界}
-\end{center}
+\end{figure}
 \opt{11}{12}{11.5}{13}
 
 \Q[\diff{基础·K8}] 练习模型 E 中，$c_2$ 的允许变动范围为 $[0,3]$。若 $c_2$ 由 2 改为 4，则（\quad）。
 \opt{最优解不变}{最优解改变，应从原最优表出发继续用单纯形法迭代}{应从原最优表出发用对偶单纯形法迭代}{问题变为无界}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagBase{A2. 多项选择题（每题至少两个正确选项）}
+\needspace{5\baselineskip}\noindent\tagBase{A2. 多项选择题（每题至少两个正确选项）}
 
 \Q[\diff{基础·K2}] 关于对偶问题的构造（原问题为 max 型），下列说法正确的有（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[box,minimum width=3cm] (p) at (0,0) {原问题\\$m$ 个约束，$n$ 个变量};
   \node[box,minimum width=3cm] (d) at (5,0) {对偶问题\\$?$ 个约束，$?$ 个变量};
   \draw[arr] (p)--node[above,font=\scriptsize]{构造}(d);
 \end{tikzpicture}
 \fig{第 11 题题意图}
-\end{center}
+\end{figure}
 \begin{enumerate}[label=\Alph*.,leftmargin=2em]
   \item 原问题的第 $i$ 个约束对应对偶问题的第 $i$ 个变量；
   \item 原问题的变量 $x_j\ge0$ 对应对偶问题的第 $j$ 个约束为“$\ge$”型；
@@ -195,7 +193,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
 \end{enumerate}
 
 \Q[\diff{基础·K4}] 练习模型 E 的最优解为 $x^*=(3,1)$。根据互补松弛条件，下列说法正确的有（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.75cm]
   \exRegion
   \axes{6}{4}{x_1}{x_2}
@@ -204,7 +202,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[lab,right] at (3.15,1.25) {$x^*=(3,1)$};
 \end{tikzpicture}
 \fig{第 14 题题意图：已知最优点}
-\end{center}
+\end{figure}
 \begin{enumerate}[label=\Alph*.,leftmargin=2em]
   \item $y_2=0$；
   \item 因为 $x_1^*>0$，对偶问题的第一个约束 $y_1+y_2+y_3\ge3$ 取等号；
@@ -221,10 +219,10 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
 \end{enumerate}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagBase{A3. 填空题}
+\needspace{5\baselineskip}\noindent\tagBase{A3. 填空题}
 
 \Q[\diff{基础·K2}] 线性规划 $\min z=x_1+2x_2$，$\st x_1+x_2\ge2$，$x_1+3x_2\ge3$，$x_1,x_2\ge0$ 的对偶问题为：$\max w=$\underline{\hspace{2.5cm}}，$\st$ \underline{\hspace{2.5cm}}，\underline{\hspace{2.5cm}}，$y_1,y_2\ge0$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.6cm,y=0.6cm]
   \fill[feasreg] (0,4)--(0,2)--(1.5,0.5)--(3,0)--(5,0)--(5,4)--cycle;
   \axes{5}{4}{x_1}{x_2}
@@ -233,10 +231,10 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   \node[font=\scriptsize,above] at (4.6,-0.2) {$x_1+3x_2=3$};
 \end{tikzpicture}
 \fig{第 16 题题意图：原问题的可行域（向右上方无界）}
-\end{center}
+\end{figure}
 
 \Q[\diff{基础·K5}] 练习模型 E 的影子价格为 $y=(2,0,1)$，右端项 $b=(4,9,3)\T$。利用 $y\T b$ 可得最优值 $z^*=$\underline{\hspace{2cm}}。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \i/\bb/\yy in {0/4/2,1/9/0,2/3/1} {
     \node[draw=navy,fill=warm,minimum width=1.2cm,font=\small] at (\i*1.5,0) {$b_{\the\numexpr\i+1\relax}=\bb$};
@@ -244,12 +242,12 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
   }
 \end{tikzpicture}
 \fig{第 17 题题意图}
-\end{center}
+\end{figure}
 
 \Q[\diff{基础·K1}] 基矩阵 $B=\begin{pmatrix}2&1\\1&3\end{pmatrix}$ 的逆矩阵 $B^{-1}=$\underline{\hspace{3cm}}。
 
 \Q[\diff{基础·K6}] 用对偶单纯形法求解 $\min z=x_1+2x_2$（约束同第 16 题），化为 max 型并乘 $-1$ 后的起始表如下。本轮出基变量为\underline{\hspace{1.2cm}}，入基变量为\underline{\hspace{1.2cm}}，$\theta=$\underline{\hspace{1.2cm}}。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \small
 \begin{tabular}{@{}ccc|cccc@{}}\toprule
 $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
@@ -258,19 +256,19 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
 \multicolumn{3}{c|}{$\sigma_j$} & $-1$ & $-2$ & 0 & 0\\\bottomrule
 \end{tabular}
 \captionof{figure}{第 19 题题意图：起始表}
-\end{center}
+\end{figure}
 
 \Q[\diff{基础·K8}] 练习模型 E 的最优表中，非基变量 $x_3$ 的检验数 $\sigma_3=-2$。若把 $x_3$ 的价值系数由 0 改为 $\Delta$，要保持原最优解仍最优，$\Delta$ 应满足 $\Delta\le$\underline{\hspace{1.5cm}}。
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagBase{A4. 解答题}
+\needspace{5\baselineskip}\noindent\tagBase{A4. 解答题}
 
 \Q[\diff{基础·K2}] 写出下列线性规划的对偶问题：
 \[
 \max z=x_1+2x_2-x_3,\qquad
 \begin{cases}x_1+x_2+x_3\le6\\ 2x_1-x_2\ge2\\ x_2+x_3=4\\ x_1\ge0,\ x_2\le0,\ x_3\text{ 无约束}\end{cases}
 \]
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm,c/.style={draw=navy,fill=lightblue,minimum width=1.7cm,minimum height=0.55cm,font=\small}]
   \node[font=\scriptsize\bfseries] at (0,0.7) {约束类型};
   \node[c] at (0,0) {$\le6$}; \node[c] at (0,-0.65) {$\ge2$}; \node[c] at (0,-1.3) {$=4$};
@@ -278,13 +276,13 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
   \node[c,fill=warm] at (3.2,0) {$x_1\ge0$}; \node[c,fill=warm] at (3.2,-0.65) {$x_2\le0$}; \node[c,fill=warm] at (3.2,-1.3) {$x_3$ 自由};
 \end{tikzpicture}
 \fig{第 21 题题意图：原问题的约束与变量类型}
-\end{center}
+\end{figure}
 
 \Q[\diff{基础·K1}] 对练习模型 E，以松弛变量 $\{x_3,x_4,x_5\}$ 为初始基（$B=I$）做一轮修正单纯形法迭代：
 (1) 计算初始检验数，确定入基变量与出基变量；
 (2) 写出新基矩阵 $B$ 及其逆 $B^{-1}$，求新的 $x_B$；
 (3) 计算新的单纯形乘子 $y\T=c_B\T B^{-1}$ 和非基变量检验数，判断是否已最优。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.7cm,y=0.7cm]
   \exRegion
   \axes{6}{4}{x_1}{x_2}
@@ -293,7 +291,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
   \node[lab,above right] at (0.1,0.1) {初始基解 $(0,0)$};
 \end{tikzpicture}
 \fig{第 22 题题意图：初始基解位于原点}
-\end{center}
+\end{figure}
 
 \Q[\diff{基础·K5}] 练习模型 E 中，资源 \ding3（设备）的影子价格 $y_3=1$，允许范围 $b_3\in[1.5,4]$。现在可以从外部租用设备，每台时租金 0.8。问：是否值得租？最多租几台时（使影子价格仍然有效）？净增利润是多少？租用后的最优解是什么？
 
@@ -305,10 +303,10 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
 \subsection*{B. 中等偏下提升训练（10 题）}
 \addcontentsline{toc}{subsection}{B. 中等偏下提升训练（10 题）}
 
-\needspace{10\baselineskip}\noindent\tagUp{B1. 单项选择题}
+\needspace{5\baselineskip}\noindent\tagUp{B1. 单项选择题}
 
 \Q[\diff{提升·K5+K7}] 练习模型 E 中 $y_1=2$，$b_1$ 的允许范围为 $[3,5]$。若资源 \ding1 由 4 增至 6，最优值实际增加（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.75cm]
   \exRegion
   \axes{6}{4}{x_1}{x_2}
@@ -316,11 +314,11 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
   \draw[shiftl] (1.8,4.2)--(6.3,-0.3) node[right,font=\scriptsize]{$x_1+x_2=6$};
 \end{tikzpicture}
 \fig{第 26 题题意图：资源 \ding1 增至 6 后的新边界（橙色虚线）}
-\end{center}
+\end{figure}
 \opt{4}{2}{0}{6}
 
 \Q[\diff{提升·K4+K3}] 线性规划 $\max z=4x_1+3x_2$，$\st x_1+x_2\le5$，$2x_1+x_2\le8$，$x_1,x_2\ge0$ 的最优解为 $x^*=(3,2)$。其对偶问题的最优解 $y^*$ 为（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.6cm,y=0.6cm]
   \fill[feasreg] (0,0)--(4,0)--(3,2)--(0,5)--cycle;
   \axes{6}{5}{x_1}{x_2}
@@ -329,11 +327,11 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
   \node[optpt] at (3,2) {}; \node[lab,right] at (3.15,2.25) {$x^*=(3,2)$};
 \end{tikzpicture}
 \fig{第 27 题题意图：原问题的可行域与已知最优点}
-\end{center}
+\end{figure}
 \opt{$(2,1)$}{$(1,2)$}{$(0,4)$}{$(3,0)$}
 
 \Q[\diff{提升·K6}] 对偶单纯形法某一轮中，出基行与检验数行如下（右端 $b_r=-6$）。应选（\quad）入基。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \small
 \begin{tabular}{@{}l|ccccc@{}}\toprule
  & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
@@ -341,11 +339,11 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
 检验数 $\sigma$ & $-3$ & $-1$ & $-2$ & 0 & 0\\\bottomrule
 \end{tabular}
 \captionof{figure}{第 28 题题意图}
-\end{center}
+\end{figure}
 \opt{$x_1$}{$x_2$}{$x_3$}{问题无可行解}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagUp{B2. 多项选择题}
+\needspace{5\baselineskip}\noindent\tagUp{B2. 多项选择题}
 
 \Q[\diff{提升·K5+K7+K8}] 对练习模型 E（$y=(2,0,1)$；$b_1\in[3,5]$，$b_2\in[6,+\infty)$，$b_3\in[1.5,4]$；$c_1\in[2,+\infty)$，$c_2\in[0,3]$），下列说法正确的有（\quad）。
 \begin{enumerate}[label=\Alph*.,leftmargin=2em]
@@ -356,14 +354,14 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
 \end{enumerate}
 
 \Q[\diff{提升·K9+K5}] 在练习模型 E 中新增一种零件 $x_6$，每件消耗资源 \ding1、\ding2、\ding3 分别为 1、2、0，单位利润为 $c_6$。下列说法正确的有（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[draw=navy,fill=lightblue,font=\small] at (0,0) {$P_6=\begin{pmatrix}1\\2\\0\end{pmatrix}$};
   \node[draw=navy,fill=lightblue,font=\small] at (3.2,0) {$y=(2,0,1)$};
   \node[draw=navy,fill=warm,font=\small] at (6.0,0) {利润 $c_6$};
 \end{tikzpicture}
 \fig{第 30 题题意图：新产品的数据}
-\end{center}
+\end{figure}
 \begin{enumerate}[label=\Alph*.,leftmargin=2em]
   \item 若 $c_6=1.5$，新零件不值得生产；
   \item 若 $c_6=3$，新零件值得生产，应把它的列写入最优表后继续单纯形法；
@@ -372,12 +370,12 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
 \end{enumerate}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagUp{B3. 填空题}
+\needspace{5\baselineskip}\noindent\tagUp{B3. 填空题}
 
 \Q[\diff{提升·K5+K7}] 练习模型 E 中，资源 \ding3 的影子价格为\underline{\hspace{1.2cm}}；在最优基不变的前提下，$b_3$ 最多可以增至\underline{\hspace{1.2cm}}，此时最优值为\underline{\hspace{1.2cm}}。
 
 \Q[\diff{提升·K6+K9}] 在练习模型 E 中新增约束 $x_2\le0.5$。用对偶单纯形法求得的新最优解为 $x^*=$\underline{\hspace{2cm}}，新最优值为\underline{\hspace{1.5cm}}。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.75cm]
   \exRegion
   \axes{6}{4}{x_1}{x_2}
@@ -385,12 +383,12 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$\\\midrule
   \draw[shiftl] (-0.2,0.5)--(6.3,0.5) node[right,font=\scriptsize]{$x_2=0.5$};
 \end{tikzpicture}
 \fig{第 32 题题意图：新增约束的边界（橙色虚线）}
-\end{center}
+\end{figure}
 
 \Q[\diff{提升·K8}] 练习模型 E 中，基变量 $x_1$ 的价值系数 $c_1$ 的允许变动范围为\underline{\hspace{2.5cm}}。
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagUp{B4. 综合大题}
+\needspace{5\baselineskip}\noindent\tagUp{B4. 综合大题}
 
 \Q[\diff{提升·K2+K4+K5+K7}] 一家小面包坊生产面包（$x_1$ 批）和蛋糕（$x_2$ 批），每批利润分别为 5 和 4（百元）。面粉每天 8 袋，烤箱每天 12 小时，奶油每天 3.5 盒：
 \[
@@ -405,7 +403,7 @@ $B^{-1}=\begin{pmatrix}-\frac12&\frac12&0\\[2pt]\frac34&-\frac14&0\\[2pt]-\frac3
   \item 若可以额外租用烤箱，每小时租金 1（百元），是否值得？租 1 小时净增利润多少？（需说明为何可以直接使用影子价格）
   \item 求面粉可用量 $b_1$ 的允许变动范围。
 \end{enumerate}
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.7cm,y=0.7cm]
   \fill[feasreg] (0,0)--(4,0)--(2,3)--(1,3.5)--(0,3.5)--cycle;
   \axes{6}{5}{x_1}{x_2}
@@ -415,7 +413,7 @@ $B^{-1}=\begin{pmatrix}-\frac12&\frac12&0\\[2pt]\frac34&-\frac14&0\\[2pt]-\frac3
   \node[optpt] at (2,3) {}; \node[lab,right] at (2.15,2.7) {$x^*=(2,3)$};
 \end{tikzpicture}
 \fig{第 34 题题意图：面包坊问题的可行域与已知最优点}
-\end{center}
+\end{figure}
 
 \Q[\diff{提升·K6+K9+K1}] （续第 34 题）面包坊增加一条包装限制：每天最多包装 4.5 批，即 $x_1+x_2\le4.5$。最优表中 $x_1,x_2$ 两行为
 $x_1-\frac12x_3+\frac12x_4=2$，\ $x_2+\frac34x_3-\frac14x_4=3$，检验数 $\sigma_3=-\frac12$，$\sigma_4=-\frac32$（$x_3,x_4,x_5$ 分别为面粉、烤箱、奶油的松弛变量）。
@@ -425,7 +423,7 @@ $x_1-\frac12x_3+\frac12x_4=2$，\ $x_2+\frac34x_3-\frac14x_4=3$，检验数 $\si
   \item 用对偶单纯形法求新的最优方案；
   \item 新的最优利润是多少？比原来减少多少？用新约束的影子价格解释这一减少量。
 \end{enumerate}
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.7cm,y=0.7cm]
   \fill[feasreg] (0,0)--(4,0)--(2,3)--(1,3.5)--(0,3.5)--cycle;
   \axes{6}{5}{x_1}{x_2}
@@ -436,18 +434,18 @@ $x_1-\frac12x_3+\frac12x_4=2$，\ $x_2+\frac34x_3-\frac14x_4=3$，检验数 $\si
   \node[optpt] at (2,3) {};
 \end{tikzpicture}
 \fig{第 35 题题意图：新增包装限制（橙色虚线）}
-\end{center}
+\end{figure}
 
 % ============================================================
 \subsection*{C. 跨学科迁移训练（3 题）}
 \addcontentsline{toc}{subsection}{C. 跨学科迁移训练（3 题）}
 
-\needspace{10\baselineskip}\noindent\tagCross{C1. 跨学科单项选择题}
+\needspace{5\baselineskip}\noindent\tagCross{C1. 跨学科单项选择题}
 
 \Q[\diff{跨学科·电力系统·K5}] \textbf{背景：}电网调度要用最低成本满足负荷。设两台发电机：G1 发电成本 20 元/MWh，最大出力 60 MW；G2 发电成本 30 元/MWh，最大出力 100 MW。负荷为 80 MW。调度模型为
 $\min C=20p_1+30p_2$，$\st p_1+p_2=80$（供需平衡），$0\le p_1\le60$，$0\le p_2\le100$。
 供需平衡约束的对偶变量（影子价格）称为“边际电价”，表示负荷再增加 1 MW 时最低总成本的增加量。该边际电价为（\quad）元/MWh。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.06cm,y=0.085cm]
   \draw[ax] (0,0)--(175,0) node[right,font=\scriptsize]{累计出力 / MW};
   \draw[ax] (0,0)--(0,45) node[above,font=\scriptsize]{成本 元/MWh};
@@ -458,16 +456,16 @@ $\min C=20p_1+30p_2$，$\st p_1+p_2=80$（供需平衡），$0\le p_1\le60$，$0
   \draw[redline,thick,dashed] (80,0)--(80,40) node[above,font=\scriptsize]{负荷 80};
 \end{tikzpicture}
 \fig{第 36 题题意图：两台机组按成本由低到高排列}
-\end{center}
+\end{figure}
 \opt{20}{25}{30}{50}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagCross{C2. 跨学科多项选择题}
+\needspace{5\baselineskip}\noindent\tagCross{C2. 跨学科多项选择题}
 
 \Q[\diff{跨学科·营养学·K3+K4+K5}] \textbf{背景：}营养配餐要用最少的钱满足营养需求。食物 $a$ 每份 3 元，含蛋白质 2 单位、维生素 1 单位；食物 $b$ 每份 2 元，含蛋白质 1 单位、维生素 2 单位。每天至少需要蛋白质 8 单位、维生素 7 单位：
 $\min C=3a+2b$，$\st 2a+b\ge8$，$a+2b\ge7$，$a,b\ge0$。
 其对偶问题可理解为：一家营养片厂商给每单位蛋白质、维生素分别定价 $u,v$，在“营养片不比食物贵”（$2u+v\le3$，$u+2v\le2$）的前提下使收入 $8u+7v$ 最大。已知最优配餐为 $a=3$，$b=2$。下列说法正确的有（\quad）。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.42cm,y=0.42cm]
   \fill[feasreg] (0,9)--(0,8)--(3,2)--(7,0)--(9,0)--(9,9)--cycle;
   \axes{9}{9}{a}{b}
@@ -476,7 +474,7 @@ $\min C=3a+2b$，$\st 2a+b\ge8$，$a+2b\ge7$，$a,b\ge0$。
   \node[optpt] at (3,2) {}; \node[lab,above right] at (3.1,2.1) {$(3,2)$};
 \end{tikzpicture}
 \fig{第 37 题题意图：配餐问题的可行域与已知最优点}
-\end{center}
+\end{figure}
 \begin{enumerate}[label=\Alph*.,leftmargin=2em]
   \item 每天最低花费为 13 元；
   \item 若蛋白质需求增加 1 单位（9 单位），最低花费增加 $\frac43$ 元；
@@ -485,10 +483,10 @@ $\min C=3a+2b$，$\st 2a+b\ge8$，$a+2b\ge7$，$a,b\ge0$。
 \end{enumerate}
 
 \medskip
-\needspace{10\baselineskip}\noindent\tagCross{C3. 跨学科填空题}
+\needspace{5\baselineskip}\noindent\tagCross{C3. 跨学科填空题}
 
 \Q[\diff{跨学科·计算机·K3+K5}] \textbf{背景：}云平台把 CPU 和内存分配给多类计算任务，以最大化收益为目标建立线性规划（约束为“资源用量 $\le$ 容量”）。求解后得到：CPU 容量 40 核时，影子价格 0.5 元/核时；内存容量 100 GB$\cdot$时，影子价格 0.2 元/(GB$\cdot$时)。则该平台的最大收益为\underline{\hspace{1.5cm}}元；若再以 0.3 元/核时租入 5 核时 CPU（已知在允许范围内），净收益增加\underline{\hspace{1.5cm}}元。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[draw=navy,fill=warm,font=\small,minimum width=3cm] at (0,0) {CPU：40 核时};
   \node[draw=navy,fill=warm,font=\small,minimum width=3cm] at (0,-0.7) {内存：100 GB$\cdot$时};
@@ -496,4 +494,4 @@ $\min C=3a+2b$，$\st 2a+b\ge8$，$a+2b\ge7$，$a,b\ge0$。
   \node[draw=navy,fill=lightblue,font=\small,minimum width=2.6cm] at (3.6,-0.7) {$y_{\text{内存}}=0.2$};
 \end{tikzpicture}
 \fig{第 38 题题意图}
-\end{center}
+\end{figure}

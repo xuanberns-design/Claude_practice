@@ -26,7 +26,7 @@
 可行性公式里没有 $c$，最优性公式里没有 $b$。所以\textbf{改 $b$ 只可能破坏可行性，改 $c$ 只可能破坏最优性}——两条判据可以分开核验，这是灵敏度分析能逐条单独处理的根本原因。
 \end{theorembox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   p/.style={box,minimum width=2.6cm,minimum height=0.75cm,font=\small},
   c1/.style={draw=auxblue,fill=grayblue,rounded corners=2pt,minimum width=2.6cm,minimum height=0.75cm,font=\small,align=center},
@@ -49,7 +49,7 @@
   \node[rbox,font=\scriptsize,text width=3.0cm] at (9.2,-4.0) {两条同时不满足：\\引入人工变量重解};
 \end{tikzpicture}
 \fig{灵敏度分析的判定图（课件 P47、P50）：每类改动只需核验一条判据；越界后按缺失的判据选择续解算法}\label{fig:satree}
-\end{center}
+\end{figure}
 
 图~\ref{fig:satree} 从左往右读：先看改了哪类参数，再看它会影响哪条判据，最后看判据失效时用什么算法补救。改动之后最终只会落入三种情形之一（课件 P45）：
 \begin{enumerate}[label=\textbf{情形\arabic*}，,leftmargin=4em]
@@ -95,7 +95,7 @@ x_1\text{ 行：} & 4+\frac14\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-16\quad
 \textbf{结果：}$-8\le\Delta b_1\le16$，即 $b_1\in[8,32]$。在此范围内最优基 $\{x_4,x_2,x_1\}$ 不变，材料 $A$ 的影子价格恒为 $\frac18$；最优解按 $x_B'=x_B+\Delta b_1\beta_1$ 重算，最优值按 $z^*+\frac18\Delta b_1$ 更新。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.36cm,y=1cm]
   \draw[ax] (-20,0)--(21,0) node[right,font=\scriptsize]{$\Delta b_1$};
   \foreach \x in {-16,-8,0,16} {\draw (\x,0.08)--(\x,-0.08); \node[below,font=\tiny] at (\x,-0.08) {\x};}
@@ -106,9 +106,9 @@ x_1\text{ 行：} & 4+\frac14\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-16\quad
   \node[font=\scriptsize,shiftc!80!black] at (4,-0.85) {交集 $[-8,16]$，即 $b_1\in[8,32]$};
 \end{tikzpicture}
 \fig{例 6.1 的不等式在数轴上：三条射线的公共部分就是允许范围}\label{fig:db1}
-\end{center}
+\end{figure}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.55cm,y=0.55cm]
   \begin{scope}
     \lecRegion
@@ -137,13 +137,13 @@ x_1\text{ 行：} & 4+\frac14\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-16\quad
   \end{scope}
 \end{tikzpicture}
 \fig{右端项允许范围的几何直观（课件 P57--P58）：两条橙色虚线是范围的两个端点，端点之间最优顶点始终由同一对约束交出}\label{fig:brange}
-\end{center}
+\end{figure}
 
 图~\ref{fig:brange}(a) 中，材料 $A$ 的边界（竖线）在 $x_1=2$ 与 $x_1=8$ 之间平移时，最优顶点始终是“材料 $A$ 线与台时线的交点”，只是沿台时斜线滑动；到 $b_1=8$ 时滑到 $(2,3)$，碰上材料 $B$ 的边界；到 $b_1=32$ 时滑到 $(8,0)$，碰上 $x_2=0$。再往外，交点所在的约束组合就变了，最优基随之改变。图 (b) 同理：台时线在 $b_3=4$ 与 $b_3=10$ 之间平移，最优顶点沿材料 $A$ 竖线从 $(4,0)$ 升到 $(4,3)$。
 
 对另外两项右端作同样计算（课件 P56、P59）：$\beta_3=(-2,\frac12,0)\T$ 给出 $4-2\Delta b_3\ge0$、$2+\frac12\Delta b_3\ge0$，即 $b_3\in[4,10]$；$\beta_2=(1,0,0)\T$ 只有第一行 $4+\Delta b_2\ge0$ 起作用，上界不存在，$b_2\in[8,+\infty)$——材料 $B$ 本来就有 4 kg 富余，再多也不改变最优基，只有减少超过 4 kg 才会使它变为紧约束。
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabular}{@{}lcccl@{}}
 \toprule
@@ -153,7 +153,7 @@ x_1\text{ 行：} & 4+\frac14\Delta b_1\ge0 & \Rightarrow\ \Delta b_1\ge-16\quad
 设备台时 & 8 & $[4,10]$ & $\frac32$ & 最紧缺的资源\\\bottomrule
 \end{tabular}\par\nopagebreak[4]
 \captionof{table}{三条右端项范围汇总（课件 P60）}\label{tab:brange}
-\end{center}
+\end{table}
 
 \begin{examplebox}[例 6.2　越出范围：材料 $A$ 增至 36 kg \fillTag]
 $\Delta b_1=20>16$，超出范围。按传递公式 $x_B'=(4,2,4)\T+20\cdot(\frac12,-\frac18,\frac14)\T=(14,\,-\frac12,\,9)\T$，$x_2$ 行变负。此时 $\sigma$ 行不变（仍 $\le0$），表处于“对偶可行而原始不可行”状态，直接用对偶单纯形法：\par
@@ -228,7 +228,7 @@ x_5\text{ 列：} & -\frac32-\Delta c_2\cdot\frac12\le0 & \Rightarrow\ \Delta c_
 同理，产品一（第 3 行）：$t_{33}=\frac14$ 给出 $-\frac18-\frac14\Delta c_1\le0\Rightarrow\Delta c_1\ge-\frac12$；$t_{35}=0$ 不构成条件。故 $c_1\in[\frac32,+\infty)$（课件 P71）。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.62cm,y=0.62cm]
   \lecRegion
   \axes{9}{5}{x_1}{x_2}
@@ -251,7 +251,7 @@ x_5\text{ 列：} & -\frac32-\Delta c_2\cdot\frac12\le0 & \Rightarrow\ \Delta c_
   \node[font=\scriptsize,optc] at (7.4,4.6) {$c_2$ 增大，等值线变缓};
 \end{tikzpicture}
 \fig{价值系数范围的几何直观（课件 P70--P71）：等值线随 $c_2$ 旋转，在两个端点处与某条边界重合，此时整条棱上的点都是最优解}\label{fig:c2}
-\end{center}
+\end{figure}
 
 图~\ref{fig:c2} 中黑色虚线是当前等值线 $2x_1+3x_2=14$。$c_2$ 变化时等值线绕最优点旋转：$c_2$ 减到 0，等值线变成竖直线，与材料 $A$ 的边界 $x_1=4$ 重合，$(4,0)$ 到 $(4,2)$ 整条竖棱（红色）都是最优解；$c_2$ 增到 4，等值线与台时线 $x_1+2x_2=8$ 平行，$(4,2)$ 到 $(2,3)$ 整条斜棱（橙色）都是最优解。$c_2$ 在 $[0,4]$ 内，等值线的斜率夹在两条边界线的斜率之间，最优顶点始终是 $(4,2)$。产品一的范围无上界：$x_1$ 已被材料 $A$ 顶到上限 4，利润再高也没有资源再扩产。
 
@@ -301,7 +301,7 @@ y\T P_6=\tfrac18\cdot1+0\cdot0+\tfrac32\cdot1=\tfrac{13}{8},\qquad \sigma_6=2-\t
 \textbf{本题真正想说明什么：}判断“是否值得生产”只需一次内积，不必重解整个问题。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \draw[ax] (0,0)--(7.6,0);
   \fill[auxblue!60] (0.6,0) rectangle (1.6,0.25); \node[font=\scriptsize,above] at (1.1,0.25) {材料 $A$ $\frac18$};
@@ -314,7 +314,7 @@ y\T P_6=\tfrac18\cdot1+0\cdot0+\tfrac32\cdot1=\tfrac{13}{8},\qquad \sigma_6=2-\t
   \draw[dashed,black!50] (0.4,3.25)--(7.0,3.25) node[right,font=\scriptsize]{$\frac{13}{8}$};
 \end{tikzpicture}
 \fig{新增变量的判断：利润柱是否高过机会成本线（纵轴每格 0.5 元）}\label{fig:newvar}
-\end{center}
+\end{figure}
 
 图~\ref{fig:newvar} 中左边的叠柱是产品三占用资源的机会成本：材料 $A$ 只贡献 $\frac18$，台时贡献 $\frac32$，合计 $\frac{13}{8}$（虚线）。绿柱是利润 2，高过虚线，所以值得生产；若利润只有 1.5（红柱），低于虚线，不值得。修改\textbf{非基变量的技术系数}（某个现在不生产的产品改进了工艺）与此完全相同：把新的 $P_k$ 代入 $\sigma_k=c_k-y\T P_k$ 即可；修改\textbf{基变量的技术系数}会同时改变 $B$ 与 $B^{-1}$，两条判据都要核验，是最复杂的情形（课件 P47），本课程一般不要求。
 
@@ -359,7 +359,7 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
 \textbf{检查：}$50+\frac32\cdot500+4\cdot300=2000$ ✓，$2\cdot50+\frac65\cdot500+300=1000$ ✓。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
 \begin{axis}[ybar,width=11cm,height=4.6cm,bar width=13pt,ymin=0,ymax=700,
   symbolic x coords={$x_1$,$x_2$,$x_3$},xtick=data,ylabel={产量},
@@ -373,7 +373,7 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
 \end{axis}
 \end{tikzpicture}
 \fig{新增约束前后的生产方案对比（课件 P82）：$x_2$ 被压到上限 500，腾出的资源转给 $x_3$ 和原来不生产的 $x_1$}\label{fig:newcon}
-\end{center}
+\end{figure}
 
 图~\ref{fig:newcon} 中红色虚线是新约束 $x_2\le500$。约束迫使 $x_2$ 从 606 降到 500，腾出的资源一部分给 $x_3$（272.7 $\to$ 300），一部分让原来不生产的 $x_1$ 开始生产（0 $\to$ 50）。总利润从约 11757.58 降到 11100——\textbf{加约束只会让可行域变小，最优值不会变好}。整个过程只做了一次旋转，而重新建模求解要从头算起。
 
@@ -397,7 +397,7 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
 \end{minipage}
 \end{lifebox}
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabularx}{\linewidth}{@{}>{\bfseries}l>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -410,7 +410,7 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
 常见错误 & 用最优表的 $b$ 代替原 $b$ & 基变量误用“只改本列”的公式 & 忘记消去新行中的基变量系数\\\bottomrule
 \end{tabularx}\par\nopagebreak[4]
 \captionof{table}{相近概念辨析：三类灵敏度分析}\label{tab:sacmp}
-\end{center}
+\end{table}
 
 \begin{checkbox}
 \begin{enumerate}[leftmargin=1.5em]
@@ -426,7 +426,7 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
 \paragraph{到这里，我们已经解决了什么？}我们能对资源量、价格、新产品、新约束的改动做出完整判断，并在原表失效时用一两次迭代恢复最优。
 \paragraph{整个专题解决了什么？}从第 1 章的 $B^{-1}$ 出发，我们依次得到：修正单纯形法（只维护 $B^{-1}$）、对偶问题与对偶定理（$y\T=c_B\T B^{-1}$ 是对偶最优解）、影子价格（$y_i=\partial z^*/\partial b_i$）、对偶单纯形法（保住 $\sigma\le0$ 找可行）、灵敏度分析（两条判据分开核验）。下一章把这些内容汇总成便于复习的总表。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {两条判据};
   \node[k,right=of a] (b) {改 $b$：可行性};
@@ -442,4 +442,4 @@ $b\ge0$、$\sigma\le0$，最优：$x_1=50$，$x_2=500$，$x_3=300$，$z=500+7000
   \draw[arr] (a)|-(h); \draw[arr] (h)--(i);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}

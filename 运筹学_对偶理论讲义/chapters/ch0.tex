@@ -10,7 +10,7 @@
 
 对偶理论并不是先有数学、后找应用。它是在“怎样给稀缺资源定价”和“怎样快速求解大规模线性规划”这两个现实问题的推动下逐步形成的。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \draw[very thick,navy] (0,0)--(15.6,0);
   \foreach \x/\yr/\t/\d in {
@@ -26,7 +26,7 @@
   }
 \end{tikzpicture}
 \fig{对偶理论发展的五个关键节点（时间轴只标出与本章直接相关的事件）}
-\end{center}
+\end{figure}
 
 \begin{historybox}[人们遇到了什么问题？]
 \begin{itemize}
@@ -38,22 +38,12 @@
 \end{historybox}
 \tip[说明]{“谁最早提出对偶”在文献中有不同叙述，上面采用较保守的说法：对偶思想在 1947 年丹齐格与冯·诺伊曼的交流中出现，严格证明于 1951 年发表。}
 
-\needspace{14\baselineskip}
+
 \subsection*{从课本到现实：这个知识到底有什么用？}
 \addcontentsline{toc}{subsection}{从课本到现实：这个知识到底有什么用？}
 
-\begin{sciencebox}[三个真实系统里的对偶变量]
-\begin{minipage}[t]{0.58\linewidth}
-\textbf{1. 电力市场的“节点电价”。}电网调度机构每隔一段时间求解一个“满足负荷、成本最低”的优化问题。每个节点“供需平衡”约束对应的对偶变量，就是该节点再多用 1 兆瓦时电能所增加的系统成本，许多电力市场直接把它作为结算电价（称为节点边际电价，LMP）。本讲义的跨学科第 36 题就是它的简化版。
+\begin{figure}[!htbp]\centering
 
-\smallskip
-\textbf{2. 航空公司的“票价门槛”。}一架航班的座位是有限资源。收益管理系统先求解一个线性规划，用各航段座位约束的对偶价格估计“一个座位的机会成本”。如果一张联程票的价格低于它占用的各段座位影子价格之和，系统就倾向于不卖。
-
-\smallskip
-\textbf{3. 求解器里的“重新优化”。}整数规划的分支定界法会反复往线性规划里加一条约束再求解。每加一条约束，旧的最优表就变成“对偶可行而原始不可行”的状态，用对偶单纯形法通常几步就能恢复最优——这正是第 6 章“新增约束”的内容。
-\end{minipage}\hfill
-\begin{minipage}[t]{0.38\linewidth}
-\vspace{2pt}
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[box,minimum width=3.6cm] (m) at (0,0) {线性规划\\（原问题）};
   \node[wbox,minimum width=3.6cm] (a) at (0,-1.7) {对偶变量 $y_i$};
@@ -64,7 +54,16 @@
   \draw[arr] (a)--(p); \draw[arr] (a)--(q); \draw[arr] (a)--(r);
 \end{tikzpicture}
 \fig{课堂上的 $y_i$ 在三个系统中的身份}
-\end{minipage}
+\end{figure}
+\begin{sciencebox}[三个真实系统里的对偶变量]
+\textbf{1. 电力市场的“节点电价”。}电网调度机构每隔一段时间求解一个“满足负荷、成本最低”的优化问题。每个节点“供需平衡”约束对应的对偶变量，就是该节点再多用 1 兆瓦时电能所增加的系统成本，许多电力市场直接把它作为结算电价（称为节点边际电价，LMP）。本讲义的跨学科第 36 题就是它的简化版。
+
+\smallskip
+\textbf{2. 航空公司的“票价门槛”。}一架航班的座位是有限资源。收益管理系统先求解一个线性规划，用各航段座位约束的对偶价格估计“一个座位的机会成本”。如果一张联程票的价格低于它占用的各段座位影子价格之和，系统就倾向于不卖。
+
+\smallskip
+\textbf{3. 求解器里的“重新优化”。}整数规划的分支定界法会反复往线性规划里加一条约束再求解。每加一条约束，旧的最优表就变成“对偶可行而原始不可行”的状态，用对偶单纯形法通常几步就能恢复最优——这正是第 6 章“新增约束”的内容。
+
 \end{sciencebox}
 
 本节讲的是整个专题在现实系统中的位置；每个知识点各自的生活例子放在相应章节的“生活中的它”模块里，二者不重复。
@@ -75,9 +74,8 @@
 
 本讲义依据三份原始资料。下表说明每份资料讲了什么、对应讲义哪一章，以及讲义补充了什么。
 
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
+{\small
+\begin{xltabular}{\linewidth}{@{}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{lightblue}\textbf{原始资料} & \textbf{可靠识别的内容} & \textbf{对应章节} & \textbf{讲义补充（教学补全）}\\
 \midrule
@@ -93,8 +91,8 @@
 \addlinespace
 课件《影子价格与灵敏度分析》73 页 & 例题 $\max z=2x_1+3x_2$（材料 $A$、$B$、设备台时）；$B^{-1}$ 的读取；影子价格计算与几何验证；互补松弛四步推导；灵敏度分析三种情形、两条判据、四个步骤；$b_1,b_2,b_3,c_1,c_2$ 的范围 & 第 4、6 章 & 新增变量、新增约束的公式；价值系数范围的几何解释统一\\
 \bottomrule
-\end{tabularx}
-\end{center}
+\end{xltabular}}
+
 
 \paragraph{无法可靠辨认的内容。}手写笔记第 1 页“回顾”一行末尾被纸张边缘截断，可辨认出“人工变量法/退化/整数规划”，其后文字\textbf{原始资料此处无法可靠辨认}，不影响本章内容。第 5 页引例表格中“煤”的资源限制数字字迹有涂改，但后文模型统一写作 $9x_1+4x_2\le360$，终表 $x_3=84$ 也与 360 吻合，因此按 360 处理。
 
@@ -153,7 +151,7 @@
 \subsection*{知识点总览与关系图}
 \addcontentsline{toc}{subsection}{知识点总览与关系图}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.55cm and 0.45cm,
   k/.style={box,minimum width=2.75cm,minimum height=1.0cm,text width=2.6cm}]
   \node[k] (K1) {\textbf{K1} 矩阵视角\\修正单纯形法};
@@ -170,6 +168,6 @@
   \draw[arr] (K5) to[bend right=25] (K7);
 \end{tikzpicture}
 \fig{九个核心知识点之间的依赖关系。箭头 $A\to B$ 表示学 $B$ 时要用到 $A$}
-\end{center}
+\end{figure}
 
 整份讲义按图中从左上到右下的顺序展开。读者可以把这张图当作“地铁线路图”：每学完一站，回来看看自己走到了哪里。

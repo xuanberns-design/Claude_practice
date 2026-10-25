@@ -8,11 +8,27 @@
 \noindent\textbf{本章回答三个问题：}(1) 起始基解不可行时，单纯形法为什么走不下去？(2) 检验数已经合格而基解不可行的表能不能用？(3) 这样的表按什么规则迭代？\par
 \noindent\textbf{本章知识路线：}问题引入 $\to$ 原始可行与对偶可行 $\to$ 出基判据 $\to$ 入基判据 $\to$ 算法 $\to$ 例题与几何路径 $\to$ 与原问题单纯形表的对照。
 
-\needspace{12\baselineskip}
+
 \subsection{问题引入：起始表不可行，单纯形法无从起步}
 
+\begin{figure}[!htbp]\centering
+\begin{tikzpicture}[x=0.46cm,y=0.4cm]
+  \fill[feasreg] (0,14.5)--(0,12)--(0.121,11.515)--(8.889,0.556)--(10,0)--(12.5,0)--(12.5,14.5)--cycle;
+  \draw[gridl] (0,0) grid[step=2] (12,14);
+  \draw[ax] (-0.3,0)--(13,0) node[right,font=\scriptsize]{$y_1$};
+  \draw[ax] (0,-0.3)--(0,15) node[above,font=\scriptsize]{$y_2$};
+  \foreach \i in {2,4,...,12} \node[below,font=\tiny,black!60] at (\i,0) {\i};
+  \foreach \i in {2,4,...,14} \node[left,font=\tiny,black!60] at (0,\i) {\i};
+  \draw[con] (-0.6,5.3)--(12.5,-1.25);
+  \draw[con] (0,11.667)--(10.5,-1.45);
+  \draw[con] (-0.3,13.2)--(3.3,-1.2);
+  \node[badpt] at (0,0) {};
+  \node[font=\scriptsize,lab,text=badc] at (2.6,1.2) {$y=(0,0)$};
+  \node[font=\scriptsize,green!35!black] at (8,10) {可行域};
+\end{tikzpicture}
+\fig{起始基解 $y=(0,0)$ 落在可行域之外}\label{fig:ds0}
+\end{figure}
 \begin{examplebox}[主例　\srcTag{课件《对偶单纯形法》P2--P20}]
-\begin{minipage}[t]{0.52\linewidth}
 \[
 \begin{aligned}
 \min w&=2000y_1+1000y_2\\
@@ -31,24 +47,7 @@ $y_1$ 是每单位原材料的价格，$y_2$ 是每台时的价格；三条约�
 -4y_1-y_2+y_5&=-12
 \end{aligned}
 \]
-\end{minipage}\hfill
-\begin{minipage}[t]{0.45\linewidth}\vspace{0pt}\centering
-\begin{tikzpicture}[x=0.46cm,y=0.4cm]
-  \fill[feasreg] (0,14.5)--(0,12)--(0.121,11.515)--(8.889,0.556)--(10,0)--(12.5,0)--(12.5,14.5)--cycle;
-  \draw[gridl] (0,0) grid[step=2] (12,14);
-  \draw[ax] (-0.3,0)--(13,0) node[right,font=\scriptsize]{$y_1$};
-  \draw[ax] (0,-0.3)--(0,15) node[above,font=\scriptsize]{$y_2$};
-  \foreach \i in {2,4,...,12} \node[below,font=\tiny,black!60] at (\i,0) {\i};
-  \foreach \i in {2,4,...,14} \node[left,font=\tiny,black!60] at (0,\i) {\i};
-  \draw[con] (-0.6,5.3)--(12.5,-1.25);
-  \draw[con] (0,11.667)--(10.5,-1.45);
-  \draw[con] (-0.3,13.2)--(3.3,-1.2);
-  \node[badpt] at (0,0) {};
-  \node[font=\scriptsize,lab,text=badc] at (2.6,1.2) {$y=(0,0)$};
-  \node[font=\scriptsize,green!35!black] at (8,10) {可行域};
-\end{tikzpicture}
-\fig{起始基解 $y=(0,0)$ 落在可行域之外}\label{fig:ds0}
-\end{minipage}
+
 \begin{center}\small
 \begin{tabular}{@{}ccc|ccccc@{}}
 \toprule
@@ -82,7 +81,7 @@ $c_B$ & $x_B$ & $b$ & $y_1$ & $y_2$ & $y_3$ & $y_4$ & $y_5$\\\midrule
 
 “对偶可行”这个名字来自第 3 章：检验数 $\sigma\le0$ 等价于 $y\T=c_B\T B^{-1}$ 满足对偶约束且 $y\ge0$（强对偶定理证明的第二、三步）。所以 $\sigma\le0$ 恰好说明“由这张表读出的对偶解是可行的”。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \fill[lightgreen] (0,0) rectangle (5,2.2); \fill[lightred] (5,0) rectangle (10,2.2);
   \draw[navy] (0,0) rectangle (10,2.2); \draw[navy] (5,0)--(5,2.2);
@@ -94,7 +93,7 @@ $c_B$ & $x_B$ & $b$ & $y_1$ & $y_2$ & $y_3$ & $y_4$ & $y_5$\\\midrule
   \draw[arr] (2.5,0)--(4.2,-0.6); \draw[arr] (7.5,0)--(5.8,-0.6);
 \end{tikzpicture}
 \fig{两条路的对照（课件 P22--P24）：两者停在同一个条件上，只是到达的次序相反}\label{fig:twopath}
-\end{center}
+\end{figure}
 
 图~\ref{fig:twopath} 是本章的核心思想：单纯形法“保住原始可行，去找对偶可行”；对偶单纯形法把两项职责对调，“\textbf{保住对偶可行，去找原始可行}”。两者的终点完全相同。笔记 P14 写得更直白：单纯形法“在保持可行性前提下，通过迭代求出最优解”；对偶单纯形法“在保持最优性前提下，通过迭代改善可行性，从而找到最优解”。
 
@@ -140,7 +139,7 @@ $t$ 必须同时不超过所有这些上界，所以取最小者：
 
 \paragraph{四、旋转运算完全相同。}\srcTag{课件 P35}\ 主元定下之后：主元所在行整体除以主元；其余各行减去主元行的适当倍数，使主元所在列的其余各项化为 0。三条判据里只有前两条是新的。
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabularx}{\linewidth}{@{}>{\bfseries}lXX@{}}
 \toprule
@@ -153,9 +152,9 @@ $t$ 必须同时不超过所有这些上界，所以取最小者：
 无解判据 & 入基列全 $\le0$：无界 & 出基行全 $\ge0$：无可行解\\\bottomrule
 \end{tabularx}\par\nopagebreak[4]
 \captionof{table}{两种算法的 $\theta$ 规则对照（课件 P34）：两张表沿对角线互换——行与列对调，$b$ 列与 $\sigma$ 行对调，正与负对调}\label{tab:theta}
-\end{center}
+\end{table}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.4cm,
   s/.style={box,minimum width=5.0cm,minimum height=0.8cm},
   d/.style={diamond,aspect=2.6,draw=navy,fill=white,font=\small,inner sep=1pt,align=center}]
@@ -174,7 +173,7 @@ $t$ 必须同时不超过所有这些上界，所以取最小者：
   \draw[arr] (f.west)--++(-1.0,0)|-(b.west);
 \end{tikzpicture}
 \fig{对偶单纯形法流程图（笔记 P15 五步操作的图示）}\label{fig:dsflow}
-\end{center}
+\end{figure}
 
 \subsection{例题：两轮迭代与几何路径}
 
@@ -218,7 +217,7 @@ $b$ 全部非负、$\sigma$ 全部非正，最优。\par
 \textbf{检查：}$y_1+2y_2=\frac{4+760}{33}=\frac{764}{33}\approx23.2\ge10$ ✓（剩余 $\frac{434}{33}$，即 $y_3$）；$\frac32\cdot\frac{4}{33}+\frac65\cdot\frac{380}{33}=\frac{2+152}{11}=14$ ✓；$4\cdot\frac4{33}+\frac{380}{33}=\frac{396}{33}=12$ ✓。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.5cm,y=0.42cm]
   \fill[feasreg] (0,14.5)--(0,12)--(0.121,11.515)--(8.889,0.556)--(10,0)--(12.5,0)--(12.5,14.5)--cycle;
   \draw[gridl] (0,0) grid[step=2] (12,14);
@@ -254,11 +253,11 @@ $b$ 全部非负、$\sigma$ 全部非正，最优。\par
   \end{scope}
 \end{tikzpicture}
 \fig{对偶单纯形法的几何路径（课件 P50--P58）：前两个基解在可行域之外，第三个落在顶点上；右侧为左上角放大图}\label{fig:dspath}
-\end{center}
+\end{figure}
 
 图~\ref{fig:dspath} 中三条蓝线是三条约束的边界，绿色是可行域（向右上方无界：价格定得越高，约束越容易满足）。红色虚线箭头是第一轮：$y_2$ 入基后，点沿纵轴从原点上移到 $(0,\frac{35}{3})$，前两条约束已满足，第三条还差 $\frac13$；第二轮的位移只有 0.19，在全景图上看不清，右侧放大图显示它沿第二条边界线滑到顶点 $(\frac{4}{33},\frac{380}{33})$。灰色虚线是最优等值线 $2000y_1+1000y_2=\frac{388000}{33}$，它支撑在这个顶点上。与单纯形法“在可行域内沿顶点走、起点须先由大 $M$ 法求出”不同，对偶单纯形法\textbf{从域外走进来}。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \t/\x in {第一张表/0,第二张表/4.4,第三张表/8.8} \node[font=\small\bfseries] at (\x+1.4,2.75) {\t};
   \foreach \x/\a/\b/\c in {0/-10/-14/-12, 4.4/13.333/11.667/-0.333, 8.8/13.152/11.515/0.121} {
@@ -276,11 +275,11 @@ $b$ 全部非负、$\sigma$ 全部非正，最优。\par
   \node[font=\scriptsize,align=left,right] at (12.3,0.3) {红：仍不可行\\绿：已可行};
 \end{tikzpicture}
 \fig{三张表 $b$ 列的变化：取负的项逐轮减少，减到一个也没有时停止（每组柱依次为三个基变量）}\label{fig:dsbars}
-\end{center}
+\end{figure}
 
 \paragraph{与原问题那三张表逐格对照。}\srcTag{课件 P59--P67}\ 本例恰好是第二章产品搭配题 $\max 10x_1+14x_2+12x_3$，$x_1+\frac32x_2+4x_3\le2000$，$2x_1+\frac65x_2+x_3\le1000$ 的对偶。原问题用单纯形法也是 3 张表、2 次换基，而且\textbf{每一步一一对应}。
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabular}{@{}lll|cccl@{}}
 \toprule
@@ -290,7 +289,7 @@ $b$ 全部非负、$\sigma$ 全部非正，最优。\par
 三 & $\{x_3,x_2\}$ & $\{y_3,y_2,y_1\}$ & $x_1\leftrightarrow y_3$ & $-\frac{434}{33}$ & $\frac{434}{33}$ & 目标值同为 $\frac{388000}{33}$\\\bottomrule
 \end{tabular}\par\nopagebreak[4]
 \captionof{table}{原问题单纯形表与对偶单纯形表的对照（摘录）。变量配对：$x_1,x_2,x_3,x_4,x_5\leftrightarrow y_3,y_4,y_5,y_1,y_2$}\label{tab:pair}
-\end{center}
+\end{table}
 
 表~\ref{tab:pair} 说明了两条等价关系：\textbf{原问题的检验数行，就是对偶的基解取相反数；原问题的基解，就是对偶的检验数行取相反数。}于是“原始可行（$b\ge0$）”与“对偶可行（$\sigma\le0$）”在两张表之间互换身份。第一轮两个 $\theta$ 比值也完全相同（$\frac{4000}{3}$ 与 $\frac{2500}{3}$）。这解释了三条判据为什么这样定：出基取 $b$ 最负的一行，对应原问题取 $\sigma$ 最大的一列；入基取 $\sigma$ 行除以出基行的最小比值，对应原问题取 $b$ 列除以入基列的最小比值。\textbf{这一对照是解释，不是步骤}：实际计算只用摆在面前的那一张表。
 
@@ -364,7 +363,7 @@ $-2$ & $x_1$ & $\frac{11}{5}$ & 1 & 0 & $\frac75$ & $-\frac15$ & $-\frac25$ & $b
 \paragraph{到这里，我们已经解决了什么？}我们有了第二把“钥匙”：一张检验数合格、解不可行的表，可以用对偶单纯形法几步修好，不必加人工变量。
 \paragraph{下一步还需要解决什么？}原问题的参数（资源量、价格、工艺、新产品、新约束）改变之后，怎样判断最优表还能不能用？如果不能用，该用单纯形法还是对偶单纯形法续算？这就是下一章的灵敏度分析。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {$b$ 有负、$\sigma\le0$};
   \node[k,right=of a] (b) {对偶可行};
@@ -376,4 +375,4 @@ $-2$ & $x_1$ & $\frac{11}{5}$ & 1 & 0 & $\frac75$ & $-\frac15$ & $-\frac25$ & $b
   \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e); \draw[arr] (e)--(f); \draw[arr] (b)--(g);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}

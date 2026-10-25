@@ -12,7 +12,7 @@
 \SolHead{B}{中等偏下}{K5 影子价格 + K7 允许范围}
 \Lb{知识链}核对范围 $\to$ 发现越界 $\to$ 对偶单纯形法续解 $\to$ 比较最优值。\par
 \Lb{判断过程}$\Delta b_1=2$，超出 $[-1,1]$，不能直接用 $2\times2=4$。传递公式给出 $x_B'=(3,1,3)\T+2\cdot(0,1,-3)\T=(3,3,-3)\T$，$x_4$ 行变负。用对偶单纯形法：$x_4$ 行 $(0,0,-3,1,2\mid-3)$ 中只有 $x_3$ 列为负，$\theta=\frac{-2}{-3}=\frac23$，$x_3$ 入基。旋转后 $x_3=1$，$x_2=3-1=2$，$x_1=3$，检验数 $\sigma_4=-\frac23$，$\sigma_5=-\frac73$，最优。新最优点 $(3,2)$，$z^*=9+4=13$，实际增加 $13-11=2$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=4 by 1,horizontal sep=0.55cm},width=4.3cm,height=3.6cm,xmin=3.5,xmax=6.5,ymin=10,ymax=18,
   axis lines=left,xtick={4,5,6},ytick={11,13,15,17},tick label style={font=\tiny},xlabel={\tiny $b_1$}]
@@ -32,7 +32,7 @@
 
 \smallE{0.7}{\draw[shiftl] (1.8,4.2)--(6.3,-0.3); \fill[shiftc!20] (3,1)--(3,2)--(1.5,2.5)--cycle; \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (3,2) {}; \node[lab,right,font=\scriptsize] at (3.1,2.2) {$(3,2)$：\ding2 与 \ding3 的交点};}
 \fig{第 26 题解析图：上排为四个选项隐含的 $z^*(b_1)$ 路径（灰线为真实折线，共同坐标）；下图为 $b_1=6$ 时的新最优点}
-\end{center}
+\end{figure}
 \Lb{各选项（看图）}A 沿斜率 2 直线外推，忽略了 $b_1=5$ 处的折点；C 认为资源 \ding1 无价值；D 把 $c_1=3$ 当成影子价格。只有 B 的点落在真实折线上。下图说明：$b_1$ 超过 5 后，\ding1 的边界越过 \ding2 与 \ding3 的交点 $(3,2)$，不再起约束作用，所以增量封顶。\par
 \Lb{常见错误}不查范围直接乘影子价格。\quad\Lb{一句话总结}越界就重算，影子价格不能外推。
 
@@ -40,7 +40,7 @@
 \A{27}
 \SolHead{A}{中等偏下}{K4 互补松弛 + K3 强对偶}
 \Lb{判断过程}对偶：$\min w=5y_1+8y_2$，$\st y_1+2y_2\ge4$，$y_1+y_2\ge3$，$y\ge0$。$x_1=3>0$、$x_2=2>0$，两条对偶约束取等号：$y_1+2y_2=4$，$y_1+y_2=3$，解得 $y_2=1$，$y_1=2$。验算 $w=10+8=18=z=12+6$ ✓。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.45cm,y=0.45cm]
   \foreach \i/\L/\px/\py/\st in {0/A/2/1/0,1/B/1/2/1,2/C/0/4/1,3/D/3/0/2} {
     \begin{scope}[xshift=\i*3.5cm]
@@ -60,7 +60,7 @@
   \node[font=\scriptsize,align=center] at (25.9,-1.4) {$y_1+2y_2=3<4$\\不可行};
 \end{tikzpicture}
 \fig{第 27 题选项图：四个选项画在同一张对偶可行域图上（虚线为最优等值线 $5y_1+8y_2=18$）}
-\end{center}
+\end{figure}
 \Lb{各选项}B、C 都对偶可行，但目标值大于 18，不是最优；D 不满足 $y_1+2y_2\ge4$，在可行域外。\par
 \Lb{常见错误}把对偶解写成 $(y_2,y_1)$ 的次序。\quad\Lb{一句话总结}已知原最优解，用“产量为正 $\Rightarrow$ 对偶约束取等”列方程。
 
@@ -68,7 +68,7 @@
 \A{28}
 \SolHead{C}{中等偏下}{K6 入基判据}
 \Lb{判断过程}出基行负系数在 $x_1$（$-2$）、$x_3$（$-4$）：$\frac{-3}{-2}=1.5$，$\frac{-2}{-4}=0.5$，取最小者 $x_3$ 入基，主元 $-4$。旋转后 $b_r'=\frac{-6}{-4}=1.5>0$，$\sigma'=\sigma-0.5\,a_r=(-2,-1.5,0,0,-0.5)\le0$ ✓。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.4cm,y=0.42cm]
   \foreach \i/\L/\vv/\a/\b/\c/\d/\e/\note/\ok in {
      0/A/x_1/0/-2.5/4/0/-1.5/{$\sigma_3'=4>0$}/0,
@@ -90,7 +90,7 @@
   \end{scope}
 \end{tikzpicture}
 \fig{第 28 题选项图：分别选 $x_1,x_2,x_3$ 入基后的新检验数行（同一纵轴）}
-\end{center}
+\end{figure}
 \Lb{各选项（看图）}A 的柱状图中 $x_3$ 一柱冲到正值 4：比值不是最小，旋转后破坏了对偶可行；B 选了正系数列：主元为正，$b_r'=-6$ 仍为负，而且 $\sigma_5'=1>0$；C 全部柱子都在 0 以下。\par
 \Lb{一句话总结}只在负系数列中比较，取 $\sigma_j/a_{rj}$ 最小者。
 
@@ -99,7 +99,7 @@
 % ---------------- 29 ----------------
 \A{29}
 \SolHead{ABD}{中等偏下}{K5、K7、K8 综合}
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
   \node at (0,0) {\smallE{0.42}{\draw[shiftl] (-0.3,2.43)--(6.3,0.23); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{A} ✓：\ding2 下移仍不过最优点};}};
   \node at (4.1,0) {\smallE{0.42}{\draw[iso,greenline!60!black] (0.36,4.3)--(3.8,0); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{B} ✓：$c_1=2.5$ 等值线仍支撑 $(3,1)$};}};
@@ -107,7 +107,7 @@
   \node at (12.3,0) {\smallE{0.42}{\draw[iso,greenline!60!black] (0.25,4.3)--(3.833,0); \node[optpt] at (3,1) {}; \node[font=\scriptsize] at (3,5.1) {\textbf{D} ✓：$c_2=2.5$ 仍支撑 $(3,1)$};}};
 \end{tikzpicture}
 \fig{第 29 题选项图：四个选项画在同一模型 E 底图上}
-\end{center}
+\end{figure}
 \Lb{A}正确。$\Delta b_2=-2\in[-3,+\infty)$，最优基不变；$y_2=0$，最优值不变；$x_B'=(3,1,3-2)=(3,1,1)$，只是材料剩余由 3 变为 1。图 A：\ding2 线下移到 $x_1+3x_2=7$，仍在 $(3,1)$ 上方（$3+3=6<7$）。\par
 \Lb{B}正确。$c_1=2.5\in[2,+\infty)$，最优解不变，$z=2.5\times3+2\times1=9.5$。\par
 \Lb{C}错误。$\Delta b_3=2>1$，越界。$b_3=5$ 时 \ding3 线右移到 $x_1=5$，但 \ding1 先把最优点卡在 $(4,0)$，$z=12$，只增加 1。\par
@@ -118,7 +118,7 @@
 \A{30}
 \SolHead{ABD}{中等偏下}{K9 新增变量 + K5 机会成本}
 \Lb{核心计算}$y\T P_6=2\cdot1+0\cdot2+1\cdot0=2$，所以 $\sigma_6=c_6-2$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \draw[ax] (0,0)--(9.4,0);
   \draw[dashed,black!50] (0,2)--(9,2) node[right,font=\scriptsize]{机会成本 2};
@@ -129,7 +129,7 @@
   \node[rbox,font=\scriptsize,text width=2.4cm] at (7.4,2.9) {\textbf{C} ✗：只需算一个\\检验数};
 \end{tikzpicture}
 \fig{第 30 题选项图：利润柱与机会成本线的比较}
-\end{center}
+\end{figure}
 \Lb{A}正确：$\sigma_6=-0.5<0$。\quad\Lb{B}正确：$\sigma_6=1>0$；把 $B^{-1}P_6$ 写进表后继续单纯形法。$B^{-1}P_6$ 的计算：$B^{-1}=\begin{pmatrix}0&0&1\\1&0&-1\\-3&1&2\end{pmatrix}$（最优表 $x_3,x_4,x_5$ 三列），$B^{-1}P_6=(0,1,-1)\T$，比值只有 $x_2$ 行 $\frac11=1$，$x_2$ 出基。\par
 \Lb{C}错误：判断只需 $\sigma_6=c_6-y\T P_6$，不必重解。\quad\Lb{D}正确：新变量取 0，原约束与取值都不变。\par
 \Lb{正确答案}ABD。\quad\Lb{一句话总结}新产品利润高于其资源的影子价值之和才值得生产。
@@ -140,7 +140,7 @@
 \A{31}
 \SolHead{1；4；12}{中等偏下}{K5 + K7}
 \Lb{推理过程}影子价格 $y_3=-\sigma_5=1$。范围（第 25 题）$b_3\in[1.5,4]$，最多增至 4，$z^*=11+1\times(4-3)=12$，最优点 $(4,0)$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
 \begin{axis}[width=7.5cm,height=4.2cm,xmin=0,xmax=6,ymin=0,ymax=14,axis lines=left,xlabel={$b_3$},ylabel={$z^*$},
   xtick={1.5,3,4},ytick={6,9.5,11,12},label style={font=\scriptsize},tick label style={font=\tiny},grid=major,grid style={black!8}]
@@ -152,27 +152,27 @@
 \end{axis}
 \end{tikzpicture}
 \fig{第 31 题解析图：$z^*$ 随 $b_3$ 的折线，绿色段斜率为影子价格 1，右端点 $b_3=4$ 处 $z^*=12$}
-\end{center}
+\end{figure}
 \Lb{图的说明}$b_3\le1.5$ 时最优点在 \ding2 线上 $(b_3,\frac{9-b_3}{3})$，$z^*=3b_3+6-\frac23b_3$，斜率 $\frac73$；$b_3\ge4$ 后 \ding1 成为唯一瓶颈，折线变平。\quad\Lb{易错点}答成 $b_3$ 最多增至 $3+4=7$（把范围端点当增量）。
 
 % ---------------- 32 ----------------
 \A{32}
 \SolHead{$(3,0.5)$；10}{中等偏下}{K9 新增约束 + K6 对偶单纯形法}
 \Lb{推理过程}原解 $x_2=1>0.5$，不满足。新约束 $x_2+x_6=0.5$；由最优表 $x_2$ 行 $x_2+x_3-x_5=1$ 消去 $x_2$：$x_6-x_3+x_5=-0.5$。$x_6$ 出基，负系数只有 $x_3$（$-1$），$\theta=\frac{-2}{-1}=2$，$x_3$ 入基：$x_3=0.5$，$x_2=1-0.5=0.5$，$x_4=3+3\times0.5=4.5$，$x_1=3$。$\sigma_3'=0$，$\sigma_5'=-1-2\times1=-3$，$\sigma_6'=-2$，最优。$z=9+1=10$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \smallE{0.8}{\fill[shiftc!25] (0,0)--(3,0)--(3,0.5)--(0,0.5)--cycle; \draw[shiftl] (-0.2,0.5)--(6.3,0.5) node[right,font=\scriptsize]{$x_2=0.5$}; \node[badpt] at (3,1) {}; \node[optpt,fill=shiftc] at (3,0.5) {}; \draw[arr,optc] (3,0.95)--(3,0.6); \node[lab,right,font=\scriptsize] at (3.15,0.45) {$(3,0.5)$，$z=10$};}
 \fig{第 32 题解析图：新约束切掉可行域的上半部分（剩下橙色窄条），最优点沿 \ding3 线下移}
-\end{center}
+\end{figure}
 \Lb{合理性检查}$z$ 减少 $11-10=1=y_{\text{新}}\times0.5=2\times0.5$；加约束只会使最优值变差 ✓。\quad\Lb{易错点}忘记消去新行中的基变量 $x_2$。
 
 % ---------------- 33 ----------------
 \A{33}
 \SolHead{$[2,+\infty)$}{中等偏下}{K8 基变量的价值系数}
 \Lb{推理过程}$x_1$ 在第 1 行，非基列 $t_{13}=0$、$t_{15}=1$：$x_3$ 列 $-2-\Delta c_1\cdot0\le0$ 恒成立；$x_5$ 列 $-1-\Delta c_1\cdot1\le0\Rightarrow\Delta c_1\ge-1$。所以 $c_1\ge2$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \smallE{0.8}{\draw[very thick,dashed,shiftc] (-0.2,4.2)--(4.5,-0.5); \node[font=\scriptsize,shiftc!80!black] at (5.4,3.4) {$c_1=2$：与 \ding1 重合}; \draw[very thick,dashed,redline] (3,-0.3)--(3,4.4); \node[font=\scriptsize,redline] at (4.3,4.1) {$c_1\to\infty$：趋于竖直}; \node[optpt] at (3,1) {}; \fill[shiftc!50,opacity=.6] (1.5,2.5)--(3,1)--(3.1,1.1)--(1.6,2.6)--cycle;}
 \fig{第 33 题解析图：等值线 $c_1x_1+2x_2=$ 常数随 $c_1$ 旋转；$c_1=2$ 时与 \ding1 平行，整条棱（橙色）都最优}
-\end{center}
+\end{figure}
 \Lb{含义}$c_1<2$ 时等值线比 \ding1 线更平，最优点跳到 $(1.5,2.5)$；$c_1$ 再大，等值线趋于竖直，但 $x_1$ 已被设备卡在 3，最优点不变——所以没有上界。\quad\Lb{易错点}套用非基变量公式得到“只有上界”。
 
 \subsection*{提升综合大题解析}
@@ -206,7 +206,7 @@ $2+\frac12\Delta\ge0\Rightarrow\Delta\ge-4$；$3-\frac14\Delta\ge0\Rightarrow\De
 
 \Lb{7. 第(4)问}$\beta_1=(-\frac12,\frac34,-\frac34)\T$：
 $2-\frac12\Delta\ge0\Rightarrow\Delta\le4$；$3+\frac34\Delta\ge0\Rightarrow\Delta\ge-4$；$0.5-\frac34\Delta\ge0\Rightarrow\Delta\le\frac23$。交集 $[-4,\frac23]$，即 $b_1\in[4,\frac{26}{3}]$。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.75cm,y=0.75cm]
   \begin{scope}
   \fill[feasreg] (0,0)--(4,0)--(2,3)--(1,3.5)--(0,3.5)--cycle;
@@ -231,7 +231,7 @@ $2-\frac12\Delta\ge0\Rightarrow\Delta\le4$；$3+\frac34\Delta\ge0\Rightarrow\Del
   \end{scope}
 \end{tikzpicture}
 \fig{第 34 题解析图：左为面粉的允许范围（端点为 $(4,0)$ 与 $(\frac53,\frac72)$），右为租烤箱后的新最优点}
-\end{center}
+\end{figure}
 \Lb{8. 结果合理性检查}$b_1=\frac{26}{3}$ 时最优点 $(\frac53,\frac72)$ 恰好碰到奶油上限（$x_5=0$），$b_1=4$ 时到达 $(4,0)$（$x_2=0$），与左图端点一致。\par
 \Lb{9. 最容易卡在哪里}第(3)问直接用影子价格而不核对范围；第(4)问把 $\beta_1$ 取成 $B^{-1}$ 的第一行。\par
 \Lb{10. 如果条件变化}若面粉增加 1 袋（$\Delta=1>\frac23$），就越过了奶油的限制，不能按 $0.5$ 计算增利，需用对偶单纯形法续解。\par
@@ -253,7 +253,7 @@ x_1+x_2+x_6=4.5\ \Rightarrow\ \Bigl(2+\tfrac12x_3-\tfrac12x_4\Bigr)+\Bigl(3-\tfr
 
 \Lb{6. 第(3)问}$x_6$ 行右端 $-\frac12<0$，$x_6$ 出基。负系数列：$x_3$：$\frac{-1/2}{-1/4}=2$；$x_4$：$\frac{-3/2}{-1/4}=6$。$x_3$ 入基，主元 $-\frac14$。$x_3$ 行 $\times(-4)$：$x_3+x_4-4x_6=2$。代回：
 $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$（$x_5$ 行 $x_5-\frac34x_3+\frac14x_4=0.5$）。新检验数 $\sigma'=\sigma-2\times(\text{原 }x_6\text{ 行})$：$\sigma_4'=-\frac32+\frac12=-1$，$\sigma_6'=-2$，$\sigma_3'=0$，全部 $\le0$；$b=(3,1.5,2,2)\ge0$，最优。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.8cm,y=0.8cm]
   \fill[feasreg] (0,0)--(4,0)--(3,1.5)--(1,3.5)--(0,3.5)--cycle;
   \fill[black!8] (3,1.5)--(2,3)--(1,3.5)--cycle;
@@ -267,7 +267,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
   \node[font=\scriptsize,black!60] at (2.3,2.75) {被切掉};
 \end{tikzpicture}
 \fig{第 35 题解析图：新约束切掉灰色三角形，原最优点 $(2,3)$ 被排除，最优点沿烤箱线滑到 $(3,1.5)$}
-\end{center}
+\end{figure}
 
 \Lb{7. 最终答案}新方案：面包 3 批、蛋糕 1.5 批；面粉剩 2 袋，奶油剩 2 盒，烤箱和包装用尽；$z^*=5\times3+4\times1.5=21$。
 
@@ -285,7 +285,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
 \A{36}
 \SolHead{C}{基础～中等偏下}{K5 影子价格 $=\partial z^*/\partial b$}
 \Lb{判断过程}按成本从低到高安排：G1 满发 60 MW，剩下 20 MW 由 G2 承担，$C^*=20\times60+30\times20=1800$。负荷增至 81 MW 时，G1 已满，多出的 1 MW 只能由 G2 提供，$C^*=1830$，增加 30。所以边际电价为 30 元/MWh。
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.021cm,y=0.05cm]
   \foreach \i/\L/\p/\ok in {0/A/20/0,1/B/25/0,2/C/30/1,3/D/50/0} {
     \begin{scope}[xshift=\i*4.1cm]
@@ -300,7 +300,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
   }
 \end{tikzpicture}
 \fig{第 36 题选项图：机组按成本排成“阶梯”，红虚线为负荷 80 MW。只有 C 的价格线经过负荷处的阶梯高度}
-\end{center}
+\end{figure}
 \Lb{各选项（看图）}A：20 是 G1 的成本，但 G1 已满发，边际上用不到它；B：25 是平均值，没有意义；D：50 是两者之和，混淆了概念。\par
 \Lb{当前专题知识}影子价格 $y_i=\partial z^*/\partial b_i$（第 4 章定理 4.3）。\par
 \Lb{借用的外部情境}电力系统的经济调度与边际电价。\par
@@ -310,7 +310,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
 % ---------------- 37 ----------------
 \A{37}
 \SolHead{ABC}{中等偏下}{K3 强对偶、K4 互补松弛、K5 影子价格}
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}
   \node at (0,0) {\begin{tikzpicture}[x=0.33cm,y=0.33cm]
     \fill[feasreg] (0,9.5)--(0,8)--(3,2)--(7,0)--(9.5,0)--(9.5,9.5)--cycle;
@@ -344,7 +344,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
   \end{tikzpicture}};
 \end{tikzpicture}
 \fig{第 37 题选项图：A、B 在原问题可行域上看，C 在对偶可行域上看，D 看影子价格的符号}
-\end{center}
+\end{figure}
 \Lb{A}正确。最优点 $(3,2)$ 是两条营养约束的交点，$C^*=9+4=13$；图 A 中虚线等值线 $3a+2b=13$ 在此支撑可行域。\par
 \Lb{B}正确。由互补松弛：$a>0\Rightarrow2u+v=3$，$b>0\Rightarrow u+2v=2$，解得 $u=\frac43$，$v=\frac13$。蛋白质需求 $8\to9$：新顶点 $a=\frac{2\cdot9-7}{3}=\frac{11}{3}$，$b=\frac{2\cdot7-9}{3}=\frac53$，均 $\ge0$（最优基不变），$C=11+\frac{10}{3}=\frac{43}{3}=13+\frac43$ ✓。\par
 \Lb{C}正确。对偶问题恰是“营养片厂商”的定价问题；强对偶给出 $8u^*+7v^*=\frac{32}{3}+\frac73=13$。\par
@@ -356,7 +356,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
 % ---------------- 38 ----------------
 \A{38}
 \SolHead{40 元；1 元}{基础}{K3 强对偶 $z^*=y\T b$；K5 影子价格}
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=0.12cm]
   \draw[ax] (0,0)--(7.4,0);
   \fill[auxblue!70] (0.6,0) rectangle (1.6,20); \node[font=\scriptsize,white] at (1.1,10) {$0.5\times40$};
@@ -368,7 +368,7 @@ $x_1=2+\frac12\cdot2=3$，$x_2=3-\frac34\cdot2=1.5$，$x_5=0.5+\frac34\cdot2=2$�
   \node[font=\scriptsize,below] at (5.6,0) {净增 $2.5-1.5=1$};
 \end{tikzpicture}
 \fig{第 38 题解析图：左柱为收益按影子价格分摊到两种资源，右边两柱为租用 CPU 的增收与租金}
-\end{center}
+\end{figure}
 \Lb{推理过程}第一空：由强对偶，最大收益 $=y\T b=0.5\times40+0.2\times100=20+20=40$ 元。第二空：在允许范围内，多 5 核时增收 $0.5\times5=2.5$ 元，租金 $0.3\times5=1.5$ 元，净增 1 元。\par
 \Lb{当前专题知识}强对偶定理 $z^*=y^{*\mathsf T}b$；影子价格的“购入决策”用法。\quad\Lb{借用的外部情境}云计算平台的资源调度。\par
 \Lb{为什么不算超纲}题干直接给出影子价格与容量，并说明了约束形式，不需要了解任务调度的细节。\par

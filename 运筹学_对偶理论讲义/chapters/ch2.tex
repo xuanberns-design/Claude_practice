@@ -10,8 +10,25 @@
 
 \subsection{问题引入：一家工厂的两种算账方式}
 
+\begin{figure}[!htbp]\centering
+\begin{tikzpicture}[x=0.95cm,y=0.95cm]
+  \fill[feasreg] (0,0)--(4,0)--(3.448,1.241)--(2,2.4)--(0,3)--cycle;
+  \draw[gridl] (0,0) grid (6,5);
+  \draw[ax] (-0.2,0)--(6.3,0) node[right,font=\scriptsize]{$x_1$};
+  \draw[ax] (0,-0.2)--(0,5.3) node[above,font=\scriptsize]{$x_2$};
+  \foreach \i in {1,...,6} \node[below,font=\tiny,black!60] at (\i,0) {\the\numexpr\i*10\relax};
+  \foreach \i in {1,...,5} \node[left,font=\tiny,black!60] at (0,\i) {\the\numexpr\i*10\relax};
+  \draw[con] (4,0)--(1.78,5) node[above,font=\scriptsize]{煤};
+  \draw[con] (5,0)--(0,4) node[left,font=\scriptsize]{电};
+  \draw[con] (0,3)--(6,1.2) node[right,font=\scriptsize]{油};
+  \draw[iso] (0,3.567)--(5.1,0.592);
+  \node[optpt] at (2,2.4) {};
+  \node[lab,above right] at (2,2.45) {$(20,24)$};
+  \node[font=\scriptsize,black!55,rotate=-30] at (4.4,1.3) {$z=428$};
+\end{tikzpicture}
+\fig{原问题可行域：电、油两条约束在最优点 $(20,24)$ 交汇，煤约束不经过该点}
+\end{figure}
 \begin{examplebox}[引例　生产计划问题（原问题 $P$）\srcTag{笔记 P5--P6}]
-\begin{minipage}[t]{0.5\linewidth}
 某工厂生产甲、乙两种产品，消耗煤、电、油三种资源，数据如下表。求总收入最大的生产方案。
 \begin{center}\small
 \begin{tabular}{@{}lccc@{}}
@@ -34,25 +51,7 @@
 \end{aligned}
 \]
 单纯形法解得 $x^*=(20,24)$，$z^*=7\times20+12\times24=428$。
-\end{minipage}\hfill
-\begin{minipage}[t]{0.46\linewidth}\vspace{0pt}\centering
-\begin{tikzpicture}[x=0.95cm,y=0.95cm]
-  \fill[feasreg] (0,0)--(4,0)--(3.448,1.241)--(2,2.4)--(0,3)--cycle;
-  \draw[gridl] (0,0) grid (6,5);
-  \draw[ax] (-0.2,0)--(6.3,0) node[right,font=\scriptsize]{$x_1$};
-  \draw[ax] (0,-0.2)--(0,5.3) node[above,font=\scriptsize]{$x_2$};
-  \foreach \i in {1,...,6} \node[below,font=\tiny,black!60] at (\i,0) {\the\numexpr\i*10\relax};
-  \foreach \i in {1,...,5} \node[left,font=\tiny,black!60] at (0,\i) {\the\numexpr\i*10\relax};
-  \draw[con] (4,0)--(1.78,5) node[above,font=\scriptsize]{煤};
-  \draw[con] (5,0)--(0,4) node[left,font=\scriptsize]{电};
-  \draw[con] (0,3)--(6,1.2) node[right,font=\scriptsize]{油};
-  \draw[iso] (0,3.567)--(5.1,0.592);
-  \node[optpt] at (2,2.4) {};
-  \node[lab,above right] at (2,2.45) {$(20,24)$};
-  \node[font=\scriptsize,black!55,rotate=-30] at (4.4,1.3) {$z=428$};
-\end{tikzpicture}
-\fig{原问题可行域：电、油两条约束在最优点 $(20,24)$ 交汇，煤约束不经过该点}
-\end{minipage}
+
 \end{examplebox}
 
 图中绿色区域是可行域，虚线是等值线 $7x_1+12x_2=428$。最优点由“电”和“油”两条边界线交出；“煤”的边界离最优点还有一段距离，说明煤没有用完：$9\times20+4\times24=276<360$，剩余 84（这就是终表中 $x_3=84$ 的来历）。
@@ -63,7 +62,7 @@
   \item \textbf{但卖方必须愿意卖：}对每一种产品，资源按新价格计算的“售价”不能低于自己生产这种产品的收入，否则卖方宁可自己生产。
 \end{enumerate}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[wbox,minimum width=3.4cm] (jia) at (0,0) {生产 1 件甲\\需煤 9、电 4、油 3};
   \node[box,minimum width=3.6cm] (sell) at (5.6,0.8) {卖掉这些资源得\\$9y_1+4y_2+3y_3$};
@@ -75,7 +74,7 @@
   \node[font=\scriptsize,auxblue] at (8.3,1.5) {比较};
 \end{tikzpicture}
 \fig{购买者模型中一条约束的来历：站在产品甲的角度比较“卖资源”与“自己生产”}
-\end{center}
+\end{figure}
 
 这幅图说明了对偶约束的经济来源：产品甲占用的那一篮子资源（9 份煤、4 份电、3 份油），按买方给的价格折算后，不能低于甲的售价 7。产品乙同理得 $4y_1+5y_2+10y_3\ge12$。于是得到\textbf{对偶问题 $D$}：
 \[
@@ -107,7 +106,7 @@
 其中 $A$ 为 $m\times n$ 矩阵，$x\in\mathbb R^n$，$y\in\mathbb R^m$。两者互称对偶问题。
 \end{definitionbox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.9cm,y=0.9cm]
   % 原问题数据块
   \fill[formulablue] (0,0) rectangle (3,2.4); \node at (1.5,1.2) {$A$};
@@ -133,7 +132,7 @@
   \node[font=\scriptsize,align=left,auxblue] at (12.5,1.0) {目标系数 $c$\\$\to$ 右端项};
 \end{tikzpicture}
 \fig{对称形式的对偶 $=$ 把“数据矩阵”整体转置：$A\to A\T$，$b$ 与 $c$ 交换位置，max 变 min，$\le$ 变 $\ge$}
-\end{center}
+\end{figure}
 
 图中三种颜色分别标出系数矩阵、右端项、价值系数。转置之后：原问题的\textbf{每一条约束}变成对偶的\textbf{一个变量}（行 $\to$ 列），原问题的\textbf{每一个变量}变成对偶的\textbf{一条约束}。笔记把它类比为“矩阵转置”，非常准确。
 
@@ -167,7 +166,7 @@ $\min\,(-c)\T x$，$\st (-A\T)\T x\ge -b$，$x\ge0$，即 $\max c\T x$，$\st Ax
 原问题是 min 时，把表\textbf{从右往左}读（笔记：“原 $\min z$，则对偶 $\max$（右往左看）；原 $\max z$，则对偶 $\min$（左 $\to$ 右）”）。
 \end{theorembox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   n/.style={draw=navy,rounded corners=2pt,fill=white,minimum width=2.6cm,minimum height=0.62cm,font=\small},
   g/.style={draw=greenline,rounded corners=2pt,fill=lightgreen,minimum width=2.6cm,minimum height=0.62cm,font=\small},
@@ -189,7 +188,7 @@ $\min\,(-c)\T x$，$\st (-A\T)\T x\ge -b$，$x\ge0$，即 $\max c\T x$，$\st Ax
   \end{scope}
 \end{tikzpicture}
 \fig{记忆图：“正常对正常、反常对反常、等号对无约束”。max 问题的正常约束是 $\le$，min 问题的正常约束是 $\ge$，正常变量都是 $\ge0$}
-\end{center}
+\end{figure}
 
 图中绿色是“正常”情形，即对称形式里出现的情形；红色是“反常”情形；蓝灰色是等号与无约束的配对。只要记住对称形式（定义 2.1），其余六种情形都能由“正常对正常、反常对反常”推出，不必死记整张表。
 
@@ -242,7 +241,7 @@ y_1+2y_2\le2\\ y_1+y_3\ge3\\ -3y_1+2y_2+y_3\ge-5\\ y_1-y_2+y_3=1\\ y_1\le0,\ y_2
 \textbf{检查：}原问题 4 个变量、3 个约束 $\Rightarrow$ 对偶 4 个约束、3 个变量 ✓。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm,
   pv/.style={draw=navy,fill=lightblue,rounded corners=2pt,minimum width=1.9cm,minimum height=0.55cm,font=\small},
   dv/.style={draw=greenline,fill=lightgreen,rounded corners=2pt,minimum width=3.6cm,minimum height=0.55cm,font=\small}]
@@ -264,7 +263,7 @@ y_1+2y_2\le2\\ y_1+y_3\ge3\\ -3y_1+2y_2+y_3\ge-5\\ y_1-y_2+y_3=1\\ y_1\le0,\ y_2
   \end{scope}
 \end{tikzpicture}
 \fig{例 2.1 的推导路线图：左半是第 3 步（变量 $\to$ 约束），右半是第 4 步（约束 $\to$ 变量）}
-\end{center}
+\end{figure}
 
 图中每一根箭头都是规则表的一行。这样逐项连线，可以避免漏写或把符号配错。
 
@@ -279,7 +278,7 @@ $\max w=5y_1+4y_2+6y_3$，\ $y_1+2y_2\ge2$，\ $y_1+y_3\le3$，\ $-3y_1+2y_2+y_3
 \textbf{本题真正想说明什么：}与例 2.1 比较，所有不等号和符号限制都\textbf{恰好反过来}，而等式与无约束不变。原因是：对 min 问题，“正常”的约束是 $\ge$。
 \end{examplebox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node[box,text width=5.4cm,align=left] (l) at (0,0) {\textbf{例 2.1}（原 max）\\[1pt]
   $y_1+2y_2\ \mathbf{\le}\ 2$\quad $y_1+y_3\ \mathbf{\ge}\ 3$\\
@@ -292,7 +291,7 @@ $\max w=5y_1+4y_2+6y_3$，\ $y_1+2y_2\ge2$，\ $y_1+y_3\le3$，\ $-3y_1+2y_2+y_3
   \draw[{Stealth}-{Stealth},thick,shiftc] (l)--node[above,font=\scriptsize,shiftc!80!black]{只改 max/min}node[below,font=\scriptsize,shiftc!80!black]{不等号全部反向}(r);
 \end{tikzpicture}
 \fig{相近情形辨析：同一组约束，原问题由 max 改为 min 后，对偶中所有“$\le/\ge$”互换，“$=$/自由”不变}
-\end{center}
+\end{figure}
 
 \begin{warningbox}
 \begin{enumerate}[leftmargin=1.5em]
@@ -340,7 +339,7 @@ $\max w=5y_1+4y_2+6y_3$，\ $y_1+2y_2\ge2$，\ $y_1+y_3\le3$，\ $-3y_1+2y_2+y_3
 \paragraph{到这里，我们已经解决了什么？}任给一个线性规划，我们都能机械地写出它的对偶问题，并能说出对偶变量的经济意义（资源单价）。
 \paragraph{下一步还需要解决什么？}写出来的对偶问题和原问题到底有什么数量关系？买方最低的总出价 $w^*$ 与卖方最高的总收入 $z^*$ 谁大？下一章将证明：它们恰好相等。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.35cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {生产者模型 $\max c\T x$};
   \node[k,right=of a] (b) {购买者模型 $\min b\T y$};
@@ -351,4 +350,4 @@ $\max w=5y_1+4y_2+6y_3$，\ $y_1+2y_2\ge2$，\ $y_1+y_3\le3$，\ $-3y_1+2y_2+y_3
   \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e); \draw[arr] (b.south west)--(f.north east);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}

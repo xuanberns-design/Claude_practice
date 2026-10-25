@@ -10,8 +10,20 @@
 
 \subsection{本章主例与它的最优表}
 
+\begin{figure}[!htbp]\centering
+\begin{tikzpicture}[x=0.5cm,y=0.6cm]
+  \lecRegion
+  \axes{9}{5}{x_1}{x_2}
+  \lecLines
+  \draw[iso] (0,4.667)--(7,0) node[below,font=\scriptsize,black!60]{$z=14$};
+  \foreach \p in {(0,0),(4,0),(2,3),(0,3)} \node[vpt] at \p {};
+  \node[optpt] at (4,2) {};
+  \node[lab,above right] at (4,2) {$(4,2)$};
+  \node[font=\small,green!40!black] at (1.5,1.2) {可行域};
+\end{tikzpicture}
+\fig{主例可行域：最优顶点 $(4,2)$ 由材料 $A$ 与台时两条约束交出}\label{fig:lec}
+\end{figure}
 \begin{examplebox}[主例　两种原材料与一台设备 \srcTag{课件 P5--P10}]
-\begin{minipage}[t]{0.5\linewidth}
 某厂用材料 $A$、材料 $B$ 和一台设备生产两种产品，单位利润分别为 2 与 3：
 \begin{center}\small
 \begin{tabular}{@{}lccc@{}}\toprule
@@ -24,25 +36,12 @@
 \begin{aligned}\max z&=2x_1+3x_2\\ \st 4x_1+x_3&=16\quad(A)\\ 4x_2+x_4&=12\quad(B)\\ x_1+2x_2+x_5&=8\quad(\text{台时}),\quad x_j\ge0\end{aligned}
 \]
 松弛变量 $x_3,x_4,x_5$ 分别是三种资源的剩余量。
-\end{minipage}\hfill
-\begin{minipage}[t]{0.46\linewidth}\vspace{0pt}\centering
-\begin{tikzpicture}[x=0.5cm,y=0.6cm]
-  \lecRegion
-  \axes{9}{5}{x_1}{x_2}
-  \lecLines
-  \draw[iso] (0,4.667)--(7,0) node[below,font=\scriptsize,black!60]{$z=14$};
-  \foreach \p in {(0,0),(4,0),(2,3),(0,3)} \node[vpt] at \p {};
-  \node[optpt] at (4,2) {};
-  \node[lab,above right] at (4,2) {$(4,2)$};
-  \node[font=\small,green!40!black] at (1.5,1.2) {可行域};
-\end{tikzpicture}
-\fig{主例可行域：最优顶点 $(4,2)$ 由材料 $A$ 与台时两条约束交出}\label{fig:lec}
-\end{minipage}
+
 \end{examplebox}
 
 单纯形法经过 3 次换基得到最优表（课件 P8）：
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabular}{@{}ccc|ccccc@{}}
 \toprule
@@ -54,7 +53,7 @@ $c_B$ & $x_B$ & $b$ & $x_1$ & $x_2$ & $x_3$ & $x_4$ & $x_5$\\\midrule
 \multicolumn{3}{c|}{$\sigma_j$} & 0 & 0 & \cellcolor{shiftc!25}$-\frac18$ & \cellcolor{shiftc!25}0 & \cellcolor{shiftc!25}$-\frac32$\\\bottomrule
 \end{tabular}\par\nopagebreak[4]
 \captionof{table}{主例最优表。蓝色块即 $B^{-1}$，橙色块是松弛变量的检验数}\label{tab:lec}
-\end{center}
+\end{table}
 
 读表：$x_1=4$，$x_2=2$，$x_4=4$（材料 $B$ 剩 4 kg），$x_3=x_5=0$（材料 $A$ 与台时用尽），最优值 $z^*=2\times4+3\times2=14$。图~\ref{fig:lec} 中，最优点 $(4,2)$ 恰好落在“材料 $A$”竖线与“台时”斜线的交点上，而“材料 $B$”水平线 $x_2=3$ 在它上方——这与表中“材料 $B$ 有剩余”完全吻合。
 
@@ -67,7 +66,7 @@ B^{-1}=\begin{pmatrix}\frac12&1&-2\\[2pt]-\frac18&0&\frac12\\[2pt]\frac14&0&0\en
 \]
 \end{theorembox}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \node (M) at (0,0) {$\begin{pmatrix}\frac12&1&-2\\[2pt]-\frac18&0&\frac12\\[2pt]\frac14&0&0\end{pmatrix}$};
   \node (b) at (2.4,0) {$\begin{pmatrix}16\\12\\8\end{pmatrix}$};
@@ -82,7 +81,7 @@ B^{-1}=\begin{pmatrix}\frac12&1&-2\\[2pt]-\frac18&0&\frac12\\[2pt]\frac14&0&0\en
   \node[font=\scriptsize,auxblue] at (0,-1.15) {最优表中 $x_3,x_4,x_5$ 三列};
 \end{tikzpicture}
 \fig{验算 $x_B=B^{-1}b$：用原模型右端项 $(16,12,8)\T$ 去乘，应还原出最优表的 $b$ 列（课件 P13）}
-\end{center}
+\end{figure}
 
 图中高亮的是第 1 行的计算过程。三行结果 $(4,2,4)$ 与最优表 $b$ 列逐一相同，说明 $B^{-1}$ 读对了。注意：被乘的是\textbf{原模型}的 $b=(16,12,8)\T$，不是最优表的 $b$ 列——这就是课件红字想提醒的事（纠错 6 第 7 条）。
 
@@ -137,7 +136,7 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
 
 课件用三幅图逐一验证了这个结论。我们把它们并排画在一起，使用相同的坐标范围，方便比较。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=0.53cm,y=0.6cm]
   % (a) 材料 A +1
   \begin{scope}
@@ -174,7 +173,7 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
   \end{scope}
 \end{tikzpicture}
 \fig{影子价格的几何验证（课件 P21--P26）：灰线为原边界，橙色虚线为资源加 1 后的新边界，红点为原最优点，橙点为新最优点}\label{fig:sp3}
-\end{center}
+\end{figure}
 
 三幅图读法相同：灰色实线是原来的边界，橙色虚线是该资源增加 1 单位后的新边界，可行域随之扩大一小条。
 \begin{itemize}
@@ -225,7 +224,7 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
   \item \textbf{资源的边际使用价值：}买方愿意为这种资源支付的最低合理出价（笔记 P13：“$Y^*$：买主的最低出价”）。
 \end{enumerate}
 
-\begin{center}
+\begin{table}[!htbp]\centering
 \small
 \begin{tabularx}{\linewidth}{@{}>{\bfseries}lXX@{}}
 \toprule
@@ -237,9 +236,9 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
 经济含义 & 交易价格 & 企业内部的机会成本\\\bottomrule
 \end{tabularx}\par\nopagebreak[4]
 \captionof{table}{相近概念辨析：影子价格不是市场价格（课件 P28）}
-\end{center}
+\end{table}
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[x=1cm,y=1cm]
   \foreach \i/\t/\d in {0/{决定是否购入}/{市场价 $<$ 影子价 $\Rightarrow$ 买入有利},1/{对外报价下限}/{卖出报价不应低于影子价},2/{识别生产瓶颈}/{影子价最高者最稀缺，优先扩充}} {
     \node[gbox,text width=4.1cm,minimum height=1.3cm] at (\i*4.8,0) {\textbf{\t}\\[2pt]{\scriptsize \d}};
@@ -254,7 +253,7 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
   \end{scope}
 \end{tikzpicture}
 \fig{影子价格的三种用法（课件 P29），下方数轴以主例的设备台时为例：市场租金低于 $\frac32$ 才值得租入}
-\end{center}
+\end{figure}
 
 图下半部分是一条价格数轴：橙点是设备台时的影子价格 $\frac32$。若市场上租 1 台时只要 1 元（绿点，在左侧），租入后每台时净赚 $\frac32-1=\frac12$；若要 1.8 元（红点，在右侧），就不划算。材料 $A$ 的影子价格只有 $\frac18$，说明三种资源中台时最紧缺，是生产的瓶颈。
 
@@ -302,7 +301,7 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
 \paragraph{到这里，我们已经解决了什么？}我们会读、会算、会解释影子价格，并知道它只在“最优基不变”的范围内是常数。
 \paragraph{下一步还需要解决什么？}一旦资源变化超出这个范围，最优表中的 $b$ 列会出现负数——此时检验数仍然合格，但解不可行。能不能从这张“半坏”的表接着算，而不从头再来？这就需要下一章的对偶单纯形法。
 
-\begin{center}
+\begin{figure}[!htbp]\centering
 \begin{tikzpicture}[node distance=0.35cm and 0.4cm,k/.style={box,minimum height=0.8cm,font=\small}]
   \node[k] (a) {最优表};
   \node[k,right=of a] (b) {读 $B^{-1}$};
@@ -314,4 +313,4 @@ z^*=c_B\T B^{-1}b=y\T b=\sum_i y_ib_i,\qquad\text{从而}\qquad
   \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (c)--(e); \draw[arr] (e)--(f); \draw[arr] (f)--(g);
 \end{tikzpicture}
 \fig{本章知识地图}
-\end{center}
+\end{figure}
