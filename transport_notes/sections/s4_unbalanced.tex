@@ -1,0 +1,306 @@
+% ============================================================
+\needspace{7\baselineskip}
+\section{产销不平衡的运输问题与应用建模}
+% ============================================================
+\noindent 前三章的全部方法都以“产销平衡”为前提。本章回答三个问题：
+\begin{enumerate}[label=\arabic*.]
+\item 总产量大于总销量时怎么办？
+\item 总产量小于总销量时怎么办？
+\item 一些“看起来不是运输”的问题（按季度生产、需求有上下限），怎样写成运输问题？
+\end{enumerate}
+\noindent\textsf{\color{blue2}本章知识路线：}\ 平衡模型回顾 $\to$ 产大于销（加列）$\to$ 产小于销（加行）$\to$ 例 1 生产—存储 $\to$ 例 2 需求区间。
+
+笔记先回顾了平衡问题 \orig：$\min z$，s.t.\ $\sum_j x_{ij}=a_i$，$\sum_i x_{ij}=b_j$，并把不平衡分为两类：① 产大于销 $\sum a_i>\sum b_j$；② 产小于销 $\sum a_i<\sum b_j$。
+
+\subsection{产大于销：虚设一个销地}
+\begin{definitionbox}[产大于销的运输问题]
+$\sum a_i>\sum b_j$ 时，产地不必全部运出，模型为
+\[
+\begin{aligned}
+&\min z=\sum_{i=1}^m\sum_{j=1}^n c_{ij}x_{ij},\\
+&\text{s.t.}\ \sum_{j=1}^n x_{ij}\le a_i\ (i=1,\dots,m),\quad \sum_{i=1}^m x_{ij}=b_j\ (j=1,\dots,n),\quad x_{ij}\ge0.
+\end{aligned}
+\]
+\end{definitionbox}
+笔记：“$\le a_i$ → 引入松弛变量。松弛变量意义：虚设一个销地 $B_{n+1}$” \orig。
+
+\begin{proofbox}[为什么“加一列”与原问题等价]
+\textbf{思路}\ 把每个“$\le$”约束的松弛变量看成运往一个虚拟销地的运量。\par
+\textbf{推导}\ 对每个产地引入松弛变量 $x_{i,n+1}=a_i-\sum_{j=1}^n x_{ij}\ge0$，于是 $\sum_{j=1}^{n+1}x_{ij}=a_i$。把这 $m$ 个松弛变量相加：
+\[
+\sum_{i=1}^m x_{i,n+1}=\sum_i a_i-\sum_i\sum_{j=1}^n x_{ij}=\sum_i a_i-\sum_{j=1}^n b_j\ \overset{\text{记为}}{=}\ b_{n+1}.
+\]
+这正是“第 $n+1$ 个销地”的销量约束。令 $c_{i,n+1}=0$（库存不花钱），目标函数不变。于是得到一个 $m\times(n+1)$ 的\key{平衡}运输问题，它的最优解去掉第 $n+1$ 列就是原问题的最优解。\hfill$\square$
+\end{proofbox}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\TPgrid{$A_1$,$\vdots$,$A_m$}{$B_1$,$\cdots$,$B_n$,$B_{n+1}$}{{$c_{11}$,,$c_{1n}$,0},{,,,0},{$c_{m1}$,,$c_{mn}$,0}}{$a_1$,$\vdots$,$a_m$}{$b_1$,$\cdots$,$b_n$,$b_{n+1}$}
+\hlcol[hlc]{4}
+\node[font=\footnotesize,text=accgold!80!black,align=center] at ({4*\tpw},{-5.15*\tph}) {虚设销地\\$b_{n+1}=\sum a_i-\sum b_j$};
+\node[callout,anchor=west] at ({6.0*\tpw},{-1.6*\tph}) {虚设列的运价：\\① 一般取 0；\\② 有存储费时取存储费；\\③ 不允许剩余时取 $M$};
+\end{tikzpicture}
+\caption{产大于销：在表的右侧加一列“虚设销地”（黄色）。}\label{fig:addcol}
+\end{figure}
+黄色列是虚设销地 $B_{n+1}$，运到它的货其实“没有运出”，而是留在产地。笔记 \orig：虚设列的单位运价对应“库存成本（不知道）则认为是 0；若某个库不允许存，则对应 $c_{ij}=M$（$M$ 为充分大的数）”。
+
+\begin{examplebox}[产大于销的小例子]
+\textbf{例题}\ $a=(20,25)$，$b=(15,20)$，$c=\bigl(\begin{smallmatrix}3&5\\4&2\end{smallmatrix}\bigr)$，剩余不计成本。求最优方案。\par
+\begin{minipage}{0.55\linewidth}
+\textbf{第一步（判断）}\ $\sum a=45>\sum b=35$，产大于销，差 10。\par
+\textbf{第二步（加列）}\ 增加 $B_3$（虚设），$b_3=10$，$c_{13}=c_{23}=0$。\par
+\textbf{第三步（求解）}\ $B_1$ 从 $A_1$ 运最便宜（3），$B_2$ 从 $A_2$ 运最便宜（2）：$x_{11}=15$，$x_{22}=20$，剩余 $x_{13}=5$，$x_{23}=5$。\par
+\textbf{检查}\ 每个销地都用上了自己的最低运价，不可能更省；$z=45+40=85$。
+\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$(虚)}{{3,5,0},{4,2,0}}{20,25}{15,20,10}
+\al{1}{1}{15}\al{2}{2}{20}\al{1}{3}{5}\al{2}{3}{5}\hlcol[hlc]{3}\end{tikzpicture}
+\end{minipage}\par
+\textbf{本题真正想说明什么}\ 虚设列中的运量就是各产地的\key{剩余量}：$A_1$、$A_2$ 各剩 5。
+\end{examplebox}
+
+\begin{lifebox}[面包店的当日剩余]
+\textbf{生活场景}\ 一家面包店两家分店当天共烤了 120 个面包，但订单只有 100 个。\par
+\LifeMap{面包剩余}{产大于销}{{烤出的面包数}/{产量 $a_i$},{顾客订单数}/{销量 $b_j$},{卖不掉的 20 个}/{虚设销地 $b_{n+1}=20$},{剩余面包的处理成本（打折/报废）}/{虚设列的运价（0 或存储费）}}
+\textbf{小判断}\ 若剩余面包每个要额外花 1 元处理，则虚设列运价就不是 0 而是 1，最优方案会尽量让“处理成本低”的分店留下剩余。\par
+\textbf{边界说明}\ 真实的剩余量还与需求的不确定性有关，这里假定订单数是已知的。
+\end{lifebox}
+
+\subsection{产小于销：虚设一个产地}
+\begin{definitionbox}[产小于销的运输问题]
+$\sum a_i<\sum b_j$ 时，销地不可能都被满足，模型为
+\[
+\text{s.t.}\ \sum_{j=1}^n x_{ij}=a_i\ (i=1,\dots,m),\qquad \sum_{i=1}^m x_{ij}\le b_j\ (j=1,\dots,n),\qquad x_{ij}\ge0 .
+\]
+引入松弛变量，等价于增加一个\key{虚设产地} $A_{m+1}$，其“产量”$a_{m+1}=\sum b_j-\sum a_i$。
+\end{definitionbox}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\TPgrid{$A_1$,$\vdots$,$A_m$,$A_{m+1}$}{$B_1$,$\cdots$,$B_n$}{{$c_{11}$,,$c_{1n}$},{,,},{$c_{m1}$,,$c_{mn}$},{$c'_1$,,$c'_n$}}{$a_1$,$\vdots$,$a_m$,$a_{m+1}$}{$b_1$,$\cdots$,$b_n$}
+\hlrow[hlc]{4}
+\node[callout,anchor=west] at ({5.0*\tpw},{-2.2*\tph}) {虚设行的运价 $c'_j$ = 缺货成本：\\① 题目未给出：取 0；\\② 有缺货损失：取单位缺货损失；\\③ $B_j$ 不允许缺货：取 $M$};
+\node[font=\footnotesize,text=accgold!80!black,anchor=east] at (-0.8,{-4*\tph}) {$a_{m+1}=\sum b_j-\sum a_i$};
+\end{tikzpicture}
+\caption{产小于销：在表的下方加一行“虚设产地”（黄色）。}\label{fig:addrow}
+\end{figure}
+黄色行是虚设产地。从 $A_{m+1}$“运”到 $B_j$ 的量，实际上就是 $B_j$ 的\key{缺货量}。若某销地必须全部满足，就把它在黄色行中的运价设为 $M$，这样任何最优解都不会在该格分配正的运量（否则总运费会“无穷大”）。
+
+\begin{examplebox}[产小于销：虚设产地的产量]
+\textbf{例题}\ $a=(10,15)$，$b=(12,8,10)$。应增加什么？\par
+\textbf{计算}\ $\sum a=25<\sum b=30$，增加虚设产地 $A_3$，$a_3=30-25=5$；表从 $2\times3$ 变为 $3\times3$，基变量个数变为 $3+3-1=5$。\par
+\textbf{本题真正想说明什么}\ 先比较总量，\key{哪一边少就给哪一边补}：产少补产地（行），销少补销地（列）。
+\end{examplebox}
+
+\begin{lifebox}[春运车票]
+\textbf{生活场景}\ 春运期间，某线路的车票总数少于想回家的人数，总有人买不到票。\par
+\LifeMap{春运}{产小于销}{{各车次的座位数}/{产量 $a_i$},{各城市想回家的人数}/{销量 $b_j$},{买不到票的人数}/{虚设产地的“运量”（缺货量）},{没买到票造成的损失}/{虚设行的运价（缺货成本）}}
+\textbf{小估算}\ 若座位共 900 个，想回家的人有 1000 人，则虚设产地的“产量”为 100。\par
+\textbf{边界说明}\ 真实情况中旅客会改签、换乘，需求本身也会变化，并非一个静态的分配问题。
+\end{lifebox}
+
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l X X@{}}
+\toprule
+ & 产大于销（$\sum a_i>\sum b_j$） & 产小于销（$\sum a_i<\sum b_j$）\\
+\midrule
+被放宽的约束 & 产量约束变为 $\le a_i$ & 销量约束变为 $\le b_j$\\
+虚设对象 & 销地 $B_{n+1}$（加一\key{列}） & 产地 $A_{m+1}$（加一\key{行}）\\
+虚设量 & $b_{n+1}=\sum a_i-\sum b_j$ & $a_{m+1}=\sum b_j-\sum a_i$\\
+虚设格的意义 & 产地的剩余（库存）量 & 销地的缺货量\\
+虚设格运价 & 0 / 存储费 / $M$（不许剩） & 0 / 缺货损失 / $M$（不许缺）\\
+\bottomrule
+\end{tabularx}
+\end{center}
+笔记用两句红字概括 \orig：“产大于销 → 增加销地（列）→ 平衡；产小于销 → 增加产地（行）→ 平衡。”
+
+\begin{warningbox}[加行还是加列]
+\begin{center}
+\begin{tikzpicture}[node distance=4mm]
+\node[flowr,text width=3.9cm] (w) {\textbf{错误想法}\\“产大于销”就“增加产地”};
+\node[flowr,fill=white,text width=3.9cm,right=of w] (r) {\textbf{错在哪里}\\多出来的是\key{产量}，需要一个地方“接收”它};
+\node[flowg,text width=3.9cm,right=of r] (g) {\textbf{正确想法}\\接收多余产量的是虚设\key{销地}（加列）};
+\draw[arr] (w)--(r); \draw[arr] (r)--(g);
+\end{tikzpicture}
+\end{center}
+记忆方法：\key{多什么，就虚设一个“吸收它”的对方}。
+\end{warningbox}
+
+% ------------------------------------------------------------
+\subsection{应用例 1：生产—存储计划（笔记例 1）}
+\paragraph{题意 \orig}
+某厂按合同在每季度末分别提供产品 10、15、25、20 台。各季度的生产能力与单位成本如下表；当季生产而未当季交货的产品，每台每积压一个季度产生 0.15（万元）的额外存储成本。要求在完成合同的条件下，使总费用最小。
+\begin{center}\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+季度 & 生产能力（台） & 单位成本（万元） & 合同交货（台）\\
+\midrule
+I & 25 & 10.8 & 10\\
+II & 35 & 11.1 & 15\\
+III & 30 & 11.0 & 25\\
+IV & 10 & 11.3 & 20\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{为什么这是运输问题}
+把“第 $i$ 季度的生产”看成产地，“第 $j$ 季度的交货”看成销地，设 $x_{ij}$ 为\key{第 $i$ 季度生产、第 $j$ 季度交货}的台数（笔记 \orig）。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=2.6cm]
+\foreach \q/\lab in {1/I,2/II,3/III,4/IV}{
+  \node[circle,draw=navy,fill=bgblue,minimum size=9mm] (P\q) at (\q,1.4) {产 \lab};
+  \node[circle,draw=accgold,fill=bgwarm,minimum size=9mm] (D\q) at (\q,-0.4) {交 \lab};
+  \draw[arr] (P\q)--(D\q);}
+\draw[arr,accred] (P1.south east)--(D2.north west);
+\draw[arr,accred] (P1.south east) to[bend right=12] (D3.north west);
+\node[font=\scriptsize,text=accred,align=left,anchor=west] at (4.35,0.5) {红色：I 季生产、留到 II / III 季交货\\单位成本 $10.8+0.15$ / $10.8+0.30$\\不能“先交后产”：$j<i$ 的格取 $M$};
+\end{tikzpicture}
+\caption{生产季度（上）与交货季度（下）之间的“运输路线”：竖直箭头当季交货，红色斜箭头表示积压。}\label{fig:season}
+\end{figure}
+\begin{formulabox}[生产—存储问题的“单位运价”]
+\[
+c_{ij}=\begin{cases}p_i+0.15\,(j-i), & j\ge i\quad(\text{生产成本}+\text{积压 }j-i\text{ 个季度的存储费})\\ M, & j<i\quad(\text{不能用以后生产的产品交以前的货})\end{cases}
+\]
+其中 $p_i$ 为第 $i$ 季度的单位生产成本。例如 $c_{13}=10.8+0.15\times2=11.10$，$c_{24}=11.1+0.15\times2=11.40$。
+\end{formulabox}
+
+\paragraph{约束 \orig}
+合同（销）：$x_{11}=10$；$x_{12}+x_{22}=15$；$x_{13}+x_{23}+x_{33}=25$；$x_{14}+x_{24}+x_{34}+x_{44}=20$。\par
+生产：$x_{11}+x_{12}+x_{13}+x_{14}\le25$；$x_{22}+x_{23}+x_{24}\le35$；$x_{33}+x_{34}\le30$；$x_{44}\le10$。\par
+总生产能力 $100>$ 总合同量 $70$，\key{产大于销}，虚设销地 D（表示“不生产/闲置的能力”），销量 $100-70=30$，运价默认为 0（题目未说明，笔记 \orig）。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\TPsize{1.45}{0.84}
+\TPgrid{I,II,III,IV}{I,II,III,IV,D(虚)}{{10.8,10.95,11.10,11.25,0},{$M$,11.1,11.25,11.40,0},{$M$,$M$,11.0,11.15,0},{$M$,$M$,$M$,11.3,0}}{25,35,30,10}{10,15,25,20,30}
+\al{1}{1}{10}\al{1}{2}{15}\alz{1}{3}{0}\al{2}{3}{5}\al{2}{5}{30}\al{3}{3}{20}\al{3}{4}{10}\al{4}{4}{10}
+\sg{1}{4}{0}\sg{1}{5}{0.15}\sg{2}{2}{0}\sg{2}{4}{0}\sg{3}{5}{0.25}\sg{4}{5}{0.1}
+\foreach \i/\u in {1/0,2/0.15,3/-0.1,4/0.05}{\node[font=\footnotesize,text=accred] at ({7.0*\tpw},-\i*\tph) {$\u$};}
+\node[font=\footnotesize\bfseries,text=accred] at ({7.0*\tpw},0) {$u_i$};
+\foreach \j/\v in {1/10.8,2/10.95,3/11.1,4/11.25,5/-0.15}{\node[font=\footnotesize,text=accred] at (\j*\tpw,{-6.0*\tph}) {$\v$};}
+\node[font=\footnotesize\bfseries,text=accred] at (0,{-6.0*\tph}) {$v_j$};
+\end{tikzpicture}
+\TPsize{1.35}{0.84}
+\caption{例 1 的扩展运价表与最优方案（粗体为运量，红色 0 为退化基变量，斜体为检验数）。}\label{fig:ex1}
+\end{figure}
+图中方案与笔记第 10 页一致 \orig：$x_{11}=10,x_{12}=15,x_{13}=0$（退化），$x_{23}=5,x_{2D}=30,x_{33}=20,x_{34}=10,x_{44}=10$。数字格共 $8=4+5-1$ 个。\supp 笔记没有验证最优性，也没有算出总费用，这里补上：位势为 $u=(0,0.15,-0.1,0.05)$，$v=(10.8,10.95,11.1,11.25,-0.15)$；非 $M$ 空格的检验数为 $0,0.15,0,0,0.25,0.1$（图中斜体），含 $M$ 的格检验数为“$M-$有限数”$>0$。全部非负，方案最优：
+\[
+\min z=10\times10.8+15\times10.95+5\times11.25+20\times11.0+10\times11.15+10\times11.3=773\ (\text{万元}).
+\]
+\paragraph{结果的含义}
+第 I 季度满负荷生产 25 台（10 台当季交货，15 台存到第 II 季度）；第 II 季度只生产 5 台（留到第 III 季度交货），闲置 30 台能力；第 III 季度满负荷生产 30 台；第 IV 季度生产 10 台。由于有多个空格检验数为 0，本例\key{存在多重最优解}。
+\tip[注意]{笔记在表中把 $x_{11}=10$ 旁注“不代表当季产量”——$x_{11}$ 只是“I 季生产且 I 季交货”的那部分；I 季的总产量是第一行之和 $10+15+0=25$。}
+
+\begin{lifebox}[电商大促前的提前备货]
+\textbf{生活场景}\ 网店在“双十一”之前几个月就开始备货：平时生产成本低但要付仓储费，临近大促再生产则来不及或成本更高。\par
+\LifeMap{提前备货}{生产—存储运输问题}{{第 $i$ 月生产、第 $j$ 月卖出}/{路线 $(i,j)$，运量 $x_{ij}$},{生产成本 + 每月仓储费}/{$c_{ij}=p_i+h\,(j-i)$},{不能卖还没生产出来的货}/{$j<i$ 时 $c_{ij}=M$},{用不完的产能}/{虚设销地 D}}
+\textbf{小估算}\ 若 9 月生产成本 50 元、10 月 53 元、每月仓储费 1 元，则“9 月产、11 月卖”的单位成本为 $50+2=52<53$，比 10 月生产更划算——正如例 1 中 I 季产的货留到 II 季（10.95）比 II 季生产（11.1）还便宜。\par
+\textbf{边界说明}\ 真实备货还面临销量预测不准、商品过季等风险，并不只是成本比较。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{应用例 2：需求有上下限（笔记例 2）}
+\paragraph{题意 \orig}
+三个工厂 A、B、C 供应四个地区 I、II、III、IV，单位运价、产量以及各地区的最低、最高需求如下（C 不能供应 IV，记为 $M$；IV 的最高需求不限）。求总运费最小的方案。
+\begin{center}\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & I & II & III & IV & 产量\\
+\midrule
+A & 16 & 13 & 22 & 17 & 50\\
+B & 14 & 13 & 19 & 15 & 60\\
+C & 19 & 20 & 23 & $M$ & 50\\
+\midrule
+最低需求 & 30 & 70 & 0 & 10 & \\
+最高需求 & 50 & 70 & 30 & 不限 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{第一步：确定 IV 的最高需求}
+总产量 $160$；其余地区只满足最低需求时，IV 最多能得到 $160-(30+70+0)=60$，所以“不限”可以取为 60。
+
+\paragraph{第二步：把每个地区拆成“必须”和“尽量”两部分}（笔记：“以最高需求作为切入点” \orig）
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=0.085cm,y=0.75cm]
+\foreach \lab/\lo/\hi/\y in {I/30/50/0,II/70/70/-1,III/0/30/-2,IV/10/60/-3}{
+  \node[font=\small,anchor=east] at (-2,\y) {\lab};
+  \fill[navy!70] (0,\y-0.25) rectangle (\lo,\y+0.25);
+  \fill[accgold!45] (\lo,\y-0.25) rectangle (\hi,\y+0.25);
+  \draw[gridgray] (0,\y-0.25) rectangle (\hi,\y+0.25);}
+\node[font=\scriptsize,text=white] at (15,0) {I$'$=30 必须}; \node[font=\scriptsize] at (40,0) {I$''$=20 尽量};
+\node[font=\scriptsize,text=white] at (35,-1) {II=70 必须};
+\node[font=\scriptsize] at (15,-2) {III=30 全部尽量};
+\node[font=\scriptsize,text=white,anchor=west] at (0.5,-3) {IV$'$};\node[font=\scriptsize] at (35,-3) {IV$''$=50 尽量};
+\draw[gridgray,-{Stealth}] (0,-3.8)--(66,-3.8) node[right,font=\scriptsize]{需求量};
+\foreach \x in {0,10,...,60}{\draw[gridgray] (\x,-3.72)--(\x,-3.88) node[below,font=\tiny]{\x};}
+\node[fill=navy!70,minimum width=5mm,minimum height=2.5mm,label={[font=\scriptsize]right:必须满足（最低需求）}] at (72,-0.5) {};
+\node[fill=accgold!45,minimum width=5mm,minimum height=2.5mm,label={[font=\scriptsize]right:可满足可不满足}] at (72,-1.3) {};
+\end{tikzpicture}
+\caption{需求区间的拆分：深蓝为必须满足的部分，浅金为“尽量”满足的部分。}\label{fig:split}
+\end{figure}
+每个地区被拆成两个“销地”：深蓝部分（最低需求）必须由真实工厂满足；浅金部分可以满足也可以不满足。II 的最低与最高需求相同，所以只有“必须”部分；III 的最低需求为 0，全部属于“尽量”部分。
+
+\paragraph{第三步：产小于销，虚设产地 D}
+拆分后总“销量”$=30+20+70+30+10+50=210$，大于总产量 160，所以虚设产地 D，产量 $210-160=50$。D 运到某个销地的量表示该部分需求\key{没有被满足}。“必须”部分不允许由 D 供应，运价取 $M$；“尽量”部分由 D 供应也可以（“运不运都行，此时 $c_{ij}=0$” \orig）。
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\TPsize{1.25}{0.84}
+\TPgrid{A,B,C,D(虚)}{I$'$,I$''$,II,III,IV$'$,IV$''$}{{16,16,13,22,17,17},{14,14,13,19,15,15},{19,19,20,23,$M$,$M$},{$M$,0,$M$,0,$M$,0}}{50,60,50,50}{30,20,70,30,10,50}
+\al{1}{3}{50}\al{2}{3}{20}\al{2}{5}{10}\al{2}{6}{30}\al{3}{1}{30}\al{3}{2}{20}\alz{3}{3}{0}\al{4}{4}{30}\al{4}{6}{20}
+\hl[hlg]{4}{6}
+\foreach \i/\u in {1/0,2/0,3/7,4/-15}{\node[font=\footnotesize,text=accred] at ({8.0*\tpw},-\i*\tph) {$\u$};}
+\node[font=\footnotesize\bfseries,text=accred] at ({8.0*\tpw},0) {$u_i$};
+\foreach \j/\v in {1/12,2/12,3/13,4/15,5/15,6/15}{\node[font=\footnotesize,text=accred] at (\j*\tpw,{-6.0*\tph}) {$\v$};}
+\node[font=\footnotesize\bfseries,text=accred] at (0,{-6.0*\tph}) {$v_j$};
+\end{tikzpicture}
+\TPsize{1.35}{0.84}
+\caption{例 2 的扩展表与最优方案（绿底为笔记漏写的 $x_{D,\mathrm{IV}''}=20$）。}\label{fig:ex2}
+\end{figure}
+方案与笔记第 12 页一致，并补上了绿底格的 20（见原图纠错 5）。\supp 验证：位势如图；空格检验数（非 $M$ 格）为 $\sigma_{A\mathrm{I}'}=\sigma_{A\mathrm{I}''}=4$，$\sigma_{A\mathrm{III}}=7$，$\sigma_{A\mathrm{IV}'}=\sigma_{A\mathrm{IV}''}=2$，$\sigma_{B\mathrm{I}'}=\sigma_{B\mathrm{I}''}=2$，$\sigma_{B\mathrm{III}}=4$，$\sigma_{C\mathrm{III}}=1$，$\sigma_{D\mathrm{I}''}=3$，全部非负，方案最优：
+\[
+\min z=50\times13+20\times13+10\times15+30\times15+30\times19+20\times19=2460.
+\]
+\paragraph{结果的含义}
+I 得到 50（达到最高需求），II 得到 70，III 一件也没有（D 供应了 III 的全部 30，即 III 只满足最低需求 0），IV 得到 40（D 供应了 IV$''$ 中的 20 未满足部分）。
+
+\begin{lifebox}[社团团购：最少成团，最多限量]
+\textbf{生活场景}\ 几个社团从几家文具店团购：每个社团“至少要多少才够活动用、最多要多少就不要了”。\par
+\LifeMap{团购}{需求区间}{{至少要的数量}/{“必须”部分，虚设行运价 $M$},{多了也可以要的部分}/{“尽量”部分，虚设行运价 0},{文具店库存总量不够所有上限}/{产小于销 → 虚设产地},{最终没拿到的“可选”部分}/{虚设产地供应的运量}}
+\textbf{小判断}\ 社团甲至少 20、最多 35，则拆成 20（必须）和 15（尽量）两个销地。\par
+\textbf{边界说明}\ 真实团购的单价常随数量变化（批量折扣），模型就不再是线性的。
+\end{lifebox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.]
+\item 产大于销时为什么加“列”而不是加“行”？虚设量怎样计算？
+\item 虚设格的运价在什么情况下取 0、取存储（缺货）成本、取 $M$？
+\item 生产—存储问题中，$c_{ij}$ 是怎样构造的？为什么 $j<i$ 时取 $M$？
+\item 需求有上下限时，怎样拆分销地？虚设产地的运价怎样设？
+\item 例 1、例 2 的最优值分别是多少？结果在实际中意味着什么？
+\end{enumerate}
+\end{checkbox}
+
+\solved
+我们学会了用“虚设产地 / 销地”把任何产销不平衡问题化成平衡问题，并能把生产—存储、需求区间等实际问题写成运输表，然后用前三章的方法求解。
+\nextq
+本章至此全部讲完。接下来的第 5 部分把整章内容串成一张总知识地图，并给出“知识点—题目对应表”；然后进入 38 道正式练习。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 6mm]
+\node[flow] (q) {比较 $\sum a_i$ 与 $\sum b_j$};
+\node[floww,above right=0mm and 8mm of q] (c) {产 $>$ 销：加虚设\key{列}\\$b_{n+1}=\sum a-\sum b$};
+\node[floww,below right=0mm and 8mm of q] (r) {产 $<$ 销：加虚设\key{行}\\$a_{m+1}=\sum b-\sum a$};
+\node[flowg,right=42mm of q] (t) {平衡运输问题\\表上作业法};
+\node[floww,below=of r] (ap) {应用：生产—存储（$c=p+h\Delta t$, $M$）\\需求区间（拆分 + $M$/0）};
+\draw[arr] (q)--(c.west); \draw[arr] (q)--(r.west); \draw[arr] (c.east)--(t); \draw[arr] (r.east)--(t); \draw[arr] (ap.east) -| (t.south);
+\end{tikzpicture}
+\caption{第 4 章知识地图。}
+\end{figure}

@@ -1,0 +1,237 @@
+\subsection*{提升单选详细解析}
+% ---------- 26 ----------
+\Sol{26}{B}{中等偏下}{K5 西北角法、K4 退化}
+\st{思路}西北角法第一步 $x_{11}=\min\{3,3\}=3$，第 1 行和第 1 列\key{同时}满足——退化，需补一个 0，使数字格数达到 $2+3-1=4$。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{3,5}{3,2,3}\al{1}{1}{3}\al{2}{2}{2}\al{2}{3}{3}\draw[accred,dashed] ($(t1-1)+(0.4,-0.4)$)--($(t2-2)+(-0.4,0.4)$);\node[text=accred,font=\scriptsize] at ($(t1-2)+(0,-0.1)$) {断开};\end{tikzpicture}}{\no：3 格，$(1,1)$ 与其余断开}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{3,5}{3,2,3}\al{1}{1}{3}\alz{1}{2}{0}\al{2}{2}{2}\al{2}{3}{3}\draw[accgreen,line width=1pt,opacity=0.6] (t1-1)--(t1-2)--(t2-2)--(t2-3);\end{tikzpicture}}{\ok：补 0 后 4 格连成一条链}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{3,5}{3,2,3}\al{1}{1}{3}\alz{1}{2}{0}\alz{2}{1}{0}\al{2}{2}{2}\al{2}{3}{3}\lp{(t1-1)--(t1-2)--(t2-2)--(t2-1)}\end{tikzpicture}}{\no：5 格必含闭回路}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{3,5}{3,2,3}\al{1}{1}{3}\al{2}{2}{5}\node[text=accred,font=\scriptsize] at ($(t2-3)+(0,-0.1)$) {?};\end{tikzpicture}}{\no：2 格且不满足列约束}}
+\st{判断过程}第一步后补 $x_{12}=0$（也可补 $x_{21}=0$），再 $x_{22}=2$，$x_{23}=3$。正数运量只有 3 个，但数字格必须是 4 个。\par
+\st{图上证据}(A) 中 $(1,1)$ 与第 2 行的数字格之间没有任何数字格相连，空格 $(1,2)$ 就找不到闭回路；(B) 中红色 0 把它们连了起来。\par
+\st{常见错误}以为“0 就是空格”，于是只数正数，选 A。\quad\st{一句话总结}退化时“少几个补几个 0”。
+
+% ---------- 27 ----------
+\Sol{27}{B}{中等偏下}{K9 位势法、K11 最优性}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{3,5,4},{4,3,6}}{15,20}{10,12,13}\al{1}{1}{10}\al{1}{3}{5}\al{2}{2}{12}\al{2}{3}{8}
+\sg{1}{2}{4}\sgn{2}{1}{-1}\hl[hlr]{2}{1}\hl[hlb]{2}{3}\node[font=\footnotesize,text=accred] at ({5*\tpw},-1*\tph) {$u_1=0$};\node[font=\footnotesize,text=accred] at ({5*\tpw},-2*\tph) {$u_2=2$};
+\foreach \j/\v in {1/3,2/1,3/4}{\node[font=\footnotesize,text=accred] at (\j*\tpw,{-4.1*\tph}) {$v_\j=\v$};}\end{tikzpicture}\end{center}
+\st{知识链}位势 $\to$ 空格检验数 $\to$ 判断符号 $\to$ 选进基格。\par
+\st{计算}空格只有 $(1,2)$、$(2,1)$：$\sigma_{12}=5-(0+1)=4$；$\sigma_{21}=4-(2+3)=-1$。\par
+\st{逐项分析}(A) $\sigma_{12}=4>0$，进基会使运费增加，\no。(B) $\sigma_{21}=-1<0$，是唯一负检验数（红底），\ok。(C) 存在负检验数，不是最优，\no。(D) $(2,3)$ 是数字格（蓝底），本来就在基中，$\sigma_{23}=6-(2+4)=0$，不能“进基”，\no。\par
+\st{常见错误}忘记先检查位势是否满足所有数字格：$u_1+v_1=3$，$u_1+v_3=4$，$u_2+v_2=3$，$u_2+v_3=6$，全部成立。\quad\st{一句话总结}进基格只能是 $\sigma<0$ 的\key{空格}。
+
+% ---------- 28 ----------
+\Sol{28}{C}{中等偏下}{K13 生产—存储建模}
+\st{公式}$c_{ij}=p_i+h\,(j-i)=10+0.5\times(3-1)=11$。
+\newcommand{\tl}[2]{\begin{tikzpicture}[x=0.75cm]\foreach \q in {1,2,3,4}{\node[circle,draw=navy,fill=bgblue,minimum size=4mm,inner sep=0pt,font=\tiny] (q\q) at (\q,0) {\q};}#1\node[font=\scriptsize] at (2.5,-0.5) {#2};\end{tikzpicture}}
+\fourfig{\ofig{A}{\tl{}{存储 0 季：10}}{\no：忽略了存储费}}
+{\ofig{B}{\tl{\draw[accred,-{Stealth}] (q1) to[bend left=40] (q2);}{存储 1 季：10.5}}{\no：只算了 1 个季度}}
+{\ofig{C}{\tl{\draw[accgreen,-{Stealth}] (q1) to[bend left=40] (q2);\draw[accgreen,-{Stealth}] (q2) to[bend left=40] (q3);}{存储 2 季：11}}{\ok：Q1→Q3 跨 2 个季度}}
+{\ofig{D}{\tl{\draw[accred,-{Stealth}] (q1) to[bend left=40] (q2);\draw[accred,-{Stealth}] (q2) to[bend left=40] (q3);\draw[accred,-{Stealth}] (q3) to[bend left=40] (q4);}{存储 3 季：11.5}}{\no：多算到 Q4}}
+\st{图上证据}每一段弧代表积压一个季度、加 0.5；从 Q1 到 Q3 恰有两段弧。\quad\st{一句话总结}积压季度数 $=j-i$。
+
+\subsection*{提升多选详细解析}
+% ---------- 29 ----------
+\Sol{29}{ABC}{中等偏下}{K10 调整、K11 多重最优解}
+\fourfig{\ofig{A,B}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}\sg{1}{1}{\mathbf 0}\sg{1}{2}{2}\sg{2}{2}{2}\sg{2}{3}{1}\sg{3}{1}{9}\sg{3}{3}{12}\hl[hlg]{1}{1}\end{tikzpicture}}{A \ok：全部 $\ge0$；B \ok：空格 $\sigma_{11}=0$}}
+{\ofig{C}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlg]{1}{1}\lp[tploop2]{(t1-1)--(t2-1)--(t2-4)--(t1-4)}\pl{1}{1}\mi{2}{1}\pl{2}{4}\mi{1}{4}\end{tikzpicture}}{\ok：“$-$”格为 3、2，$\theta=2$}}
+{\ofig{D}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlr]{2}{3}\lp{(t2-3)--(t1-3)--(t1-4)--(t2-4)}\pl{2}{3}\mi{1}{3}\pl{1}{4}\mi{2}{4}\end{tikzpicture}}{\no：$\sigma_{23}=2-3+10-8=1>0$}}
+{}
+\st{A}\ok。6 个空格检验数 $0,2,2,1,9,12$ 全部非负。\par
+\st{B}\ok。空格 $(1,1)$ 的检验数为 0，且其闭回路上“$-$”格运量为正（3 与 2），调整后得到不同的方案而运费不变。\par
+\st{C}\ok。闭回路 $(1,1)^+\to(2,1)^-\to(2,4)^+\to(1,4)^-$，$\theta=\min\{3,2\}=2$，得另一最优方案（第 3 章图 (b)），运费仍为 85。\par
+\st{D}\no。$\sigma_{23}=1>0$，以它进基每单位增加运费 1。\par
+\noindent\textbf{正确答案：ABC}。\quad\st{哪一个条件起决定作用}B 成立的关键是“$\sigma=0$ 的是\key{空格}”且调整量 $\theta>0$。
+
+% ---------- 30 ----------
+\Sol{30}{ABC}{中等偏下}{K2 秩、K4 退化}
+\st{A}\ok：$3+3-1=5$。\quad\st{B}\ok：非基变量取 0，正分量只可能出现在 5 个基变量中。\quad\st{C}\ok：5 个基变量中有一个为 0，正是“退化”的定义。
+\begin{center}
+\begin{minipage}{0.3\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{,,},{,,},{,,}}{,,}{,,}\foreach \c in {1-1,1-2,2-2,2-3,3-3}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}\\{\footnotesize A/B：5 个基变量}
+\end{minipage}\hfill
+\begin{minipage}{0.3\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{,,},{,,},{,,}}{2,3,4}{2,3,4}\al{1}{1}{2}\alz{1}{2}{0}\al{2}{2}{3}\alz{2}{3}{0}\al{3}{3}{4}\end{tikzpicture}\\{\footnotesize C：正分量 3 个，退化}
+\end{minipage}\hfill
+\begin{minipage}{0.36\linewidth}\centering
+\begin{tikzpicture}[x=0.55cm,y=0.5cm]
+\foreach \lab/\y in {产量行 1--3/0,销量行 1--3/-1}{\node[font=\scriptsize,anchor=east] at (0,\y) {\lab};\draw[navy] (0.2,\y-0.2) rectangle (4.6,\y+0.2);\node[font=\tiny] at (2.4,\y) {各自相加 $=(1,\dots,1)$};}
+\node[font=\scriptsize,text=accred] at (2.4,-2) {6 行线性相关，秩 $=5$};
+\end{tikzpicture}\\{\footnotesize D：秩不是 6}
+\end{minipage}
+\end{center}
+中间的图是一个退化的例子：$a=b=(2,3,4)$ 时对角线方案只有 3 个正运量，需补两个 0。\quad\st{D}\no：秩 $=m+n-1=5$。\par
+\noindent\textbf{正确答案：ABC}。\quad\st{哪一个条件起决定作用}D 错在忽略了“产量行之和 = 销量行之和”这一线性关系。
+
+\subsection*{提升填空详细解析}
+% ---------- 31 ----------
+\Sol{31}{$(A_3,B_2)$；20}{中等偏下}{K7 Vogel 法}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{8,6,10},{9,12,13},{14,9,16}}{35,50,40}{45,20,60}\al{3}{2}{20}\hl[hlg]{3}{2}
+\node[font=\scriptsize\sffamily,text=blue2] at ({5.0*\tpw},0) {行差额};
+\foreach \i/\v in {1/2,2/3,3/\mx{5}}{\node[font=\footnotesize] at ({5.0*\tpw},-\i*\tph) {\v};}
+\foreach \j/\v in {1/1,2/3,3/3}{\node[font=\footnotesize] at (\j*\tpw,{-5.0*\tph}) {\v};}
+\node[font=\scriptsize\sffamily,text=blue2] at (0,{-5.0*\tph}) {列差额};\end{tikzpicture}\end{center}
+\st{推理}行差额 $2,3,5$；列差额 $1,3,3$。最大差额 5 在 $A_3$ 行，该行最小运价为 $c_{32}=9$，填 $x_{32}=\min\{40,20\}=20$，$B_2$ 满足。\par
+\st{易错}看到列差额有两个 3 就以为要“任选”——但最大差额是 5，并列的 3 不是最大值。\par
+\st{等价答案}“$x_{32}=20$”。
+
+% ---------- 32 ----------
+\Sol{32}{15；1380}{中等偏下}{K8 闭回路、K10 调整}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{8,6,10},{9,12,13},{14,9,16}}{35,50,40}{45,20,60}
+\al{1}{1}{15}\al{1}{2}{20}\al{2}{1}{30}\al{2}{3}{20}\al{3}{3}{40}\hl[hlr]{1}{3}\lp{(t1-3)--(t2-3)--(t2-1)--(t1-1)}\pl{1}{3}\mi{2}{3}\pl{2}{1}\mi{1}{1}\end{tikzpicture}\\{\small (a) “$-$”格：$x_{23}=20$，$x_{11}=15$}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{8,6,10},{9,12,13},{14,9,16}}{35,50,40}{45,20,60}
+\al{1}{2}{20}\al{1}{3}{15}\al{2}{1}{45}\al{2}{3}{5}\al{3}{3}{40}\hl[hlg]{1}{3}\end{tikzpicture}\\{\small (b) 调整后：$(1,1)$ 出基}
+\end{minipage}
+\end{center}
+\st{推理}闭回路 $(1,3)^+\to(2,3)^-\to(2,1)^+\to(1,1)^-$；$\theta=\min\{20,15\}=15$。新总运费 $=1410+15\times(-2)=1380$。\par
+\st{验算}$6\times20+10\times15+9\times45+13\times5+16\times40=120+150+405+65+640=1380$。\par
+\st{易错}把 $x_{12}=20$ 也当作闭回路顶点——它与 $(1,3)$ 同行，但回路在 $(1,1)$ 转弯，并不经过 $(1,2)$ 作为顶点。
+
+% ---------- 33 ----------
+\Sol{33}{65}{中等偏下}{K12 产大于销}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$(虚)}{{2,3,0},{4,1,0}}{30,20}{25,15,10}\al{1}{1}{25}\al{2}{2}{15}\al{1}{3}{5}\al{2}{3}{5}\hlcol[hlc]{3}
+\foreach \i/\u in {1/0,2/0}{\node[font=\small,text=accred] at ({5.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/2,2/1,3/0}{\node[font=\small,text=accred] at (\j*\tpw,{-4.0*\tph}) {$\v$};}
+\sg{1}{2}{2}\sg{2}{1}{2}\end{tikzpicture}\end{center}
+\st{推理}$\sum a=50>\sum b=40$，加虚设销地 $B_3$，$b_3=10$，运价 0。$B_1$ 最便宜的是 $A_1$（2），$B_2$ 最便宜的是 $A_2$（1），且产量都够：$x_{11}=25$，$x_{22}=15$；剩余 $x_{13}=5$，$x_{23}=5$。\par
+\st{验证}位势 $u=(0,0)$，$v=(2,1,0)$；$\sigma_{12}=3-1=2$，$\sigma_{21}=4-2=2$，全部 $\ge0$，最优。\par
+\st{结果}$\min z=2\times25+1\times15=65$（虚设列运价为 0，不计费用）。\par
+\st{易错}忘记平衡就直接作业，导致数字格数目不对。
+
+\subsection*{提升综合大题详细解析}
+% ---------- 34 ----------
+\Sol{34}{$\min z=330$}{中等偏下}{K6、K9、K10、K11 知识链}
+\st{1. 题目在问什么}从一个“贪心”的初始方案出发，判断它是否最优；若不是，改到最优。\par
+\st{2. 已知条件整理}$a=(30,25,20)$，$b=(25,30,20)$，总量 75 平衡；$m+n-1=5$。\par
+\st{3. 知识链定位}最小元素法 $\to$ 位势法检验 $\to$ 闭回路调整 $\to$ 再检验。
+\[\text{初始解}\rightarrow u_i,v_j\rightarrow\sigma_{ij}\rightarrow\theta\rightarrow\text{新解}\rightarrow\text{再检验}\]
+\st{4. 第一步：最小元素法（为什么这样做：题目要求，且通常比西北角法更接近最优）}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{5,9,4},{7,6,3},{8,4,10}}{30,25,20}{25,30,20}
+\al{2}{3}{20}\al{3}{2}{20}\al{1}{1}{25}\al{2}{2}{5}\al{1}{2}{5}\stepno{2}{3}{1}\stepno{3}{2}{2}\stepno{1}{1}{3}\stepno{2}{2}{4}\stepno{1}{2}{5}\end{tikzpicture}\\{\small (a) 最小元素法：$z=340$}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{5,9,4},{7,6,3},{8,4,10}}{30,25,20}{25,30,20}
+\al{2}{3}{20}\al{3}{2}{20}\al{1}{1}{25}\al{2}{2}{5}\al{1}{2}{5}\sgn{1}{3}{-2}\sg{2}{1}{5}\sg{3}{1}{8}\sg{3}{3}{9}\hl[hlr]{1}{3}
+\foreach \i/\u in {1/0,2/-3,3/-5}{\node[font=\small,text=accred] at ({5.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/5,2/9,3/6}{\node[font=\small,text=accred] at (\j*\tpw,{-5.0*\tph}) {$\v$};}\end{tikzpicture}\\{\small (b) 位势与检验数}
+\end{minipage}
+\end{center}
+依次：$c_{23}=3$：$x_{23}=20$（$B_3$ 满足，$A_2$ 剩 5）；$c_{32}=4$：$x_{32}=20$（$A_3$ 满足，$B_2$ 剩 10）；$c_{11}=5$：$x_{11}=25$（$B_1$ 满足，$A_1$ 剩 5）；$c_{22}=6$：$x_{22}=5$（$A_2$ 满足，$B_2$ 剩 5）；最后 $x_{12}=5$。
+\[z_0=25\times5+5\times9+5\times6+20\times3+20\times4=125+45+30+60+80=340.\]
+\st{5. 第二步：位势法（为什么：一次求出全部 4 个检验数）}$u_1=0$；$v_1=5$，$v_2=9$；$u_2=6-9=-3$；$v_3=3+3=6$；$u_3=4-9=-5$。
+\[\sigma_{13}=4-6=-2,\quad\sigma_{21}=7-2=5,\quad\sigma_{31}=8-0=8,\quad\sigma_{33}=10-1=9.\]
+$\sigma_{13}<0$，不是最优。\par
+\st{6. 后续计算：闭回路调整}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{5,9,4},{7,6,3},{8,4,10}}{30,25,20}{25,30,20}
+\al{2}{3}{20}\al{3}{2}{20}\al{1}{1}{25}\al{2}{2}{5}\al{1}{2}{5}\hl[hlr]{1}{3}\lp{(t1-3)--(t2-3)--(t2-2)--(t1-2)}\pl{1}{3}\mi{2}{3}\pl{2}{2}\mi{1}{2}\end{tikzpicture}\\{\small (c) $\theta=\min\{20,5\}=5$}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{5,9,4},{7,6,3},{8,4,10}}{30,25,20}{25,30,20}
+\al{1}{1}{25}\al{1}{3}{5}\al{2}{2}{10}\al{2}{3}{15}\al{3}{2}{20}\sg{1}{2}{2}\sg{2}{1}{3}\sg{3}{1}{6}\sg{3}{3}{9}\hl[hlg]{1}{3}
+\foreach \i/\u in {1/0,2/-1,3/-3}{\node[font=\small,text=accred] at ({5.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/5,2/7,3/4}{\node[font=\small,text=accred] at (\j*\tpw,{-5.0*\tph}) {$\v$};}\end{tikzpicture}\\{\small (d) 新方案的位势与检验数}
+\end{minipage}
+\end{center}
+闭回路 $(1,3)^+\to(2,3)^-\to(2,2)^+\to(1,2)^-$，$\theta=\min\{x_{23},x_{12}\}=\min\{20,5\}=5$。新方案：$x_{13}=5$，$x_{23}=15$，$x_{22}=10$，$x_{12}=0$（出基）。再求位势：$u=(0,-1,-3)$，$v=(5,7,4)$；检验数 $\sigma_{12}=2,\sigma_{21}=3,\sigma_{31}=6,\sigma_{33}=9$，全部为正。\par
+\st{7. 最终答案}最优方案 $x_{11}=25,\ x_{13}=5,\ x_{22}=10,\ x_{23}=15,\ x_{32}=20$，
+\[\min z=125+20+60+45+80=330.\]
+\st{8. 合理性检查}$\Delta z=\theta\sigma_{13}=5\times(-2)=-10$，$340-10=330$ 一致；行和 $30,25,20$、列和 $25,30,20$ 都满足；空格检验数全为正，最优解唯一。\par
+\st{9. 本题最容易卡在哪里}求位势时 $u_2$、$u_3$ 为负数，容易算错符号；调整时把“$+$”格的 5（$x_{22}$）误当作 $\theta$ 的候选。\par
+\st{10. 如果某个条件变化会怎样}若 $c_{13}$ 由 4 变为 7，则 $\sigma_{13}=7-6=1>0$，初始方案（340）就已经最优。\par
+\st{变式思考}若 $A_1$ 的产量增加到 35（其余不变），问题变为产大于销，应怎样处理？（提示：加一列虚设销地，销量 5。）
+
+% ---------- 35 ----------
+\Sol{35}{最优，455 百元}{中等偏下}{K13 建模、K12 不平衡、K9 位势、K11 多重最优}
+\st{1. 题目在问什么}这是“生产—存储”问题：把“第 $i$ 月生产、第 $j$ 月交货”看成一条运输路线。\par
+\st{2. 已知条件整理}
+\begin{center}\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+月份 & 订单 & 最大产量 & 单位成本 & 存储费\\
+\midrule
+1 & 20 & 30 & 5 & \multirow{3}{*}{1 / 件·月}\\
+2 & 25 & 25 & 7 & \\
+3 & 30 & 25 & 6 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+\st{3. 知识链定位}构造运价 $c_{ij}=p_i+(j-i)$ $\to$ 判断不平衡（$80>75$）$\to$ 虚设销地 $\to$ 位势检验 $\to$ 识别多重最优。\par
+\st{4. 第一步：写运价（为什么：只有写出运价表才能用表上作业法）}$c_{11}=5,\ c_{12}=6,\ c_{13}=7$；$c_{22}=7,\ c_{23}=8$；$c_{33}=6$；$j<i$ 的格取 $M$。\par
+\st{5. 第二步：平衡（为什么：表上作业法要求平衡）}总产能 $30+25+25=80$，总订单 75，产大于销，虚设销地 D（闲置产能），销量 5，运价 0。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{1 月,2 月,3 月}{1 月,2 月,3 月,D(虚)}{{5,6,7,0},{$M$,7,8,0},{$M$,$M$,6,0}}{30,25,25}{20,25,30,5}
+\al{1}{1}{20}\al{1}{2}{10}\al{2}{2}{15}\al{2}{3}{5}\al{2}{4}{5}\al{3}{3}{25}
+\sg{1}{3}{\mathbf 0}\sg{1}{4}{1}\sg{3}{4}{2}\hl[hlg]{1}{3}
+\foreach \i/\u in {1/0,2/1,3/-1}{\node[font=\small,text=accred] at ({6.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/5,2/6,3/7,4/-1}{\node[font=\small,text=accred] at (\j*\tpw,{-5.0*\tph}) {$\v$};}\end{tikzpicture}\end{center}
+\st{6. 后续计算：检验所给方案}方案对应 $x_{11}=20,x_{12}=10,x_{22}=15,x_{23}=5,x_{2D}=5,x_{33}=25$（2 月产能 25 中只用了 20，闲置 5 记入 D 列），数字格 $6=3+4-1$。位势：$u_1=0$，$v_1=5$，$v_2=6$；$u_2=7-6=1$；$v_3=8-1=7$，$v_D=0-1=-1$；$u_3=6-7=-1$。空格检验数：$\sigma_{13}=7-7=0$，$\sigma_{1D}=0-(-1)=1$，$\sigma_{3D}=0-(-2)=2$，含 $M$ 的格均为正。全部 $\ge0$，\key{方案最优}。\par
+\st{7. 最终答案}总费用 $z=20\times5+10\times6+15\times7+5\times8+25\times6=100+60+105+40+150=455$（百元）。\par
+\st{8. 合理性检查}3 月成本最低（6），已满负荷生产 25 件；3 月缺的 5 件只能来自 1 月（$5+2=7$）或 2 月（$7+1=8$）。1 月产能已被 1、2 月订单用满，所以由 2 月补，结果合理。\par
+\st{9. 最容易卡在哪里}忘记“1 月生产、2 月交货”的成本要加存储费 1；或忘记虚设销地，导致表不平衡。\par
+\st{10. 条件变化会怎样 / 唯一性}空格 $(1,3)$ 的检验数为 0（绿底），沿其闭回路 $(1,3)^+\to(2,3)^-\to(2,2)^+\to(1,2)^-$ 调整（$\theta=\min\{5,10\}=5$）得到另一方案：$x_{11}=20,x_{12}=5,x_{13}=5,x_{22}=20,x_{2D}=5,x_{33}=25$，费用 $100+30+35+140+150=455$ 不变，所以\key{最优方案不唯一}。\par
+\st{变式思考}若存储费由 1 提高到 2，则 $c_{13}=9>c_{23}=8$……哪个检验数会变化？（提示：重新计算 $\sigma_{13}$。）
+
+\subsection*{跨学科迁移题详细解析}
+% ---------- 36 ----------
+\Sol{36}{B}{中等偏下}{K2、K4、K8 基与闭回路}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
+\foreach \i/\x in {1/0.6,2/2.4,3/4.2}{\node[circle,draw=navy,fill=bgblue,minimum size=7mm] (r\i) at (\x,1.2) {行\i};}
+\foreach \j/\x in {1/0,2/1.6,3/3.2,4/4.8}{\node[circle,draw=accgold,fill=bgwarm,minimum size=7mm] (c\j) at (\x,-0.4) {列\j};}
+\foreach \i/\j in {1/3,2/4,3/2,3/4}{\draw[navy,line width=1pt] (r\i)--(c\j);}
+\foreach \i/\j in {1/4,2/1}{\draw[accred,line width=1.6pt] (r\i)--(c\j);}
+\draw[accgreen,line width=1.6pt,dashed] (r1)--(c1);
+\end{tikzpicture}\\{\small 加入空格 $(1,1)$ 的边（绿虚线）后形成唯一的圈（红 + 绿）}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlg]{1}{1}\lp{(t1-1)--(t2-1)--(t2-4)--(t1-4)}\end{tikzpicture}\\{\small 同一个圈在运输表上就是闭回路}
+\end{minipage}
+\end{center}
+\st{当前专题知识}基可行解的数字格不含闭回路，且每个空格有唯一闭回路。\par
+\st{借用的外部情境}离散数学中树的性质：树中任意两点之间恰有一条路径。\par
+\st{推理}树中“行 1”与“列 1”之间已经有唯一一条路径：行 1—列 4—行 2—列 1（红色）。加入边“行 1—列 1”后，这条路径加上新边构成一个圈，且只有这一个，选 B。\par
+\st{其他选项}(A) 树是连通的，新边的两端已经连通，一定会产生圈；(C) 若产生两个圈，说明原来有两条不同路径，与“树”矛盾；(D) 结论是确定的。这三个选项都是对“树的性质”的误判，图中已一并说明，不另画图。\par
+\st{为什么不算超纲}题干给出了“树”的定义和“$k$ 个顶点 $k-1$ 条边”的性质，学生只需判断“加一条边会怎样”。\par
+\st{迁移点}“基 = 生成树，闭回路 = 圈，每个空格恰有一条闭回路 = 树加一边恰有一个圈”。
+
+% ---------- 37 ----------
+\Sol{37}{ABC}{中等偏下}{K7 Vogel 法的差额}
+\st{当前专题知识}差额 = 次小运价 $-$ 最小运价；Vogel 法优先处理差额最大的行（列）。\par
+\st{借用的外部情境}经济学中的“机会成本”。
+\fourfig{\ofig{A,B}{\begin{tikzpicture}[x=0.55cm]\draw[gridgray,-{Stealth}] (0,0)--(10.3,0);\foreach \x in {2,3}{\fill[navy] (\x,0.25) circle (2pt);}\foreach \x in {1,7}{\fill[accred] (\x,-0.25) circle (2pt);}
+\draw[navy,line width=1.2pt] (2,0.25)--(3,0.25);\node[font=\tiny,text=navy,anchor=west] at (3.2,0.3){X：差额 1};\draw[accred,line width=1.2pt] (1,-0.25)--(7,-0.25);\node[font=\tiny,text=accred,anchor=west] at (7.2,-0.3){Y：差额 6};\end{tikzpicture}}{\ok：Y 若错过最便宜路线每单位多付 6，应先照顾 Y}}
+{\ofig{C}{\begin{tikzpicture}[x=0.55cm]\draw[gridgray,-{Stealth}] (0,0)--(10.3,0);\fill[navy] (4,0.12) circle (2.2pt);\fill[navy] (4,-0.12) circle (2.2pt);\fill[navy] (8,0) circle (2pt);\node[font=\tiny,above] at (4,0.15){4, 4};\node[font=\tiny,above] at (8,0.05){8};\end{tikzpicture}}{\ok：最小值并列时差额为 0}}
+{\ofig{D}{\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{1,2},{3,9}}{,}{,}\hl[hlg]{1}{1}\rnote[2.1]{1}{差额 1}\rnote[2.1]{2}{\mx{差额 6}}\end{tikzpicture}}{\no：差额最大的 $A_2$ 行不含全表最小值 1}}
+{}
+\st{A}\ok：最小运价是“最好的选择”，次小运价是“次优选择”，二者之差就是错过最佳选择的单位损失。\par
+\st{B}\ok：差额越大，错过的代价越大，越应该优先保证它（左上图中行 Y）。\par
+\st{C}\ok：例如运价 $\{4,4,8\}$，最小与次小都为 4，差额为 0——错过一条最便宜路线还有另一条一样便宜的。\par
+\st{D}\no：反例见右下图，$A_1$ 行差额 $2-1=1$，$A_2$ 行差额 $9-3=6$ 最大，但全表最小运价 1 在 $A_1$ 行。\par
+\noindent\textbf{正确答案：ABC}。\quad\st{为什么不算超纲}题干给出了机会成本的定义，判断只依赖差额的计算。\quad\st{迁移点}“差额”就是运输表里的“机会成本”。
+
+% ---------- 38 ----------
+\Sol{38}{5}{中等偏下}{K1 约束（流量守恒）}
+\begin{center}
+\begin{tikzpicture}[scale=0.85,every node/.style={transform shape}]
+\node[circle,draw=navy,fill=bgblue,minimum size=8mm] (A1) at (0,0.9) {$A_1$}; \node[left=1mm of A1,font=\footnotesize] {流出 30};
+\node[circle,draw=navy,fill=bgblue,minimum size=8mm] (A2) at (0,-0.9) {$A_2$}; \node[left=1mm of A2,font=\footnotesize] {流出 20};
+\foreach \j/\y/\b in {1/1.5/15,2/0/25,3/-1.5/10}{\node[circle,draw=accgold,fill=bgwarm,minimum size=8mm] (B\j) at (4,\y) {$B_\j$}; \node[right=1mm of B\j,font=\footnotesize] {流入 \b};}
+\draw[arr] (A1)--node[above,font=\scriptsize,pos=0.25]{10}(B1); \draw[arr,accgreen,line width=1.2pt] (A1)--node[above,font=\scriptsize,pos=0.2]{20}(B2); \draw[arr,dashed,gridgray] (A1)--node[left,font=\scriptsize,pos=0.15]{0}(B3);
+\draw[arr] (A2)--node[left,font=\scriptsize,pos=0.15]{5}(B1); \draw[arr,accgreen,line width=1.2pt] (A2)--node[below,font=\scriptsize,pos=0.2]{\textbf{5}}(B2); \draw[arr] (A2)--node[below,font=\scriptsize,pos=0.25]{10}(B3);
+\node[draw=accgreen,circle,minimum size=11mm,line width=1pt] at (B2) {};
+\node[font=\footnotesize,text=accgreen] at (2,-2.3) {节点 $B_2$：$20+x_{22}=25$};
+\end{tikzpicture}
+\end{center}
+\st{当前专题知识}销量约束 $\sum_i x_{ij}=b_j$（以及产量约束 $\sum_j x_{ij}=a_i$）。\par
+\st{借用的外部情境}电路中的基尔霍夫电流定律：节点流入 = 流出。\par
+\st{推理}在节点 $B_2$（绿圈）：流入 $x_{12}+x_{22}=b_2=25$，所以 $x_{22}=25-20=5$。验算节点 $A_2$：$x_{21}+x_{22}+x_{23}=5+5+x_{23}=20\Rightarrow x_{23}=10$；节点 $B_3$：$0+10=10$ ✓。\par
+\st{为什么不算超纲}题干已给出 KCL 的含义，只需对一个节点列一次“流入 = 需求”。\par
+\st{迁移点}运输问题的每个约束都是一个节点上的“守恒定律”，与电路中的 KCL、管道中的流量守恒是同一种数学结构。

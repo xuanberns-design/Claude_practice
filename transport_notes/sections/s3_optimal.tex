@@ -1,0 +1,377 @@
+% ============================================================
+\needspace{7\baselineskip}
+\section{表上作业法（二）：最优性检验与方案调整}
+% ============================================================
+\noindent 第 2 章用最小元素法得到了总运费为 86 的初始方案。本章回答三个问题：
+\begin{enumerate}[label=\arabic*.]
+\item 怎样判断一个方案是不是最优？（闭回路法、位势法）
+\item 如果不是最优，应当\key{从哪个空格}开始改、\key{改多少}？（闭回路调整法）
+\item 最优方案唯一吗？（多重最优解）
+\end{enumerate}
+\noindent\textsf{\color{blue2}本章知识路线：}\ 改运一单位 $\to$ 闭回路 $\to$ 检验数 $\to$ 位势 $\to$ 进基格 $\to$ $\theta$ $\to$ 新方案 $\to$ 再检验。
+
+\subsection{闭回路法：检验数是“改运一单位”的运费变化}
+\noindent\textsf{\color{blue2}学科坐标}\quad 对应单纯形法中的“检验数 $\sigma_j$”；前置：基可行解、闭回路；后续：位势法、对偶理论。
+
+\paragraph{问题引入}
+当前方案中，空格 $(A_1,B_1)$ 的运量是 0。如果我们“试着”让 $A_1$ 给 $B_1$ 运 1 吨，会发生什么？$B_1$ 就多收了 1 吨，于是 $A_2\to B_1$ 必须少运 1 吨；$A_2$ 因此多出 1 吨，只好多运给 $B_3$；$B_3$ 多收 1 吨，又要让 $A_1\to B_3$ 少运 1 吨——而 $A_1$ 正好因为多运给 $B_1$ 而少了 1 吨，于是\key{恰好平衡}。这一连串的“一增一减”在表上画出来，就是一条闭回路。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}
+\hl{1}{1}
+\lp{(t1-1)--(t1-3)--(t2-3)--(t2-1)}
+\pl{1}{1}\mi{1}{3}\pl{2}{3}\mi{2}{1}
+\rnote{1}{$+1$ 吨：$+c_{11}=+3$}
+\rnote{2}{$\pm1$ 吨：$+c_{23}-c_{21}=+2-1$}
+\rnote{3}{$A_1B_3$ 少运 1 吨：$-c_{13}=-3$}
+\end{tikzpicture}
+\caption{从空格 $(1,1)$ 出发的闭回路：$+$ 格多运 1 吨，$-$ 格少运 1 吨。}\label{fig:loop11}
+\end{figure}
+图中黄色格是出发的空格，红线是闭回路，四个顶点交替标上 $+$（多运）与 $-$（少运）。每一行、每一列都恰有一个 $+$ 和一个 $-$，所以所有行和、列和都不变——方案仍然可行。总运费的变化是
+\[
+\sigma_{11}=\underbrace{c_{11}}_{+}-\underbrace{c_{13}}_{-}+\underbrace{c_{23}}_{+}-\underbrace{c_{21}}_{-}=3-3+2-1=1>0,
+\]
+即“让 $A_1$ 给 $B_1$ 运货”每吨反而要多花 1，不划算。
+
+\begin{definitionbox}[检验数（闭回路法）]
+对空格 $(i,j)$，以它为起点（第 1 个顶点），找出由它和数字格构成的闭回路，按顺序把顶点编号。则
+\[
+\sigma_{ij}=\text{奇数号顶点的单位运价之和}-\text{偶数号顶点的单位运价之和}.
+\]
+\textbf{经济意义}（笔记第 5 页 \orig）：当由 $A_i$ 往 $B_j$ \key{增运 1 个单位}货物时，所引起的\key{总运费的变化量}。
+\end{definitionbox}
+
+\paragraph{画闭回路的规则}（据笔记第 5 页整理 \orig）以某空格为起点，用水平线或竖直线向前画；遇到\key{空格}只能穿过、不能转弯；只有碰到\key{数字格}时才可以转 $90^\circ$；继续前进，直到回到起始空格为止。
+
+\begin{theorembox}[闭回路的存在唯一性]
+若数字格构成一个基（$m+n-1$ 个、无闭回路），则对每一个空格，\key{存在且只存在一条}由该空格与若干数字格组成的闭回路。
+\end{theorembox}
+\begin{supplementbox}[为什么“存在且唯一”]
+\textbf{存在}\ 基的 $m+n-1$ 列线性无关且张成整个列空间（秩为 $m+n-1$），所以空格的系数列 $P_{ij}$ 可以由基列线性表示。由于每列只有两个 1，这个表示式中的基列一定能排成“同行—同列—同行……”交替相接的链，与 $(i,j)$ 合起来就是一条闭回路。\par
+\textbf{唯一}\ 若同一空格有两条不同的闭回路，把两条回路的“$\pm$ 表示式”相减，空格本身抵消，得到只由数字格构成的非零线性组合等于零，说明数字格中含有闭回路，与“基不含闭回路”矛盾。\par
+\textbf{一句话直观}\ 数字格像一棵“树”把所有行和列连在一起；树上任意两点之间只有一条路，所以加进一个空格后，恰好形成一个圈。
+\end{supplementbox}
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{ccc}
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{1}{1}
+\lp{(t1-1)--(t1-3)--(t2-3)--(t2-1)}\end{tikzpicture} &
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{1}{2}
+\lp{(t1-2)--(t1-4)--(t3-4)--(t3-2)}\end{tikzpicture} &
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{2}{2}
+\lp{(t2-2)--(t2-3)--(t1-3)--(t1-4)--(t3-4)--(t3-2)}\end{tikzpicture}\\
+{\small (a) $\sigma_{11}=3-3+2-1=1$} & {\small (b) $\sigma_{12}=11-10+5-4=2$} & {\small (c) $\sigma_{22}=9-2+3-10+5-4=1$}\\[4pt]
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlr]{2}{4}
+\lp{(t2-4)--(t2-3)--(t1-3)--(t1-4)}\end{tikzpicture} &
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{3}{1}
+\lp{(t3-1)--(t2-1)--(t2-3)--(t1-3)--(t1-4)--(t3-4)}\end{tikzpicture} &
+\begin{tikzpicture}[sixs]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{3}{3}
+\lp{(t3-3)--(t1-3)--(t1-4)--(t3-4)}\end{tikzpicture}\\
+{\small (d) \bad{$\sigma_{24}=8-2+3-10=-1$}} & {\small (e) $\sigma_{31}=7-1+2-3+10-5=10$} & {\small (f) $\sigma_{33}=10-3+10-5=12$}
+\end{tabular}
+\caption{最小元素法初始方案上 6 个空格的闭回路（与笔记第 6 页 (a)--(f) 一致）。}\label{fig:sixloops}
+\end{figure}
+6 个空格对应 6 个非基变量，所以要算 6 个检验数（笔记：“有几个空格，就必须找几个回路” \orig）。注意 (c) 和 (e)：闭回路不一定是矩形，可以有 6 个顶点；(e) 中从 $(3,4)$ 回到 $(3,1)$ 的那段水平线\key{穿过}了数字格 $(3,2)$，但没有在那里转弯——穿过数字格也是允许的，只要不把它当作顶点。唯一的负检验数出现在 (d)（红底格）。
+
+\begin{theorembox}[最优性判别准则]
+对极小化运输问题，若当前基可行解的\key{所有}空格检验数 $\sigma_{ij}\ge0$，则该解为最优解；若存在 $\sigma_{ij}<0$，则沿该空格的闭回路调整可使总运费下降，当前解不是最优（非退化时）。
+\end{theorembox}
+\begin{proofbox}[为什么 $\sigma\ge0$ 就是最优]
+\textbf{思路}\ 任何其他可行方案，都可以看作从当前方案出发，在若干空格上“增运”而得到的。\par
+\textbf{证明}\ 设 $X$ 为当前基可行解，$X'$ 为任意可行解。由 3.2 节将证明的等式 $\sigma_{ij}=c_{ij}-u_i-v_j$（数字格上 $c_{ij}=u_i+v_j$），有
+\[
+z(X')=\sum_{i,j}c_{ij}x'_{ij}=\sum_{i,j}(u_i+v_j)x'_{ij}+\sum_{i,j}\sigma_{ij}x'_{ij}
+=\sum_i u_ia_i+\sum_j v_jb_j+\sum_{\text{空格}}\sigma_{ij}x'_{ij},
+\]
+其中用到了 $\sum_j x'_{ij}=a_i$、$\sum_i x'_{ij}=b_j$，且数字格的 $\sigma=0$。对当前解 $X$，空格上 $x_{ij}=0$，所以 $z(X)=\sum u_ia_i+\sum v_jb_j$。因此
+\[
+z(X')-z(X)=\sum_{\text{空格}}\sigma_{ij}\,x'_{ij}\ \ge 0\qquad(\text{因为 }\sigma_{ij}\ge0,\ x'_{ij}\ge0).
+\]
+即任何可行方案的运费都不低于当前方案，当前方案最优。\hfill$\square$\par
+\textbf{一句话直观}\ 检验数是“往每个空格里放货”的单价代价；如果每一个空格的代价都不为负，那么无论怎样往空格里放货，都不会更省。
+\end{proofbox}
+回到本例：$\sigma_{24}=-1<0$，说明“让 $A_2$ 给 $B_4$ 运货”每吨能省 1，当前方案（86）不是最优。
+
+\begin{examplebox}[2 × 2 表上的检验数]
+\textbf{例题}\ 运价 $c=\bigl(\begin{smallmatrix}2&5\\4&3\end{smallmatrix}\bigr)$，$a=(6,9)$，$b=(8,7)$，当前方案 $x_{11}=6,x_{21}=2,x_{22}=7$。判断是否最优。\par
+\begin{minipage}{0.56\linewidth}
+\textbf{已知}\ 数字格 3 个 $=2+2-1$，空格只有 $(1,2)$。\par
+\textbf{思路}\ 找 $(1,2)$ 的闭回路：$(1,2)\to(2,2)\to(2,1)\to(1,1)$。\par
+\textbf{计算}\ $\sigma_{12}=c_{12}-c_{22}+c_{21}-c_{11}=5-3+4-2=4\ge0$。\par
+\textbf{结果}\ 唯一的检验数非负，当前方案最优，$z=12+8+21=41$。\par
+\textbf{检查}\ 若改让 $A_1$ 运 1 吨给 $B_2$：$+5-3+4-2=+4$，确实更贵。
+\end{minipage}\hfill
+\begin{minipage}{0.4\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{2,5},{4,3}}{6,9}{8,7}
+\al{1}{1}{6}\al{2}{1}{2}\al{2}{2}{7}\hl{1}{2}\lp{(t1-2)--(t2-2)--(t2-1)--(t1-1)}
+\pl{1}{2}\mi{2}{2}\pl{2}{1}\mi{1}{1}\end{tikzpicture}
+\end{minipage}\par
+\textbf{本题真正想说明什么}\ 检验数只与\key{运价}和\key{闭回路的形状}有关，与运量大小无关。
+\end{examplebox}
+
+\begin{lifebox}[同学互换值日]
+\textbf{生活场景}\ 4 位同学排值日表，甲想把周一的班换到周三。为了每天人数不变、每人班次数不变，必须有人连锁调换。\par
+\LifeMap{换值日}{闭回路}{{甲：周三 +1 次，周一 $-1$ 次}/{起点空格 $+$、同行数字格 $-$},{乙：周一 +1 次，周三 $-1$ 次}/{同列补回、再同行抵消},{每人总班次、每天总人数不变}/{行和、列和不变（仍可行）},{换班前后的“辛苦程度”之差}/{检验数 $\sigma_{ij}$}}
+\textbf{小判断}\ 若甲周一、周三的辛苦度为 3、2，乙为 4、6，则甲乙互换后总辛苦度变化 $(2-3)+(4-6)=-3<0$，值得换——这正是“$\sigma<0$ 就调整”的道理。\par
+\textbf{边界说明}\ 真实换班还要考虑个人意愿等无法量化的因素。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{位势法：不画闭回路也能算检验数}
+\noindent\textsf{\color{blue2}它解决什么问题}\quad 闭回路法要为每个空格画一条回路；当表格变大（例如 $10\times10$ 有 81 个空格），这非常费力。笔记中的位势法 \orig 只需解一个简单的方程组。
+
+\begin{definitionbox}[位势]
+给每一行 $A_i$ 一个数 $u_i$（行位势），给每一列 $B_j$ 一个数 $v_j$（列位势），使得对\key{所有数字格}都有
+\[
+u_i+v_j=c_{ij}\qquad\text{（即数字格的检验数 }\sigma_{ij}=0\text{）}.
+\]
+\end{definitionbox}
+\begin{formulabox}[空格检验数]
+\[
+\boxed{\ \sigma_{ij}=c_{ij}-(u_i+v_j)\ }\qquad(i,j)\text{ 为空格}
+\]
+$c_{ij}$：该格的实际单位运价；$u_i+v_j$：由数字格“推算”出来的“理论运价”；$\sigma_{ij}$：两者之差。
+\end{formulabox}
+
+\begin{proofbox}[为什么位势法与闭回路法算出的 $\sigma$ 相同]
+\textbf{要证明什么}\ 对空格 $s=(i_1,j_1)$，闭回路法给出的 $\sigma_s$ 等于 $c_s-u_{i_1}-v_{j_1}$。\par
+\textbf{思路}\ 把闭回路上每个数字格的 $c$ 换成 $u+v$，看看会剩下什么。\par
+\textbf{证明}\ 设闭回路依次为 $s=(i_1,j_1)^+,(i_1,j_2)^-,(i_2,j_2)^+,(i_2,j_3)^-,\dots,(i_k,j_k)^+,(i_k,j_1)^-$。考虑交替和
+\[
+T=\sum_{\text{所有顶点}}(\pm)(u_i+v_j).
+\]
+相邻的“$-$ 顶点 $(i_1,j_2)$”与“$+$ 顶点 $(i_1,j_1)$”同在第 $i_1$ 行，$u_{i_1}$ 一加一减抵消；“$-$ 顶点 $(i_1,j_2)$”与“$+$ 顶点 $(i_2,j_2)$”同在第 $j_2$ 列，$v_{j_2}$ 抵消；依此类推，每个 $u$ 和 $v$ 都恰好一加一减，所以 $T=0$。\par
+数字格上 $c=u+v$，于是
+\[
+\sigma_s=c_s+\sum_{\text{数字格顶点}}(\pm)c=c_s+\sum_{\text{数字格顶点}}(\pm)(u+v)=c_s+\bigl[T-(u_{i_1}+v_{j_1})\bigr]=c_s-u_{i_1}-v_{j_1}.
+\]
+\hfill$\square$\par
+\textbf{位势方程组为什么有解}\ 方程个数 $=m+n-1$（数字格个数），未知数个数 $=m+n$。数字格把所有行和列连成一棵“树”，从任一已知位势出发，沿数字格可以逐个求出其余位势，所以总有解，并且有一个自由度。笔记：“$\sigma_{ij}=0$ 一般为不定方程，故可人为令 $u_i=0$（或 $v_j=0$）即可” \orig。取不同的初值，所有 $u_i$ 加上同一常数、所有 $v_j$ 减去同一常数，$u_i+v_j$ 不变，所以检验数不受影响。
+\end{proofbox}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.55\linewidth}\centering
+\begin{tikzpicture}
+\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}
+\sg{1}{1}{1}\sg{1}{2}{2}\sg{2}{2}{1}\sgn{2}{4}{-1}\sg{3}{1}{10}\sg{3}{3}{12}
+\node[font=\small\bfseries,text=accred] at ({6.0*\tpw},0) {$u_i$};
+\foreach \i/\u in {1/0,2/-1,3/-5}{\node[font=\small,text=accred] at ({6.0*\tpw},-\i*\tph) {$\u$};}
+\node[font=\small\bfseries,text=accred] at (0,{-5.0*\tph}) {$v_j$};
+\foreach \j/\v in {1/2,2/9,3/3,4/10}{\node[font=\small,text=accred] at (\j*\tpw,{-5.0*\tph}) {$\v$};}
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[node distance=5mm and 4mm,every node/.style={font=\small}]
+\node[flow] (u1) {$u_1=0$};
+\node[flow,below left=of u1] (v3) {$v_3=3$};
+\node[flow,below right=of u1] (v4) {$v_4=10$};
+\node[flow,below=of v3] (u2) {$u_2=-1$};
+\node[flow,below=of v4] (u3) {$u_3=-5$};
+\node[flow,below=of u2] (v1) {$v_1=2$};
+\node[flow,below=of u3] (v2) {$v_2=9$};
+\draw[arr] (u1)--node[left,font=\scriptsize]{$c_{13}$}(v3); \draw[arr] (u1)--node[right,font=\scriptsize]{$c_{14}$}(v4);
+\draw[arr] (v3)--node[left,font=\scriptsize]{$c_{23}$}(u2); \draw[arr] (v4)--node[right,font=\scriptsize]{$c_{34}$}(u3);
+\draw[arr] (u2)--node[left,font=\scriptsize]{$c_{21}$}(v1); \draw[arr] (u3)--node[right,font=\scriptsize]{$c_{32}$}(v2);
+\end{tikzpicture}
+\end{minipage}
+\caption{位势法：左为带位势与检验数的表（斜体为空格检验数），右为位势的求解顺序树。}\label{fig:potential}
+\end{figure}
+左表右侧一列是行位势 $u_i$，下方一行是列位势 $v_j$，空格中的斜体数是检验数，红色粗体 $-1$ 为负检验数。右图说明位势的求法：从 $u_1=0$ 出发，每条箭头用一个数字格的运价“传递”一次——例如 $u_1+v_3=c_{13}=3$ 得 $v_3=3$，再由 $u_2+v_3=c_{23}=2$ 得 $u_2=-1$。这棵树正是数字格的连接结构。逐个计算（笔记第 7--8 页 \orig，并更正一处）：
+\[
+\begin{aligned}
+\sigma_{11}&=3-(0+2)=1, &\sigma_{12}&=11-(0+9)=2, &\sigma_{22}&=9-(-1+9)=1,\\
+\sigma_{24}&=8-(-1+10)=\bad{-1}, &\sigma_{31}&=7-(-5+2)=10, &\sigma_{33}&=10-(-5+3)=12.
+\end{aligned}
+\]
+与图 \ref{fig:sixloops} 中闭回路法的 6 个结果逐一相同。
+
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+ & 闭回路法 & 位势法\\
+\midrule
+做法 & 每个空格画一条闭回路，交替加减运价 & 先解 $u_i+v_j=c_{ij}$，再算 $c_{ij}-u_i-v_j$\\
+工作量 & 空格多时很大 & 解 $m+n-1$ 个简单方程 + 每空格一次减法\\
+优点 & 直观，同时给出调整用的闭回路 & 快，不易漏算\\
+关系 & \multicolumn{2}{l}{两者结果必须完全相同；位势法求出 $\sigma<0$ 后，调整时仍需画该格的闭回路}\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{extbox}
+$u_i,v_j$ 其实就是运输问题\key{对偶问题}的变量：对偶问题为 $\max\ \sum a_iu_i+\sum b_jv_j$，s.t.\ $u_i+v_j\le c_{ij}$。“所有 $\sigma_{ij}\ge0$”正好等价于“对偶约束全部满足”，这就是线性规划中“原问题可行 + 对偶可行 $\Rightarrow$ 最优”的表上版本。经济上，$v_j-(-u_i)$ 可理解为 $B_j$ 与 $A_i$ 之间的“价格差”。
+\end{extbox}
+
+\begin{lifebox}[二手平台的“参考价”]
+\textbf{生活场景}\ 二手平台会根据大量已成交的交易，给每类商品估一个“参考价”。如果某个卖家的标价明显低于参考价，买家就会觉得“捡到便宜”。\par
+\LifeMap{比价}{位势法}{{已成交的交易}/{数字格：$c_{ij}=u_i+v_j$},{由成交记录推算的参考价}/{理论运价 $u_i+v_j$},{某个新挂单的实际标价}/{空格的实际运价 $c_{ij}$},{标价低于参考价才值得买}/{$\sigma_{ij}<0$ 才值得进基}}
+\textbf{小判断}\ 本例空格 $(2,4)$ 的“参考价”$u_2+v_4=-1+10=9$，实际运价 $c_{24}=8$，便宜 1，所以值得“买入”（让它进基）。\par
+\textbf{边界说明}\ 这是帮助理解“理论价—实际价”比较的类比；真实的参考价由统计方法得到，并不严格满足 $u+v=c$ 的结构。
+\end{lifebox}
+
+\begin{warningbox}[位势法中最常见的三个错误]
+\begin{center}
+\begin{tikzpicture}[node distance=3mm]
+\node[flowr,text width=4.4cm,align=left] (a) {\textbf{错误 1}：用\emph{空格}列方程 $u_i+v_j=c_{ij}$\\\good{正确}：只有数字格（含退化 0）满足它};
+\node[flowr,text width=4.4cm,align=left,right=of a] (b) {\textbf{错误 2}：$\sigma_{ij}=c_{ij}-(u_j+v_i)$ 下标对调\\\good{正确}：行位势配行号 $i$，列位势配列号 $j$};
+\node[flowr,text width=4.4cm,align=left,right=of b] (c) {\textbf{错误 3}：以为 $u_1=0$ 换成 $u_1=5$ 检验数会变\\\good{正确}：$u+v$ 不变，检验数不变};
+\end{tikzpicture}
+\end{center}
+笔记第 8 页 $\sigma_{12}$ 的计算就犯了“错误 2”式的代错（见原图纠错 3）。
+\end{warningbox}
+
+% ------------------------------------------------------------
+\subsection{闭回路调整法：改多少、怎么改}
+\noindent\textsf{\color{blue2}它解决什么问题}\quad 已经知道 $(2,4)$ 每增运 1 吨可省 1，那么增运多少吨？增运后表格怎样变化？
+
+\begin{summarybox}[闭回路调整法（据笔记第 6 页整理）]
+\begin{enumerate}[label=\arabic*.]
+\item \key{选进基格}：在负检验数中，选\key{绝对值最大}的空格作为调整的起点；
+\item \key{标符号}：从该空格出发沿其闭回路，在各顶点依次标上 $+\theta$、$-\theta$；
+\item \key{定 $\theta$}：为保持非负，所有“$-$”格都要满足 $x_{ij}-\theta\ge0$，所以 $\theta=\min\{\text{“$-$”格的运量}\}$；
+\item \key{调整}：“$+$”格加 $\theta$，“$-$”格减 $\theta$，其余格不变；“$-$”格中运量恰为 $\theta$ 的那一格变为空格（出基），起点空格变为数字格（进基）。
+\end{enumerate}
+\end{summarybox}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlr]{2}{4}
+\lp{(t2-4)--(t2-3)--(t1-3)--(t1-4)}\pl{2}{4}\mi{2}{3}\pl{1}{3}\mi{1}{4}
+\end{tikzpicture}\\{\small (a) 调整前：“$-$”格运量为 1 和 3，$\theta=\min\{1,3\}=1$}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}\hl[hlg]{2}{4}\hl{2}{3}
+\node[font=\scriptsize,text=accred] at ($(t2-3)+(-0.05,-0.1)$) {出基};
+\end{tikzpicture}\\{\small (b) 调整后：$(2,4)$ 进基，$(2,3)$ 出基，$z=86-1=85$}
+\end{minipage}
+\caption{闭回路调整：调整前（标符号）→ 调整后（换基）。}\label{fig:adjust}
+\end{figure}
+(a) 中进基格 $(2,4)$ 标 $+$，沿回路依次是 $(2,3)^-$、$(1,3)^+$、$(1,4)^-$。两个“$-$”格的运量是 $x_{23}=1$、$x_{14}=3$，笔记写成“$3-\theta\ge0$，$1-\theta\ge0\Rightarrow\theta=1$” \orig。(b) 中 $x_{24}=0+1=1$，$x_{23}=1-1=0$ 变为空格，$x_{13}=4+1=5$，$x_{14}=3-1=2$。总运费变化
+\[
+\Delta z=\theta\cdot\sigma_{24}=1\times(-1)=-1,\qquad z=86-1=85.
+\]
+
+\begin{intuitionbox}[为什么 $\theta$ 取“$-$”格的最小值]
+笔记中红笔写道：“因为想要调整幅度……，所以 $\theta$ 尽可能（大）”。每增运 1 单位省 $|\sigma|$，所以 $\theta$ 越大越省；但“$-$”格的运量会减少，不能减成负数。于是 $\theta$ 能取到的最大值就是“$-$”格中\key{最小}的运量——就像几段水管串联，能通过的流量由最细的那一段决定。取这个最小值还有一个好处：恰好有一个“$-$”格变成 0，可以让它出基，数字格的个数保持 $m+n-1$。
+\end{intuitionbox}
+
+\begin{theorembox}[调整后仍是基可行解]
+按上述规则调整后：① 行和、列和不变，且所有运量 $\ge0$；② 数字格仍为 $m+n-1$ 个且不含闭回路。总运费变化 $\Delta z=\theta\,\sigma_{\text{进基格}}$。
+\end{theorembox}
+\begin{supplementbox}[两点说明]
+\textbf{① 可行性}\ 每行、每列中闭回路的顶点一个 $+\theta$、一个 $-\theta$，行和、列和不变；“$-$”格减去的 $\theta$ 不超过其运量，故非负。\par
+\textbf{② 退化的调整}\ 若有\key{两个或更多}“$-$”格的运量同时等于 $\theta$，只能让其中\key{一个}出基，其余的保留为数字格并填 0（否则数字格少于 $m+n-1$）。若 $\theta=0$（“$-$”格中有退化的 0），调整后运费不变，但基发生了变化，继续检验即可。
+\end{supplementbox}
+
+\begin{lifebox}[接力传递物资]
+\textbf{生活场景}\ 社区志愿者沿一条路线接力把物资从仓库转送到几户人家，每一站都要“收一些、送一些”。\par
+\LifeMap{接力转运}{闭回路调整}{{决定多走一条新路线}/{选 $\sigma$ 最负的空格进基},{沿路线每站一收一送}/{顶点交替 $+\theta$、$-\theta$},{手里最少的那一站决定能转多少}/{$\theta=\min\{\text{“$-$”格运量}\}$},{那一站被“掏空”，退出路线}/{运量变 0 的格出基}}
+\textbf{小估算}\ 若路线上需要“送出”的三站手里分别有 8、5、12 箱，则最多能转送 5 箱。本例中两站分别有 1、3 吨，所以 $\theta=1$。\par
+\textbf{边界说明}\ 真实接力还受人手、时间限制，这里只取“瓶颈决定流量”这一点。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{再检验：最优解与多重最优解}
+调整后必须重新检验。对新方案（图 \ref{fig:adjust}(b)）重新求位势：$u_1=0$；由 $c_{13}=3$ 得 $v_3=3$，由 $c_{14}=10$ 得 $v_4=10$；由 $c_{24}=8$ 得 $u_2=-2$；由 $c_{21}=1$ 得 $v_1=3$；由 $c_{34}=5$ 得 $u_3=-5$；由 $c_{32}=4$ 得 $v_2=9$。
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.5\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}
+\sg{1}{1}{\mathbf{0}}\sg{1}{2}{2}\sg{2}{2}{2}\sg{2}{3}{1}\sg{3}{1}{9}\sg{3}{3}{12}\hl[hlg]{1}{1}
+\foreach \i/\u in {1/0,2/-2,3/-5}{\node[font=\small,text=accred] at ({6.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/3,2/9,3/3,4/10}{\node[font=\small,text=accred] at (\j*\tpw,{-5.0*\tph}) {$\v$};}
+\lp[tploop2]{(t1-1)--(t2-1)--(t2-4)--(t1-4)}
+\end{tikzpicture}\\{\small (a) 全部 $\sigma\ge0$，最优；$\sigma_{11}=0$（绿底）}
+\end{minipage}\hfill
+\begin{minipage}{0.46\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{1}{1}{2}\al{1}{3}{5}\al{2}{1}{1}\al{2}{4}{3}\al{3}{2}{6}\al{3}{4}{3}\hl[hlg]{1}{1}
+\end{tikzpicture}\\{\small (b) 沿绿色虚线回路调整 $\theta=2$：另一个最优方案}
+\end{minipage}
+\caption{最优性的再检验与多重最优解。}\label{fig:multi}
+\end{figure}
+(a) 中 6 个检验数为 $0,2,2,1,9,12$，全部非负，所以当前方案是最优方案，$\min z=85$。其中空格 $(1,1)$ 的检验数为 \key{0}：沿它的闭回路（绿色虚线 $(1,1)^+\to(2,1)^-\to(2,4)^+\to(1,4)^-$）调整，运费变化 $\theta\times0=0$。取 $\theta=\min\{x_{21},x_{14}\}=\min\{3,2\}=2$，得到 (b)：$x_{11}=2,x_{13}=5,x_{21}=1,x_{24}=3,x_{32}=6,x_{34}=3$，验算总运费 $6+15+1+24+24+15=85$，同样最优。
+
+\begin{theorembox}[多重最优解]
+若最优表中某个\key{空格}的检验数为 0，则（非退化时）问题有多个最优解：以该空格进基调整，可得到另一个总运费相同的最优方案（笔记第 8 页红笔 \orig）。
+\end{theorembox}
+\begin{warningbox}[“$\sigma=0$”出现在哪里]
+数字格的检验数\key{本来就是 0}（位势就是这样定义的），它们不说明任何问题。判断多重最优解只看\key{空格}的检验数。另外，若该空格的闭回路上“$-$”格运量为 0（退化），调整 $\theta=0$ 后方案并不改变，此时不能据此断定有另一个不同的最优方案。
+\end{warningbox}
+\begin{lifebox}[导航给出两条“同样快”的路线]
+\textbf{生活场景}\ 地图导航有时会显示两条预计用时完全相同的路线，让你任选其一。\par
+\LifeMap{等时路线}{多重最优解}{{两条预计用时相同的路线}/{两个总运费相同的最优方案},{从一条换到另一条，用时不增不减}/{沿 $\sigma=0$ 的闭回路调整，$\Delta z=0$},{可按其他偏好（少红绿灯）再选}/{可按次要目标在多个最优解中挑选}}
+\textbf{小判断}\ 本例两个最优方案中，(b) 用了 $A_1\to B_1$（运价 3）这条路线，如果管理者希望“$A_1$ 尽量少跑远路 $B_4$（运价 10）”，就会偏好 (b)，因为它不再使用 $A_1\to B_4$。\par
+\textbf{边界说明}\ 导航用时是预测值，会随路况变化；而运输问题中的运价被假定为确定的常数。
+\end{lifebox}
+
+\subsection*{表上作业法完整流程}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=5mm and 8mm]
+\node[floww] (st) {产销平衡？};
+\node[flow,right=of st] (init) {求初始基可行解\\（西北角 / 最小元素 / Vogel）};
+\node[flow,right=of init] (cnt) {数字格 $=m+n-1$？\\不足则补 0};
+\node[flow,below=of cnt] (pot) {求位势 $u_i,v_j$\\算空格 $\sigma_{ij}$};
+\node[dec,left=12mm of pot] (q) {全部\\$\sigma_{ij}\ge0$？};
+\node[flowg,below=of q,xshift=-14mm] (opt) {得最优解；空格 $\sigma=0$\\$\Rightarrow$ 多重最优解};
+\node[flow,below=9mm of pot] (adj) {选最负 $\sigma$ 进基；画闭回路\\$\theta=\min\{-\text{格}\}$；换基};
+\node[flowr,below=of st] (bal) {虚设产地或销地\\（第 4 章）};
+\draw[arr] (st)--node[above,font=\scriptsize]{是}(init); \draw[arr] (st)--node[left,font=\scriptsize]{否}(bal);
+\draw[arr] (bal.east) -| (init.south);
+\draw[arr] (init)--(cnt); \draw[arr] (cnt)--(pot); \draw[arr] (pot)--(q);
+\draw[arr] (q)--node[left,font=\scriptsize]{是}(opt); \draw[arr] (q.south east)--node[above,font=\scriptsize,sloped]{否}(adj.west);
+\draw[arr] (adj.east) -- ++(0.5,0) |- (pot.east);
+\end{tikzpicture}
+\caption{表上作业法的判定与迭代流程。}\label{fig:flow}
+\end{figure}
+流程图中菱形是判断，绿色框是终点。“调整 → 求位势”的回边说明：每调整一次就要重新求位势、重新检验。因为产销平衡问题必有最优解，且（非退化时）每次调整都使总运费严格下降，基可行解只有有限个，所以迭代一定会在有限步内结束。
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.]
+\item 检验数 $\sigma_{ij}$ 的经济意义是什么？为什么 $\sigma\ge0$ 就是最优？
+\item 画闭回路时，遇到空格和数字格分别怎样处理？闭回路一定是矩形吗？
+\item 位势法中为什么可以令 $u_1=0$？这样做会改变检验数吗？
+\item 为什么 $\theta$ 要取“$-$”格运量的最小值？
+\item 调整后总运费的变化量是多少？
+\item 怎样从最优表判断有无多重最优解？
+\end{enumerate}
+\end{checkbox}
+
+\solved
+对于产销平衡的运输问题，我们已经有了完整的“三步法”：初始方案 → 检验（闭回路法 / 位势法）→ 调整（闭回路调整法），并能识别多重最优解。引例的最优值为 $\min z=85$。
+\nextq
+现实中总产量与总销量往往\key{不相等}：有时产大于销（货卖不完），有时产小于销（不够分）。还有一些问题看起来根本不是“运输”（如按季度安排生产）。怎样把它们变成平衡运输问题？——第 4 章。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=7mm]
+\node[flow] (a) {改运 1 单位\\= 闭回路};
+\node[flow,right=of a] (b) {检验数 $\sigma$\\闭回路法};
+\node[flow,right=of b] (c) {位势法\\$\sigma=c-u-v$};
+\node[dec,right=of c] (d) {$\sigma\ge0$?};
+\node[flow,below=6mm of d] (e) {闭回路调整\\$\theta=\min\{-\}$};
+\node[flowg,right=of d] (f) {最优\\（$\sigma_{\text{空}}=0$ 多重）};
+\draw[arr] (a)--(b); \draw[arr] (b)--node[above,font=\scriptsize]{等价}(c); \draw[arr] (c)--(d);
+\draw[arr] (d)--node[right,font=\scriptsize]{否}(e); \draw[arr] (d)--node[above,font=\scriptsize]{是}(f);
+\draw[arr] (e.west) -| (c.south);
+\end{tikzpicture}
+\caption{第 3 章知识地图。}
+\end{figure}

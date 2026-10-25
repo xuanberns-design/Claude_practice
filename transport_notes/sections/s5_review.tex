@@ -1,0 +1,61 @@
+% ============================================================
+\unsec{第 5 部分\quad 全章知识网络与练习导航}
+% ============================================================
+\subsection*{全章知识地图}
+\begin{center}
+\begin{tikzpicture}[node distance=5mm and 5mm,every node/.style={font=\small}]
+\node[floww] (p0) {实际问题\\多产地—多销地};
+\node[flow,right=of p0] (m) {模型\\$\min\sum c_{ij}x_{ij}$};
+\node[dec,right=of m] (b) {平衡？};
+\node[floww,below=8mm of b] (u) {虚设产地/销地};
+\node[flow,right=of b] (s) {结构\\秩 $m+n-1$};
+\node[flow,right=of s] (i) {初始基可行解\\西北角·最小元素·Vogel};
+\node[flow,below=8mm of i] (t) {检验\\闭回路法·位势法};
+\node[dec,left=of t] (q) {$\sigma\ge0$？};
+\node[flow,below=8mm of q] (a) {闭回路调整\\$\theta=\min\{-\}$};
+\node[flowg,left=10mm of a] (o) {最优方案\\$\sigma_{\text{空}}=0\Rightarrow$ 多重};
+\draw[arr] (p0)--(m); \draw[arr] (m)--(b); \draw[arr] (b)--node[above,font=\scriptsize]{是}(s); \draw[arr] (b)--node[left,font=\scriptsize]{否}(u);
+\draw[arr] (u.east) -| (s.south); \draw[arr] (s)--(i); \draw[arr] (i)--(t); \draw[arr] (t)--(q);
+\draw[arr] (q)--node[right,font=\scriptsize]{否}(a); \draw[arr] (a.east) -| (t.south);
+\draw[arr] (q.south west)--node[above,sloped,font=\scriptsize]{是}(o.north east);
+\end{tikzpicture}
+\end{center}
+这张图把四章内容串成了一条完整的求解链：先建模，先判断是否平衡（不平衡就虚设），再利用“秩 $m+n-1$”这一结构找初始基可行解，然后“检验—调整”循环，直到所有空格检验数非负。
+
+\subsection*{知识联系：它以后还会在哪里出现}
+\begin{connectionbox}[与其他课程的真实联系]
+\begin{itemize}
+\item \key{线性规划 / 对偶理论}：位势 $u_i,v_j$ 就是对偶变量；“$\sigma\ge0$”就是对偶可行（第 3 章拓展框）。
+\item \key{指派问题}（下一章）：$a_i=b_j=1$ 的运输问题，用匈牙利法求解。
+\item \key{整数规划}：运输问题的整数性来自约束矩阵的“全单模”性质，这是整数规划中的重要结论。
+\item \key{网络最优化}：运输问题是二部图上的最小费用流；基对应生成树，闭回路对应圈。
+\item \key{离散数学}：树有 $n-1$ 条边（$m+n$ 个顶点的生成树有 $m+n-1$ 条边）；树加一条边恰好产生一个圈。
+\item \key{物流与供应链管理}：配送中心选址、调拨计划、多级库存计划都以运输模型为基本构件。
+\end{itemize}
+\end{connectionbox}
+
+\subsection*{知识点—题目对应表}
+下表说明 38 道正式练习分别检查哪个知识点（√ 表示覆盖）。
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l l X X l@{}}
+\toprule
+编号 & 知识点 & 基础题（1--25） & 提升题（26--35） & 跨学科（36--38）\\
+\midrule
+K1 & 模型 & 1, 3, 16, 21 & 35 & 38\\
+K2 & 结构（$m+n-1$、必有最优解） & 2, 11 & 30 & 36\\
+K3 & 指派问题 & 11（选项讨论） & — & —\\
+K4 & 基可行解与退化 & 12, 13 & 26, 30 & 36\\
+K5 & 西北角法 & 4, 13, 17, 24 & 26 & —\\
+K6 & 最小元素法 & 5, 13, 22 & 32, 34 & —\\
+K7 & Vogel 法 & 6, 13, 23 & 31 & 37\\
+K8 & 闭回路法 & 7, 19 & 32 & 36\\
+K9 & 位势法 & 8, 18, 24 & 27, 34, 35 & —\\
+K10 & 闭回路调整 & 14, 25 & 32, 34 & —\\
+K11 & 最优性 / 多重最优解 & 9 & 27, 29, 35 & —\\
+K12 & 产销不平衡 & 10, 15, 20 & 33, 35 & —\\
+K13 & 应用建模 & 15 & 28, 35 & 38\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\tip[使用建议]{做错的题，先回到对应章节重读“易错点”框。}
+

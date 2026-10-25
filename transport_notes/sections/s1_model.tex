@@ -1,0 +1,316 @@
+% ============================================================
+\needspace{7\baselineskip}
+\section{运输问题的数学模型}
+% ============================================================
+\noindent 前面的线性规划一章已经告诉我们：只要把问题写成“线性目标 + 线性约束”，就能用单纯形法求最优解。本章回答三个问题：
+\begin{enumerate}[label=\arabic*.]
+\item “从多个产地运往多个销地”这一类问题，怎样写成线性规划？
+\item 这个线性规划有什么\key{特殊结构}？
+\item 这些特殊结构能帮我们省掉哪些计算？
+\end{enumerate}
+\noindent\textsf{\color{blue2}本章知识路线：}\ 实际问题 $\to$ 决策变量 $\to$ 目标函数 $\to$ 约束条件 $\to$ 模型结构（$m+n-1$）$\to$ 指派问题。
+
+\subsection{问题引入：为什么需要运输问题模型}
+\noindent\textsf{\color{blue2}学科坐标}\quad 课程：运筹学；前置：线性规划标准形；后续：表上作业法、网络流；工程背景：物流配送、调拨计划。
+
+先看笔记中的引例 \orig。某种物资有 3 个产地 $A_1,A_2,A_3$，产量分别为 $7,4,9$（单位：吨）；有 4 个销地 $B_1,\dots,B_4$，销量分别为 $3,6,5,6$。从 $A_i$ 运 1 吨到 $B_j$ 的运费 $c_{ij}$ 如下表（单位：百元/吨）。
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[scale=0.95]
+  \foreach \i/\y/\a in {1/1.5/7,2/0/4,3/-1.5/9}{\node[circle,draw=navy,fill=bgblue,minimum size=8.5mm] (A\i) at (0,\y) {$A_\i$};
+     \node[left=1mm of A\i,font=\footnotesize,text=navy] {$a_\i=\a$};}
+  \foreach \j/\y/\b in {1/2.25/3,2/0.75/6,3/-0.75/5,4/-2.25/6}{\node[circle,draw=accgold,fill=bgwarm,minimum size=8.5mm] (B\j) at (3.4,\y) {$B_\j$};
+     \node[right=1mm of B\j,font=\footnotesize,text=accgold!80!black] {$b_\j=\b$};}
+  \foreach \i in {1,2,3}{\foreach \j in {1,2,3,4}{\draw[gridgray!70,line width=0.45pt,-{Stealth[length=3pt]}] (A\i)--(B\j);}}
+  \draw[navy,line width=1.2pt,-{Stealth[length=4pt]}] (A2)--node[above,font=\scriptsize,sloped,pos=0.35]{$c_{21}=1$}(B1);
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.55\linewidth}\centering
+\begin{tikzpicture}[scale=0.9,every node/.append style={transform shape}]\MainGrid\end{tikzpicture}
+\end{minipage}
+\caption{同一个问题的两种画法：左为“网络图”，右为“运价表”。}\label{fig:intro}
+\end{figure}
+左图中，蓝色圆点是产地，米色圆点是销地，每一条箭头是一条可能的运输路线，共 $3\times4=12$ 条；加粗的箭头标出了一条路线及其单位运价。右图是同一信息的表格形式：\key{一行对应一个产地，一列对应一个销地，每个格子对应一条路线}，格子右上角的小方框是这条路线的单位运价 $c_{ij}$，表格右侧是产量、下方是销量。
+
+\begin{intuitionbox}[为什么不能凭感觉安排]
+最自然的想法是“每个销地都找最便宜的产地”。例如 $B_1$ 最便宜的是 $A_2$（运价 1），$B_3$ 最便宜的也是 $A_2$（运价 2）——但 $A_2$ 一共只有 4 吨，两个销地要 8 吨，不够分。\key{产量有限}使得各条路线互相“争资源”，于是我们需要一个能同时照顾全部约束的数学模型。
+\end{intuitionbox}
+
+\subsection{决策变量与目标函数}
+\begin{definitionbox}[运输问题的决策变量]
+设从产地 $A_i$ 运往销地 $B_j$ 的物资数量为 $x_{ij}$（$i=1,\dots,m$；$j=1,\dots,n$）。一个\key{运输方案}就是全部 $mn$ 个 $x_{ij}$ 的一组取值。
+\end{definitionbox}
+\noindent 在运价表中，$x_{ij}$ 就写在第 $i$ 行第 $j$ 列格子的中间，所以“一张填了数的运价表”就是“一个运输方案”。总运费等于每条路线“单位运价 × 运量”之和：
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\node[font=\Large] (f) at (0,0) {$\displaystyle \min z=\sum_{i=1}^{m}\ \sum_{j=1}^{n}\ c_{ij}\ x_{ij}$};
+\node[callout] (c1) at (-4.6,1.3) {$\min$：目标是总运费\\尽可能\key{小}};
+\node[callout] (c2) at (-4.4,-1.3) {$\sum_{i}$：把 $m$ 个产地\\（表的每一行）加起来};
+\node[callout] (c3) at (-0.2,-1.55) {$\sum_{j}$：把 $n$ 个销地\\（表的每一列）加起来};
+\node[callout] (c4) at (3.6,1.35) {$c_{ij}$：单位运价\\（元/吨），\key{已知}};
+\node[callout] (c5) at (4.3,-1.3) {$x_{ij}$：运量（吨）\\\key{待求}，$x_{ij}\ge 0$};
+\draw[lead] (c1.east)--(-1.85,0.25); \draw[lead] (c2.east)--(-0.95,-0.45); \draw[lead] (c3.north)--(0.35,-0.45);
+\draw[lead] (c4.west)--(1.45,0.2); \draw[lead] (c5.west)--(2.05,-0.2);
+\end{tikzpicture}
+\caption{目标函数的标注图：每个符号的含义、单位与“已知/待求”身份。}\label{fig:obj}
+\end{figure}
+图中的引线把公式拆成了五块。单位检查：$c_{ij}$（元/吨）$\times$ $x_{ij}$（吨）$=$ 元，所以 $z$ 的单位是“元”。笔记中把目标简写为 $\min z=CX$，其中 $C=(c_{11},c_{12},\dots,c_{mn})$ 是运价行向量，$X=(x_{11},x_{12},\dots,x_{mn})^{\mathsf T}$ 是运量列向量。
+
+\subsection{约束条件：供需平衡}
+运量不能随便取。它受到两类限制：
+\begin{itemize}
+\item \key{产量约束}：产地 $A_i$ 运往各销地的总量，等于它的产量 $a_i$ ——对应运价表的\key{一行};
+\item \key{销量约束}：各产地运到销地 $B_j$ 的总量，等于它的销量 $b_j$ ——对应运价表的\key{一列}。
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{$c_{11}$,$c_{12}$,$c_{13}$,$c_{14}$},{$c_{21}$,$c_{22}$,$c_{23}$,$c_{24}$},{$c_{31}$,$c_{32}$,$c_{33}$,$c_{34}$}}{$a_1$,$a_2$,$a_3$}{$b_1$,$b_2$,$b_3$,$b_4$}
+\foreach \i in {1,2,3}{\foreach \j in {1,2,3,4}{\node[font=\small,text=navy] at ($(t\i-\j)+(-0.12,-0.1)$) {$x_{\i\j}$};}}
+\hlrow{2}\hlcol[hlc]{3}
+\draw[navy,line width=1pt,-{Stealth}] ($(t2-4)+(0.45,0)$) -- ($(t2-4)+(1.0,0)$);
+\node[font=\footnotesize,text=navy,anchor=west] at ($(t2-4)+(1.95,0.0)$) {行和 $=a_2$};
+\draw[accgold,line width=1pt,-{Stealth}] ($(t3-3)+(0,-0.35)$) -- ($(t3-3)+(0,-0.7)$);
+\node[font=\footnotesize,text=accgold!80!black] at ($(t3-3)+(0,-1.62)$) {列和 $=b_3$};
+\end{tikzpicture}
+\caption{约束在表上的样子：蓝色行 = 一个产量约束，黄色列 = 一个销量约束。}\label{fig:cons}
+\end{figure}
+图中蓝色底纹的第 2 行是产量约束 $x_{21}+x_{22}+x_{23}+x_{24}=a_2$，黄色底纹的第 3 列是销量约束 $x_{13}+x_{23}+x_{33}=b_3$。两者交叉的格子 $x_{23}$ 同时出现在两个约束中——\key{每一个变量恰好属于一行和一列}，这是后面一切特殊结构的根源。
+
+\begin{formulabox}[产销平衡运输问题的数学模型]
+\[
+\boxed{\begin{aligned}
+\min\ z&=\sum_{i=1}^{m}\sum_{j=1}^{n}c_{ij}x_{ij}\\
+\text{s.t.}\quad \sum_{j=1}^{n}x_{ij}&=a_i,\qquad i=1,2,\dots,m\qquad\text{（产量约束，$m$ 个）}\\
+\sum_{i=1}^{m}x_{ij}&=b_j,\qquad j=1,2,\dots,n\qquad\text{（销量约束，$n$ 个）}\\
+x_{ij}&\ge 0\qquad\qquad\qquad\qquad\ \text{（非负约束）}
+\end{aligned}}
+\]
+\textbf{使用条件}：产销平衡 $\displaystyle\sum_{i=1}^m a_i=\sum_{j=1}^n b_j$（记为 $Q$），且 $a_i>0,\ b_j>0$，单位运价与运量无关（线性）。
+\end{formulabox}
+\supp 笔记中把约束称为“供销平衡”，但没有单独写出“$\sum a_i=\sum b_j$”这个前提。它非常关键：如果总产量不等于总销量，上面两组等式不可能同时成立（1.4 节给出反例），这时需要第 4 章的“产销不平衡”处理。
+
+\begin{examplebox}[写出一个 2 × 2 运输问题的模型]
+\textbf{例题}\ 两个仓库 $A_1,A_2$ 分别存货 30、20 箱，两家门店 $B_1,B_2$ 分别需要 25、25 箱，单位运价 $c_{11}=4,c_{12}=6,c_{21}=5,c_{22}=3$（元/箱）。写出数学模型。\par
+\begin{minipage}{0.6\linewidth}
+\textbf{已知}\ $a=(30,20)$，$b=(25,25)$，$Q=50=50$，平衡。\par
+\textbf{求}\ 使总运费最小的模型。\par
+\textbf{思路}\ 先数变量（$2\times2=4$ 个），再“一行一个产量约束、一列一个销量约束”。\par
+\end{minipage}\hfill
+\begin{minipage}{0.37\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{4,6},{5,3}}{30,20}{25,25}
+\foreach \i in {1,2}{\foreach \j in {1,2}{\node[font=\small,text=navy] at ($(t\i-\j)+(-0.12,-0.1)$) {$x_{\i\j}$};}}\end{tikzpicture}
+\end{minipage}
+\textbf{第一步（目标）}\ $\min z=4x_{11}+6x_{12}+5x_{21}+3x_{22}$。\par
+\textbf{第二步（约束）}\ 行：$x_{11}+x_{12}=30$，$x_{21}+x_{22}=20$；列：$x_{11}+x_{21}=25$，$x_{12}+x_{22}=25$；且 $x_{ij}\ge0$。\par
+\textbf{检查}\ 4 个等式，4 个变量；把两行相加、两列相加都得到 $x_{11}+x_{12}+x_{21}+x_{22}=50$——这已经暗示 4 个等式里有一个是“多余”的（1.4 节）。\par
+\textbf{本题真正想说明什么}\ 建模就是“\key{一格一个变量，一行一个产量约束，一列一个销量约束}”。
+\end{examplebox}
+
+\begin{lifebox}[共享单车的夜间调度]
+\textbf{生活场景}\ 早高峰后，地铁口的共享单车堆积，而居民区几乎无车，运维人员要开车把车调过去。\par
+\LifeMap{单车调度}{运输问题}{{车多的地铁口站点}/{产地 $A_i$，多出的车数 = $a_i$},{缺车的居民区站点}/{销地 $B_j$，缺口 = $b_j$},{从某站搬一辆车到另一站的成本}/{单位运价 $c_{ij}$},{“多出总数 = 缺口总数”}/{产销平衡 $\sum a_i=\sum b_j$}}
+\textbf{小估算}\ 两个地铁口各多 10、6 辆，两个小区各缺 8、8 辆，$10+6=16=8+8$，平衡；变量共 $2\times2=4$ 个。若全由第一个地铁口供应第一个小区 8 辆、其余就近安排，就得到一个可行方案。\par
+\textbf{边界说明}\ 真实调度还受货车容量、时间窗口与路况影响，单位成本也未必与车数成正比。
+\end{lifebox}
+
+\begin{warningbox}[约束写成“$\le$”还是“$=$”？]
+\begin{center}
+\begin{tikzpicture}[node distance=4mm]
+\node[flowr,text width=3.6cm] (w) {\textbf{错误想法}\\产量是“最多能供应”的量，所以写 $\sum_j x_{ij}\le a_i$ 总没错};
+\node[flowr,text width=3.6cm,right=of w,fill=white] (r) {\textbf{错在哪里}\\在产销平衡时，若某一行取 $<$，总运出量 $<Q$，就满足不了全部销量};
+\node[flowg,text width=3.6cm,right=of r] (g) {\textbf{正确想法}\\平衡问题中两组约束都是等式；只有不平衡时才出现 $\le$（第 4 章）};
+\draw[arr] (w)--(r); \draw[arr] (r)--(g);
+\end{tikzpicture}
+\end{center}
+另一个常见错误是\key{把 $c_{ij}$ 和 $x_{ij}$ 搞混}：$c_{ij}$ 是表中右上角小方框里的已知数，$x_{ij}$ 是我们要填进格子中间的未知数。
+\end{warningbox}
+
+% ------------------------------------------------------------
+\subsection{模型的特殊结构}
+写出模型之后，笔记中紧接着写了一句非常重要的话 \orig：“s.t. 中有 $m+n$ 个方程，但有 1 个多余方程。”这一节把它讲清楚并给出证明，因为后面所有的方法都建立在它之上。
+
+\subsubsection{系数矩阵长什么样}
+以 $m=2,n=3$ 为例，把 5 个约束的系数排成矩阵（每列对应一个变量）：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=1.05cm,y=0.62cm]
+\foreach \v [count=\k] in {$x_{11}$,$x_{12}$,$x_{13}$,$x_{21}$,$x_{22}$,$x_{23}$}{\node[font=\small,text=navy] at (\k,0.9) {\v};}
+\foreach \r/\lab [count=\i] in {{1,1,1,0,0,0}/{$A_1$},{0,0,0,1,1,1}/{$A_2$},{1,0,0,1,0,0}/{$B_1$},{0,1,0,0,1,0}/{$B_2$},{0,0,1,0,0,1}/{$B_3$}}{
+  \node[font=\small,text=navy] at (-0.1,-\i+0.2) {\lab};
+  \foreach \e [count=\k] in \r {\node[font=\small,text={\ifnum\e=1 navy\else gridgray\fi}] at (\k,-\i+0.2) {\e};}}
+\begin{scope}[on background layer]
+\fill[hlc] (1.6,0.45) rectangle (2.4,-5.3);
+\fill[hlb] (0.5,-0.3) rectangle (6.5,-2.3);
+\end{scope}
+\draw[navy,line width=0.5pt] (0.5,0.45) -- (0.5,-5.3) (6.5,0.45)--(6.5,-5.3);
+\draw[dashed,gridgray] (0.4,-2.3)--(6.6,-2.3);
+\draw[decorate,decoration={brace,amplitude=4pt},navy] (6.8,-0.4)--(6.8,-2.2) node[midway,right=5pt,font=\footnotesize,align=left]{产量行：两行相加\\$=(1,1,1,1,1,1)$};
+\draw[decorate,decoration={brace,amplitude=4pt},accgold] (6.8,-2.4)--(6.8,-5.2) node[midway,right=5pt,font=\footnotesize,align=left]{销量行：三行相加\\$=(1,1,1,1,1,1)$};
+\node[font=\footnotesize,text=accgold!80!black,align=center] at (2,-6.1) {每一列恰好两个 1：\\一个在产量部分，一个在销量部分};
+\end{tikzpicture}
+\caption{2 × 3 运输问题的约束系数矩阵。}\label{fig:matrix}
+\end{figure}
+图中黄色竖条是变量 $x_{12}$ 的系数列：它只在 $A_1$ 行和 $B_2$ 行各有一个 1，其余全是 0。右侧的两个大括号说明：\key{产量行之和 = 销量行之和 = 全 1 向量}。这正是“多余方程”的来源。
+
+\begin{theorembox}[约束矩阵的秩]
+产销平衡运输问题的 $m+n$ 个约束方程中，\key{恰有一个是多余的}：系数矩阵的秩等于 $m+n-1$。因此每个基可行解恰有 $m+n-1$ 个基变量。
+\end{theorembox}
+
+\begin{proofbox}[秩 $=m+n-1$]
+\textbf{要证明什么}\ $\operatorname{rank}A=m+n-1$，其中 $A$ 是 $(m+n)\times mn$ 的系数矩阵。\par
+\textbf{已知条件}\ ① $A$ 的每一列恰有两个 1：一个在第 $i$ 个产量行，一个在第 $j$ 个销量行；② 产销平衡 $\sum a_i=\sum b_j$。\par
+\textbf{证明思路}\ 分两步：先证秩“不超过”$m+n-1$（找到一个线性关系），再证秩“不小于”$m+n-1$（找到 $m+n-1$ 个线性无关的列）。\par
+\textbf{第 1 步：秩 $\le m+n-1$。}\ 把 $m$ 个产量行相加，每一列恰好加到一个 1（由已知①），得到全 1 行向量；把 $n$ 个销量行相加，同样得到全 1 行向量。所以
+\[\underbrace{(\text{产量行}_1+\cdots+\text{产量行}_m)}_{=\,(1,\dots,1)}-\underbrace{(\text{销量行}_1+\cdots+\text{销量行}_n)}_{=\,(1,\dots,1)}=\mathbf 0,\]
+$m+n$ 个行向量线性相关，秩 $\le m+n-1$。对右端也有 $\sum a_i-\sum b_j=0$（由已知②），所以这个相关关系不会造成矛盾，只是让一个方程成为多余（任一方程都可由其余方程推出）。\par
+\textbf{第 2 步：秩 $\ge m+n-1$。}\ 删去第 1 个产量行（$A_1$ 行），选出 $m+n-1$ 个变量：$x_{21},x_{31},\dots,x_{m1}$（共 $m-1$ 个）和 $x_{11},x_{12},\dots,x_{1n}$（共 $n$ 个）。按“行：$A_2,\dots,A_m,B_1,\dots,B_n$；列：$x_{21},\dots,x_{m1},x_{11},\dots,x_{1n}$”排列，得到的方阵为
+\[
+\begin{pmatrix} I_{m-1} & O\\ * & I_n\end{pmatrix},
+\]
+理由：$x_{i1}\,(i\ge2)$ 在 $A_i$ 行有 1，构成左上角单位阵 $I_{m-1}$；$x_{1j}$ 的 $A_1$ 行已删去，只剩 $B_j$ 行的 1，构成右下角 $I_n$；而 $x_{1j}$ 在 $A_2,\dots,A_m$ 行全为 0，所以右上角是零块 $O$。这是分块下三角矩阵，行列式 $=\det I_{m-1}\cdot\det I_n=1\ne0$，故这 $m+n-1$ 列线性无关。\par
+\textbf{结论}\ 秩恰为 $m+n-1$。由线性规划理论，基的大小等于约束矩阵的秩，所以\key{每个基可行解恰有 $m+n-1$ 个基变量}。\hfill$\square$\par
+\textbf{一句话直观解释}\ 行和列都在“数同一批货”：把所有行加起来是总货量，把所有列加起来也是总货量，于是知道其中 $m+n-1$ 个和，最后一个就自动知道了。
+\end{proofbox}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=9mm]
+\node[flow] (s) {起点：$m+n$ 个约束};
+\node[flow,right=of s] (a) {产量行之和\\$=$ 全 1 向量};
+\node[flow,right=of a] (b) {销量行之和\\$=$ 全 1 向量};
+\node[flow,right=of b] (c) {相关 $\Rightarrow$\\秩 $\le m+n-1$};
+\node[flow,below=6mm of c] (d) {找到分块三角子阵\\秩 $\ge m+n-1$};
+\node[flowg,left=of d] (e) {终点：秩 $=m+n-1$\\基变量 $m+n-1$ 个};
+\draw[arr] (s)--node[above,font=\tiny]{每列一个 1}(a); \draw[arr] (a)--(b); \draw[arr] (b)--node[above,font=\tiny]{相减}(c);
+\draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\end{tikzpicture}
+\caption{“秩 $=m+n-1$”的推导路线图。}\label{fig:rankroute}
+\end{figure}
+路线图的上一行是“秩不会太大”，下一行是“秩不会太小”，两头夹住就得到等号。以后看到“数字格必须是 $m+n-1$ 个”，就要想起这张图。
+
+\begin{theorembox}[平衡运输问题必有最优解]
+产销平衡的运输问题一定有可行解，并且一定有最优解（笔记第 8 页红笔结论 \orig）。
+\end{theorembox}
+\begin{proofbox}[必有可行解与最优解]
+\textbf{已知}\ $a_i>0$，$b_j>0$，$\sum a_i=\sum b_j=Q$。\par
+\textbf{思路}\ 先“构造”一个可行解，再说明目标函数有下界且可行域有界。\par
+\textbf{可行性}\ 令 $\displaystyle x_{ij}=\frac{a_ib_j}{Q}\ge 0$。则
+$\displaystyle\sum_{j}x_{ij}=\frac{a_i}{Q}\sum_j b_j=\frac{a_i}{Q}\cdot Q=a_i$（由平衡条件），同理 $\sum_i x_{ij}=b_j$。所以它是可行解。\par
+\textbf{最优解存在}\ 由约束知 $0\le x_{ij}\le\min\{a_i,b_j\}$，可行域是非空、有界的多面体；目标函数是线性函数，在非空有界多面体上一定能取到最小值（线性规划基本定理：最小值在某个顶点即基可行解处达到）。\hfill$\square$\par
+\textbf{条件为什么不能删}\ 若 $\sum a_i\ne\sum b_j$，两组等式相加得到 $Q_{\text{产}}=Q_{\text{销}}$ 的矛盾，可行域为空，“最优解”无从谈起（见下图）。
+\end{proofbox}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.47\linewidth}\centering
+\begin{tikzpicture}[small]
+\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{4,6},{5,3}}{30,20}{25,25}
+\al{1}{1}{15}\al{1}{2}{15}\al{2}{1}{10}\al{2}{2}{10}
+\end{tikzpicture}\\[-2pt]
+{\small 平衡（$Q=50$）：$x_{ij}=a_ib_j/Q$ 给出可行解}
+\end{minipage}\hfill
+\begin{minipage}{0.47\linewidth}\centering
+\begin{tikzpicture}[small]
+\TPgrid{$A_1$}{$B_1$}{{4}}{5}{3}
+\node[font=\small,text=accred] at ($(t1-1)+(-0.1,-0.07)$) {?};
+\node[font=\small,text=accred,align=left,anchor=west] at (3.9,-0.9) {行：$x_{11}=5$\\列：$x_{11}=3$\\矛盾，无可行解};
+\end{tikzpicture}\\[-2pt]
+{\small 不平衡（$5\ne3$）：等式约束无解}
+\end{minipage}
+\caption{去掉“产销平衡”条件后结论失效的对照。}\label{fig:balance}
+\end{figure}
+左图用 1.3 节例题的数据验证构造：$x_{11}=30\times25/50=15$，其余同理，行和 $15+15=30$、列和 $15+10=25$ 都满足。右图是最小的反例：1 个产地产 5，1 个销地要 3，“全部运出”与“恰好满足”不能同时成立。
+
+\begin{extbox}
+\textbf{整数性。}运输问题的系数矩阵具有一种叫作“全单模”的性质，它保证：只要所有 $a_i,b_j$ 都是整数，每个基可行解中的运量就都是整数。从表上作业法的计算过程也能看到这一点——每一步都只做加、减、取最小值，从不做除法。严格证明属于后续“整数规划 / 网络流”课程的内容。
+\end{extbox}
+
+\begin{lifebox}[表格的“合计”栏]
+\textbf{生活场景}\ 班委用表格统计每个宿舍（行）在每天（列）交的班费，最后填“行合计”和“列合计”。\par
+\LifeMap{班费统计表}{约束的秩}{{每个宿舍的行合计}/{产量约束 $\sum_j x_{ij}=a_i$},{每天的列合计}/{销量约束 $\sum_i x_{ij}=b_j$},{行合计之和 = 列合计之和 = 总额}/{产量行之和 = 销量行之和},{填好其余合计，最后一个可直接推出}/{恰有 1 个多余方程}}
+\textbf{小判断}\ 一个 4 个宿舍 × 3 天的表共有 $4+3=7$ 个合计，其中独立的只有 $7-1=6$ 个。\par
+\textbf{边界说明}\ 真实对账时人们仍然把 7 个都算一遍——正因为它们应当相互吻合，才能用来\emph{发现记账错误}；数学上的“多余”不等于实际工作中“没用”。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{指派问题：一种特殊的运输问题}
+笔记中对比了指派问题 \orig：“指派问题（0-1 型），但运输问题 $x_{ij}\ge0$ 即可；指派问题为一种特殊的运输问题。”
+
+\begin{definitionbox}[指派问题]
+有 $n$ 个人和 $n$ 项工作，第 $i$ 人做第 $j$ 项工作的费用为 $c_{ij}$。要求\key{每人恰做一项、每项恰由一人做}，使总费用最小。令 $x_{ij}=1$ 表示第 $i$ 人做第 $j$ 项，否则 $x_{ij}=0$。
+\end{definitionbox}
+\supp 把“人”看成产地、“工作”看成销地，令所有 $a_i=1$、$b_j=1$，指派问题就是一个 $n\times n$ 的平衡运输问题。由上面的整数性，它的基可行解中运量只能是 0 或 1，所以“$x_{ij}\in\{0,1\}$”这个看起来额外的条件会被自动满足。
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]
+\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{3,11,3},{1,9,2},{7,4,10}}{7,4,9}{3,6,11}
+\al{1}{3}{7}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{3}{3}
+\end{tikzpicture}\\{\small 运输问题：$a_i,b_j$ 任意，一格可填任意非负数}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]
+\TPgrid{人 1,人 2,人 3}{任务 1,任务 2,任务 3}{{3,11,3},{1,9,2},{7,4,10}}{1,1,1}{1,1,1}
+\al{1}{3}{1}\al{2}{1}{1}\al{3}{2}{1}
+\end{tikzpicture}\\{\small 指派问题：$a_i=b_j=1$，每行每列恰一个 1}
+\end{minipage}
+\caption{同一张运价表上的运输问题（左）与指派问题（右）。}\label{fig:assign}
+\end{figure}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+比较维度 & 运输问题 & 指派问题\\
+\midrule
+本质 & 物资在产销之间的分配 & 人与任务的一一配对\\
+数据 & 产量 $a_i$、销量 $b_j$ 任意（需平衡） & $a_i=b_j=1$，且行数 = 列数\\
+变量 & $x_{ij}\ge0$（连续量即可） & $x_{ij}\in\{0,1\}$\\
+图像 & 一行可有多个数字格 & 每行、每列恰有一个 1\\
+求解 & 表上作业法 & 可用表上作业法，但高度退化；常用匈牙利法\\
+常见错误 & 忘记检查产销平衡 & 以为它和运输问题无关\\
+\bottomrule
+\end{tabularx}
+\end{center}
+\tip[注意]{指派问题的基可行解有 $2n-1$ 个基变量，但只有 $n$ 个取值为 1，其余 $n-1$ 个基变量取 0——这是严重的\key{退化}，所以专门为它设计了更高效的匈牙利法（下一章）。}
+
+\begin{lifebox}[外卖平台的“一单一骑手”]
+\textbf{生活场景}\ 午高峰时，平台把 3 个新订单分给 3 位空闲骑手，每人只接一单。\par
+\LifeMap{派单}{指派问题}{{3 位空闲骑手}/{产地，$a_i=1$},{3 个待取订单}/{销地，$b_j=1$},{骑手到商家的距离}/{费用 $c_{ij}$},{一人一单、一单一人}/{每行每列恰一个 1}}
+\textbf{小判断}\ 3 人 3 单的可能分配方式有 $3!=6$ 种；若人数为 10，则有 $10!\approx 3.6\times10^6$ 种，逐一比较已不现实，这就是需要算法的原因。\par
+\textbf{边界说明}\ 实际派单是动态的（订单不断到来），还要考虑顺路合单，并非一次性的静态指派。
+\end{lifebox}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.]
+\item 一个 $m\times n$ 运输问题有几个决策变量、几个约束方程？
+\item 为什么产销平衡时两组约束都写成等式？
+\item 为什么 $m+n$ 个约束中有一个是多余的？能否用“行合计与列合计”来解释？
+\item 怎样构造一个平衡运输问题的可行解？
+\item 指派问题与运输问题的关系是什么？它的基可行解为什么“很退化”？
+\end{enumerate}
+\end{checkbox}
+
+\solved
+我们把“多产地—多销地”的调运写成了线性规划，并发现它有两个关键结构：\key{每个变量只出现在一行一列中}；\key{有效约束只有 $m+n-1$ 个}。平衡运输问题一定有最优解。
+\nextq
+虽然可以直接用单纯形法求解，但 $3\times4$ 的问题就有 12 个变量、7 个约束，单纯形表又大又繁。能不能利用“一格一变量、一行一列一约束”的结构，\key{直接在运价表上}完成单纯形法的三步——找初始基可行解、检验、调整？这就是第 2、3 章的表上作业法。
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=3.5mm]
+\node[floww] (p) {实际调运问题};
+\node[flow,right=of p] (v) {变量 $x_{ij}$\\（$mn$ 个）};
+\node[flow,right=of v] (o) {目标\\$\min\sum c_{ij}x_{ij}$};
+\node[flow,right=of o] (c) {约束：行和 $a_i$\\列和 $b_j$};
+\node[flow,below=6mm of c] (r) {秩 $=m+n-1$\\必有最优解};
+\node[flow,left=of r] (as) {特例：指派问题};
+\node[flowg,left=of as] (n) {下一章：\\表上作业法};
+\draw[arr] (p)--(v); \draw[arr] (v)--(o); \draw[arr] (o)--(c); \draw[arr] (c)--(r); \draw[arr] (r)--(as); \draw[arr] (r.south) to[bend left=20] (n.south);
+\end{tikzpicture}
+\caption{第 1 章知识地图。}
+\end{figure}

@@ -1,0 +1,190 @@
+% ============================================================
+\unsec{第 6 部分\quad 正式练习（38 题）}
+% ============================================================
+\noindent 共 38 道：A 基础巩固 25 道、B 中等偏下提升 10 道、C 跨学科迁移 3 道。题目区的图只呈现题目已给出的信息，\key{不含任何答案提示}；答案与带解题标注的图解集中放在第 7 部分。表中右上角小方框为单位运价，格子中间的粗体数为运量。
+
+% ---------------- 共用小网络图 ----------------
+\newcommand{\netQ}{%
+\begin{tikzpicture}[scale=0.72,every node/.style={transform shape}]
+  \foreach \i/\y in {1/1.2,2/0,3/-1.2}{\node[circle,draw=navy,fill=bgblue,minimum size=8mm] (A\i) at (0,\y) {$A_\i$};}
+  \foreach \j/\y in {1/1.8,2/0.6,3/-0.6,4/-1.8}{\node[circle,draw=accgold,fill=bgwarm,minimum size=8mm] (B\j) at (3.2,\y) {$B_\j$};}
+  \foreach \i in {1,2,3}{\foreach \j in {1,2,3,4}{\draw[gridgray!70,-{Stealth[length=3pt]}] (A\i)--(B\j);}}
+\end{tikzpicture}}
+
+\subsection*{A. 基础巩固训练（25 题）}
+\subsubsection*{基础单项选择题（10 题）}
+
+\Q{tagbasic}{基础·单选} 一个有 3 个产地、4 个销地的运输问题（右图为其运输网络），决策变量 $x_{ij}$ 共有（\quad）个。
+\par\noindent\begin{minipage}{0.62\linewidth}\opts{7}{12}{6}{4}\end{minipage}\hfill\begin{minipage}{0.34\linewidth}\centering\netQ\end{minipage}
+
+\Q{tagbasic}{基础·单选} 产销平衡的 $3\times4$ 运输问题，它的任一基可行解中基变量（数字格，含退化的 0）的个数为（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\opts{12}{7}{6}{5}\end{minipage}\hfill\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{,,,},{,,,},{,,,}}{$a_1$,$a_2$,$a_3$}{$b_1$,$b_2$,$b_3$,$b_4$}\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·单选} 在下图所示的运输表中，约束 $x_{11}+x_{12}+x_{13}+x_{14}=a_1$ 的含义是（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\optsl{产地 $A_1$ 运往各销地的总量等于它的产量}{销地 $B_1$ 收到的总量等于它的销量}{从 $A_1$ 运到 $B_1$ 的运量等于 $a_1$}{全部路线的总运量等于 $a_1$}\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{,,,},{,,,},{,,,}}{$a_1$,$a_2$,$a_3$}{$b_1$,$b_2$,$b_3$,$b_4$}
+\foreach \i in {1,2,3}{\foreach \j in {1,2,3,4}{\node[font=\small,text=navy] at ($(t\i-\j)+(-0.1,-0.05)$) {$x_{\i\j}$};}}\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·单选} 产量 $a=(5,8)$、销量 $b=(3,6,4)$ 的平衡运输问题（下图），用西北角法求初始解时，第一个填入的 $x_{11}=$（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\opts{5}{3}{0}{8}\end{minipage}\hfill\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{5,8}{3,6,4}\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·单选} 运价表如下图。用最小元素法求初始解时，\key{第一个}被分配运量的格子是（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\opts{$x_{12}$}{$x_{23}$}{$x_{11}$}{$x_{21}$}\end{minipage}\hfill\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,2,6},{3,5,1}}{10,15}{8,9,8}\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·单选} Vogel 法中，某一行尚未划去的格子的单位运价为 $5,2,8,3$（下图数轴），该行的差额为（\quad）。
+\par\noindent\begin{minipage}{0.45\linewidth}\opts{3}{1}{6}{0}\end{minipage}\hfill\begin{minipage}{0.52\linewidth}\centering
+\begin{tikzpicture}[x=0.75cm]
+\draw[gridgray,-{Stealth}] (0,0)--(9.3,0); \foreach \x in {0,...,9}{\draw[gridgray] (\x,0.07)--(\x,-0.07) node[below,font=\tiny]{\x};}
+\foreach \x in {5,2,8,3}{\fill[navy] (\x,0) circle (2.5pt);}
+\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·单选} 关于基可行解中空格的闭回路，下列说法正确的是（\quad）。
+\optsl{每个空格存在唯一一条由它与若干数字格构成的闭回路}{闭回路可以在空格处转弯}{闭回路的顶点数可以是奇数}{闭回路一定是矩形（恰有 4 个顶点）}
+
+\Q{tagbasic}{基础·单选} 用位势法求检验数时，对每一个\key{数字格} $(i,j)$，位势 $u_i,v_j$ 满足（\quad）。
+\opts{$u_i+v_j=c_{ij}$}{$u_i-v_j=c_{ij}$}{$u_i+v_j=0$}{$u_iv_j=c_{ij}$}
+
+\Q{tagbasic}{基础·单选} 对总运费\key{极小化}的运输问题，当前基可行解为最优解的判别条件是（\quad）。
+\opts{全部空格 $\sigma_{ij}\ge0$}{全部空格 $\sigma_{ij}\le0$}{全部数字格 $\sigma_{ij}=0$}{全部空格 $\sigma_{ij}$ 之和为 0}
+
+\Q{tagbasic}{基础·单选} 某运输问题总产量 $\sum a_i=50$，总销量 $\sum b_j=40$，题目未给出库存费用。化为平衡问题的正确做法是（\quad）。
+\optsl{增加一个虚设销地，销量 10，该列运价为 0}{增加一个虚设产地，产量 10，该行运价为 0}{增加一个虚设销地，销量 50，该列运价为 0}{删去产量最大的产地}
+
+\subsubsection*{基础多项选择题（5 题）}
+\Q{tagbasic}{基础·多选} 关于产销平衡的运输问题，下列说法正确的有（\quad）。
+\optsl{一定存在可行解}{一定存在最优解}{$m+n$ 个约束方程线性无关}{约束矩阵中每个变量的系数列恰有两个 1}
+
+\Q{tagbasic}{基础·多选} 下列四个 $2\times3$ 运输表中，黑点表示数字格。其中\key{能够}作为某个基可行解的数字格分布的有（\quad）。
+\fourfig{\optlab{A}\ \begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,2-2,2-3}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}
+{\optlab{B}\ \begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,2-1,2-2}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}
+{\optlab{C}\ \begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,1-3,2-3}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}
+{\optlab{D}\ \begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,2-2,2-3}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}
+
+\Q{tagbasic}{基础·多选} 关于三种求初始基可行解的方法，下列说法正确的有（\quad）。
+\optsl{西北角法完全不考虑单位运价}{最小元素法每一步都选当前未划去格子中运价最小的格子}{Vogel 法得到的初始解一定是最优解}{三种方法得到的都是基可行解（必要时补 0）}
+
+\Q{tagbasic}{基础·多选} 下图为某次闭回路调整前的情形（进基格已标出，顶点标有 $\pm$）。关于闭回路调整法，下列说法正确的有（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\optsl{调整量 $\theta$ 取闭回路上“$-$”格运量的最小值}{调整后总运费的变化量为 $\theta\cdot\sigma_{\text{进基格}}$}{调整后进基的空格变为数字格}{“$+$”格中运量最小的格子出基}\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{6,3},{2,7}}{8,6}{5,9}
+\al{1}{1}{5}\al{1}{2}{3}\al{2}{2}{6}\hl[hlr]{2}{1}\pl{2}{1}\mi{1}{1}\pl{1}{2}\mi{2}{2}\lp{(t2-1)--(t1-1)--(t1-2)--(t2-2)}\end{tikzpicture}\end{minipage}
+
+\Q{tagbasic}{基础·多选} 关于产销不平衡问题与应用建模，下列说法正确的有（\quad）。
+\optsl{产小于销时，增加一个虚设产地}{虚设行（列）格子的单位运价一定为 0}{某条路线不允许运输时，可令该格运价为充分大的数 $M$}{销地需求有上下限时，可以把它拆成“必须满足”和“尽量满足”两个销地}
+
+\subsubsection*{基础填空题（5 题）}
+\Q{tagbasic}{基础·填空} 运价与运输方案如下图，该方案的总运费为 \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{2,4},{3,1}}{5,4}{3,6}\al{1}{1}{3}\al{1}{2}{2}\al{2}{2}{4}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·填空} 产量 $a=(4,6)$，销量 $b=(3,5,2)$。用西北角法求初始解，得 $x_{22}=$ \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{4,6}{3,5,2}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·填空} 下图为一个基可行解（4 个数字格）。令 $u_1=0$，用位势法求得空格 $(1,2)$ 的检验数 $\sigma_{12}=$ \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{5,8,4},{6,3,9}}{20,30}{25,15,10}\al{1}{1}{10}\al{1}{3}{10}\al{2}{1}{15}\al{2}{2}{15}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·填空} 下图方案中只有一个空格 $(2,1)$。用闭回路法求得 $\sigma_{21}=$ \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{3,5},{4,2}}{10,8}{6,12}\al{1}{1}{6}\al{1}{2}{4}\al{2}{2}{8}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·填空} 产量 $a=(20,30)$，销量 $b=(15,25,20)$。化为平衡问题时，应增加一个虚设\blank（填“产地”或“销地”），其产量（或销量）为 \blank。
+\begin{center}
+\begin{tikzpicture}[x=0.09cm,y=0.6cm]
+\fill[navy!60] (0,0) rectangle (20,0.5); \fill[navy!35] (20,0) rectangle (50,0.5); \node[font=\scriptsize,anchor=east] at (-1,0.25) {产量};
+\fill[accgold!60] (0,-1) rectangle (15,-0.5); \fill[accgold!40] (15,-1) rectangle (40,-0.5); \fill[accgold!25] (40,-1) rectangle (60,-0.5); \node[font=\scriptsize,anchor=east] at (-1,-0.75) {销量};
+\foreach \x in {0,10,...,60}{\draw[gridgray] (\x,-1.15)--(\x,-1.3) node[below,font=\tiny]{\x};}
+\end{tikzpicture}
+\end{center}
+
+\subsubsection*{基础解答题（5 题）}
+\Q{tagbasic}{基础·解答} 两个仓库 $A_1,A_2$ 分别有货 40、60 吨，两个工地 $B_1,B_2$ 各需 50 吨，单位运价（元/吨）如下图。(1) 写出该运输问题的数学模型；(2) 它的基可行解有几个基变量？
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{3,5},{4,2}}{40,60}{50,50}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·解答} 用最小元素法求下面运输问题的初始基可行解，并计算其总运费。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{4,8,5},{6,3,9},{2,7,6}}{20,30,25}{30,25,20}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·解答} 用 Vogel 法求下面运输问题的初始基可行解，并计算其总运费。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{5,3,8},{7,2,6}}{35,25}{5,40,15}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·解答} 对下面的运输问题，先用西北角法求初始基可行解，再用位势法求出全部空格检验数，并判断该解是否最优。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}\end{tikzpicture}\end{center}
+
+\Q{tagbasic}{基础·解答} 下图方案（总运费 170）中，空格 $(1,3)$ 的检验数 $\sigma_{13}=-8$。以 $(1,3)$ 为进基格进行一次闭回路调整，写出新方案及新的总运费。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}\al{1}{1}{10}\al{1}{2}{5}\al{2}{2}{15}\al{2}{3}{10}\end{tikzpicture}\end{center}
+
+% ============================================================
+\subsection*{B. 中等偏下提升训练（10 题）}
+\subsubsection*{提升单项选择题（3 题）}
+\Q{tagmid}{提升·单选} 产量 $a=(3,5)$，销量 $b=(3,2,3)$。用西北角法求初始基可行解，得到的数字格（含必要时补入的 0）共有（\quad）个。
+\par\noindent\begin{minipage}{0.55\linewidth}\opts{3}{4}{5}{2}\end{minipage}\hfill\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{3,5}{3,2,3}\end{tikzpicture}\end{minipage}
+
+\Q{tagmid}{提升·单选} 下图方案的数字格为 $(1,1),(1,3),(2,2),(2,3)$，已求得位势 $u_1=0,u_2=2$；$v_1=3,v_2=1,v_3=4$。为使总运费下降，应选作进基格的是（\quad）。
+\par\noindent\begin{minipage}{0.55\linewidth}\opts{$x_{12}$}{$x_{21}$}{当前已最优，不需调整}{$x_{23}$}\end{minipage}\hfill\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{3,5,4},{4,3,6}}{15,20}{10,12,13}\al{1}{1}{10}\al{1}{3}{5}\al{2}{2}{12}\al{2}{3}{8}
+\node[font=\footnotesize,text=accred] at ({5*\tpw},-1*\tph) {$u_1=0$};\node[font=\footnotesize,text=accred] at ({5*\tpw},-2*\tph) {$u_2=2$};
+\foreach \j/\v in {1/3,2/1,3/4}{\node[font=\footnotesize,text=accred] at (\j*\tpw,{-4.1*\tph}) {$v_\j=\v$};}\end{tikzpicture}\end{minipage}
+
+\Q{tagmid}{提升·单选} 某产品第 1 季度的单位生产成本为 10 万元，每台每积压一个季度的存储费为 0.5 万元。在生产—存储运输模型中，“第 1 季度生产、第 3 季度交货”这一格的单位运价应为（\quad）万元。
+\par\noindent\begin{minipage}{0.45\linewidth}\opts{10}{10.5}{11}{11.5}\end{minipage}\hfill\begin{minipage}{0.52\linewidth}\centering
+\begin{tikzpicture}[x=1.6cm]
+\foreach \q in {1,2,3,4}{\node[circle,draw=navy,fill=bgblue,minimum size=6mm,font=\scriptsize] (q\q) at (\q,0) {Q\q};}
+\draw[gridgray,-{Stealth}] (0.5,-0.55)--(4.6,-0.55) node[right,font=\scriptsize]{时间};
+\node[font=\scriptsize,text=navy] at (1,0.55) {生产}; \node[font=\scriptsize,text=accgold!80!black] at (3,0.55) {交货};
+\end{tikzpicture}\end{minipage}
+
+\subsubsection*{提升多项选择题（2 题）}
+\Q{tagmid}{提升·多选} 下图是笔记引例（第 3 章）调整后的方案及全部空格检验数（斜体）。下列判断正确的有（\quad）。
+\par\noindent\begin{minipage}{0.5\linewidth}\optsl{当前方案是最优方案}{该问题存在多重最优解}{以 $(1,1)$ 为进基格调整时，$\theta=2$}{以 $(2,3)$ 为进基格调整可使总运费下降}\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}
+\sg{1}{1}{0}\sg{1}{2}{2}\sg{2}{2}{2}\sg{2}{3}{1}\sg{3}{1}{9}\sg{3}{3}{12}\end{tikzpicture}\end{minipage}
+
+\Q{tagmid}{提升·多选} 对产销平衡的 $3\times3$ 运输问题，下列说法正确的有（\quad）。
+\optsl{每个基可行解有 5 个基变量}{任一基可行解中，取正值的运量至多有 5 个}{若某个基可行解只有 4 个正的运量，则它是退化的}{约束方程组系数矩阵的秩为 6}
+
+\subsubsection*{提升填空题（3 题）}
+\Q{tagmid}{提升·填空} 对下面的运输问题用 Vogel 法，\key{第一步}应在格子 \blank 中填入运量 \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{8,6,10},{9,12,13},{14,9,16}}{35,50,40}{45,20,60}\end{tikzpicture}\end{center}
+
+\Q{tagmid}{提升·填空} 对第 31 题的运输问题，用最小元素法得到下图方案（总运费 1410），并求得空格 $(1,3)$ 的检验数 $\sigma_{13}=-2$。以 $(1,3)$ 为进基格调整，调整量 $\theta=$ \blank，调整后的总运费为 \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{8,6,10},{9,12,13},{14,9,16}}{35,50,40}{45,20,60}
+\al{1}{1}{15}\al{1}{2}{20}\al{2}{1}{30}\al{2}{3}{20}\al{3}{3}{40}\end{tikzpicture}\end{center}
+
+\Q{tagmid}{提升·填空} 两个工厂产量为 30、20，两个销地需求为 25、15，单位运价如下图；剩余产品留在厂内，不计费用。该问题的最小总运费为 \blank。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{2,3},{4,1}}{30,20}{25,15}\end{tikzpicture}\end{center}
+
+\subsubsection*{提升综合大题（2 题）}
+\Q{tagmid}{提升·综合} 运输问题的数据如下图。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{5,9,4},{7,6,3},{8,4,10}}{30,25,20}{25,30,20}\end{tikzpicture}\end{center}
+\noindent(1) 用最小元素法求初始基可行解及总运费；\par\noindent(2) 用位势法求全部空格的检验数，判断该解是否最优；\par\noindent(3) 若不是最优，进行闭回路调整，直到得到最优方案，并求最小总运费。
+
+\Q{tagmid}{提升·综合} 某工厂未来 3 个月的订单量分别为 20、25、30 件，每月最大产量分别为 30、25、25 件，单位生产成本分别为 5、7、6（百元/件）。当月生产未当月交货的产品，每件每存放一个月存储费 1（百元）；不能用后面月份生产的产品交前面月份的订单。\par\noindent(1) 把该问题写成运输表（给出全部单位运价，必要时虚设产地或销地）；\par\noindent(2) 有人提出方案：1 月生产 30 件（20 件当月交、10 件 2 月交），2 月生产 20 件（15 件当月交、5 件 3 月交），3 月生产 25 件当月交。用位势法判断该方案是否最优，并求其总费用；\par\noindent(3) 结合检验数说明该问题的最优方案是否唯一。
+
+% ============================================================
+\subsection*{C. 跨学科迁移训练（3 题）}
+\Q{tagcross}{跨学科·单选} （离散数学·图论）\ 图论中，\key{树}是连通且不含圈的图，$k$ 个顶点的树恰有 $k-1$ 条边。把运输表的每一行看作一个顶点、每一列看作一个顶点，每个数字格 $(i,j)$ 看作连接“行 $i$”与“列 $j$”的一条边，则一个基可行解的数字格恰好构成一棵树（下图为笔记引例最优解对应的树）。若再把一个\key{空格}对应的边加进这棵树，得到的图中所含圈的个数为（\quad）。
+\par\noindent\begin{minipage}{0.45\linewidth}\opts{0}{1}{2}{不能确定}\end{minipage}\hfill\begin{minipage}{0.52\linewidth}\centering
+\begin{tikzpicture}[scale=0.8,every node/.style={transform shape}]
+\foreach \i/\x in {1/0.6,2/2.4,3/4.2}{\node[circle,draw=navy,fill=bgblue,minimum size=7mm] (r\i) at (\x,1.2) {行\i};}
+\foreach \j/\x in {1/0,2/1.6,3/3.2,4/4.8}{\node[circle,draw=accgold,fill=bgwarm,minimum size=7mm] (c\j) at (\x,-0.4) {列\j};}
+\foreach \i/\j in {1/3,1/4,2/1,2/4,3/2,3/4}{\draw[navy,line width=1pt] (r\i)--(c\j);}
+\end{tikzpicture}\end{minipage}
+
+\Q{tagcross}{跨学科·多选} （经济学·机会成本）\ 经济学中，\key{机会成本}指“为了某个选择而放弃的次优选择所带来的损失”。Vogel 法中某行（列）的差额 = 次小运价 $-$ 最小运价。下列说法正确的有（\quad）。
+\optsl{差额可理解为：该行（列）的货若不能走最便宜的路线，每单位至少要多付的钱}{差额越大，越应优先让该行（列）走它最便宜的路线}{差额为 0 表示该行（列）中最小运价出现了两次（并列最便宜）}{差额最大的那一行一定包含全表中最小的单位运价}
+
+\Q{tagcross}{跨学科·填空} （电路·基尔霍夫电流定律）\ 电路中，基尔霍夫电流定律（KCL）指出：流入一个节点的电流之和等于流出该节点的电流之和。把运输网络看成“电流网络”：产地是流出货物的节点，销地是流入货物的节点。产地 $A_1,A_2$ 分别供应 30、20，销地 $B_1,B_2,B_3$ 分别需要 15、25、10。已知 $x_{11}=10,\ x_{12}=20,\ x_{13}=0,\ x_{21}=5$，则 $x_{22}=$ \blank。
+\begin{center}
+\begin{tikzpicture}[scale=0.85,every node/.style={transform shape}]
+\node[circle,draw=navy,fill=bgblue,minimum size=8mm] (A1) at (0,0.9) {$A_1$}; \node[left=1mm of A1,font=\footnotesize] {流出 30};
+\node[circle,draw=navy,fill=bgblue,minimum size=8mm] (A2) at (0,-0.9) {$A_2$}; \node[left=1mm of A2,font=\footnotesize] {流出 20};
+\foreach \j/\y/\b in {1/1.5/15,2/0/25,3/-1.5/10}{\node[circle,draw=accgold,fill=bgwarm,minimum size=8mm] (B\j) at (4,\y) {$B_\j$}; \node[right=1mm of B\j,font=\footnotesize] {流入 \b};}
+\draw[arr] (A1)--node[above,font=\scriptsize,pos=0.25]{10}(B1); \draw[arr] (A1)--node[above,font=\scriptsize,pos=0.2]{20}(B2); \draw[arr,dashed,gridgray] (A1)--node[left,font=\scriptsize,pos=0.15]{0}(B3);
+\draw[arr] (A2)--node[left,font=\scriptsize,pos=0.15]{5}(B1); \draw[arr] (A2)--node[below,font=\scriptsize,pos=0.2]{?}(B2); \draw[arr] (A2)--node[below,font=\scriptsize,pos=0.25]{?}(B3);
+\end{tikzpicture}
+\end{center}
+\newpage

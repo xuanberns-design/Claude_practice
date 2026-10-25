@@ -1,0 +1,324 @@
+% ================= 封面 =================
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[navy] (current page.north west) rectangle ([yshift=-0.9cm]current page.north east);
+  \fill[bgblue] ([yshift=-0.9cm]current page.north west) rectangle ([yshift=-1.05cm]current page.north east);
+\end{tikzpicture}
+\vspace*{2.2cm}
+\begin{center}
+{\sffamily\large\color{blue2} 运筹学 · 第五章}\\[10pt]
+{\sffamily\fontsize{38}{46}\selectfont\bfseries\color{navy} 运输问题}\\[12pt]
+{\large\color{navy} 从“怎么运最省钱”到表上作业法}\\[4pt]
+{\normalsize\color{blue2} 数学建模 · 初始方案 · 最优性检验 · 方案调整 · 产销不平衡}
+\end{center}
+\vspace{1.0cm}
+\begin{center}
+\begin{tikzpicture}[scale=1]
+  % 左：二部网络
+  \foreach \i/\y in {1/1.6,2/0,3/-1.6}{\node[circle,draw=navy,fill=bgblue,minimum size=9mm,font=\sffamily] (A\i) at (0,\y) {$A_\i$};}
+  \foreach \j/\y in {1/2.4,2/0.8,3/-0.8,4/-2.4}{\node[circle,draw=accgold,fill=bgwarm,minimum size=9mm,font=\sffamily] (B\j) at (4,\y) {$B_\j$};}
+  \foreach \i in {1,2,3}{\foreach \j in {1,2,3,4}{\draw[gridgray!60,line width=0.4pt] (A\i)--(B\j);}}
+  \draw[navy,line width=1.6pt,-{Stealth}] (A1)--(B3); \draw[navy,line width=1.6pt,-{Stealth}] (A1)--(B4);
+  \draw[navy,line width=1.6pt,-{Stealth}] (A2)--(B1); \draw[navy,line width=1.6pt,-{Stealth}] (A2)--(B4);
+  \draw[navy,line width=1.6pt,-{Stealth}] (A3)--(B2); \draw[navy,line width=1.6pt,-{Stealth}] (A3)--(B4);
+  \node[font=\sffamily\small,text=navy] at (0,3.2) {产地（供应）};
+  \node[font=\sffamily\small,text=accgold!80!black] at (4,3.2) {销地（需求）};
+  % 右：运输表
+  \begin{scope}[xshift=6.4cm,yshift=1.9cm,scale=0.78,every node/.append style={transform shape}]
+    \MainGrid
+    \al{1}{3}{5}\al{1}{4}{2}\al{2}{1}{3}\al{2}{4}{1}\al{3}{2}{6}\al{3}{4}{3}
+  \end{scope}
+  \node[font=\small,text=blue2] at (10.0,-2.75) {最优方案：$\min z=85$};
+\end{tikzpicture}
+\end{center}
+\vfill
+\begin{center}
+\begin{tabular}{rl}
+\textsf{\color{blue2}适用读者} & 第一次学习运输问题、线性规划基础尚不牢固的本科生\\
+\textsf{\color{blue2}内容来源} & 课堂手写笔记 12 页（Memo No.\,608--619）+ 标准教材内容的教学补全\\
+\textsf{\color{blue2}配套练习} & 38 道 = 基础 25 + 中等偏下 10 + 跨学科迁移 3（附逐题图解）\\
+\textsf{\color{blue2}排版} & XeLaTeX · TikZ / PGFPlots 矢量图\\
+\end{tabular}
+\end{center}
+\vspace{0.6cm}
+\newpage
+
+% ================= 阅读说明 =================
+\unsec{阅读说明}
+这份讲义由一组课堂手写笔记（共 12 页照片）整理、重构而成。笔记为了节省时间，常常只写结论或只写到一半；讲义的原则是：
+\begin{center}
+\key{笔记决定“讲什么”，教学逻辑决定“讲到多完整”。}
+\end{center}
+因此，凡是笔记里没有写全、但初学者理解时必需的定义、证明、推导步骤和例子，都由讲义主动补上，并且用标签区分来源：
+
+\begin{center}
+\begin{tabularx}{0.92\linewidth}{@{}lX@{}}
+\toprule
+\textbf{标记} & \textbf{含义}\\
+\midrule
+\orig & 能从笔记照片中可靠识别出来的内容（重新排版，含义不变）。\\
+\supp & 笔记没有完整呈现，按照本课程通用教材的标准表述补充的内容。\\
+\textsf{\small\color{accred}原图纠错} & 笔记中的笔误、计算错误或不严谨表述，单独列出并说明如何改正。\\
+\textsf{\small 原始资料此处无法可靠辨认} & 照片模糊或被遮挡的地方，讲义不猜测；需要推测时会明确写“可能解释”。\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\paragraph{颜色语义}
+全书的色块颜色固定表达同一类内容，读几页之后看颜色就能知道“这是哪一类信息”：
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small,minimum height=7mm,inner sep=4pt,rounded corners=2pt}]
+\node[fill=bgblue,draw=navy!70] (a) at (0,0) {\color{navy}\textbf{蓝}：定义 / 定理 / 核心公式};
+\node[fill=bgwarm,draw=warmline,right=3mm of a] (b) {\color{accgold!80!black}\textbf{米色}：例题 / 生活应用 / 历史 / 科普};
+\node[fill=bgred,draw=redline,below=2.5mm of a.south west,anchor=north west] (c) {\color{accred}\textbf{浅红}：易错点 / 原图纠错};
+\node[fill=bggreen,draw=greenline,right=3mm of c] (d) {\color{accgreen}\textbf{浅绿}：方法总结 / 学习自检};
+\end{tikzpicture}
+\end{center}
+
+\paragraph{怎样使用这份讲义}
+第一次学习时请按顺序阅读第 1--4 章，每读完一节，先合上讲义回答该节末尾的“学习自检”。第 6 部分的 38 道正式练习请先独立完成，再查看答案速查与详细解析——答案集中放在后面，就是为了让你先自己动手。
+
+\newpage
+\tableofcontents
+\newpage
+
+% ================= 本专题学什么 =================
+\unsec{本专题学什么，它在课程中的位置}
+\subsection*{一句话说清楚：运输问题在解决什么}
+有几个地方\key{生产}某种物资（产地），另有几个地方\key{需要}这种物资（销地）。每条“产地→销地”路线的单位运费都不同。问题是：
+\begin{center}
+\key{在满足所有供需的前提下，各条路线各运多少，才能使总运费最少？}
+\end{center}
+这就是\key{运输问题}（transportation problem）。它本质上是一个\key{线性规划}问题，但因为它的约束结构非常特殊，所以可以不用笨重的单纯形表，而直接在一张“运价表”上完成计算——这就是本章的主角\key{表上作业法}。
+
+\subsection*{本专题的知识路线}
+\begin{center}
+\begin{tikzpicture}[node distance=4mm and 5mm]
+\node[flow] (m) {§1 建模\\变量·目标·约束};
+\node[flow,right=of m] (s) {模型结构\\$m+n-1$ 个基变量};
+\node[flow,right=of s] (i) {§2 初始方案\\西北角·最小元素·Vogel};
+\node[flow,right=of i] (c) {最优性检验\\闭回路·位势法};
+\node[flow,below=7mm of c] (a) {方案调整\\闭回路调整 $\theta$};
+\node[flowg,left=of a] (o) {最优方案\\多重最优解};
+\node[floww,left=of o] (u) {§3 产销不平衡\\虚设产地 / 销地};
+\node[floww,left=of u] (ap) {应用建模\\生产存储·需求区间};
+\draw[arr] (m)--(s); \draw[arr] (s)--(i); \draw[arr] (i)--(c); \draw[arr] (c)--node[right,font=\scriptsize]{$\sigma<0$}(a);
+\draw[arr] (a)--(o); \draw[arr,dashed] (a.north west) to[bend left=25] node[above,font=\scriptsize,pos=0.6]{再检验} (c.south west);
+\draw[arr] (o)--(u); \draw[arr] (u)--(ap);
+\end{tikzpicture}
+\end{center}
+图中实线箭头表示“学完前一个才能理解后一个”的依赖关系；从“方案调整”回到“最优性检验”的虚线表示：表上作业法是一个\key{反复迭代}的过程，调整一次就要重新检验一次，直到检验数全部非负。
+
+\subsection*{在课程体系中的坐标}
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+所属课程 & 运筹学（管理科学、工业工程、物流工程、自动化、数学等专业的基础课）\\
+当前章节 & 第五章\ 运输问题（紧接线性规划、单纯形法、对偶理论之后）\\
+前置知识 & 线性方程组与秩；线性规划的标准形；基、基变量、基可行解；单纯形法的“检验数 $\sigma_j$”；对偶变量（位势法要用）\\
+后续知识 & 指派问题与匈牙利法；整数规划；网络最优化（最小费用流、最短路、最大流）；供应链与物流规划\\
+相关课程 & 线性代数、离散数学（图与树）、物流系统工程、供应链管理、计量经济学（资源配置）\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{前置知识地图}
+\begin{center}
+\begin{tikzpicture}[node distance=5mm and 7mm]
+\node[floww] (la) {线性方程组\\秩与线性相关};
+\node[floww,right=of la] (lp) {线性规划\\标准形};
+\node[floww,right=of lp] (bs) {基 / 基变量\\基可行解};
+\node[floww,right=of bs] (sx) {单纯形法\\检验数 $\sigma_j$};
+\node[flow,below=14mm of bs] (tp) {\textbf{运输问题}\\表上作业法};
+\node[floww,below=14mm of la] (gr) {图与树\\（离散数学）};
+\node[floww,below=14mm of sx,xshift=12mm] (du) {对偶变量\\影子价格};
+\draw[arr] (la)--(lp); \draw[arr] (lp)--(bs); \draw[arr] (bs)--(sx); \draw[arr] (sx.south east)--(du);
+\draw[arr] (la.south east)--node[above,sloped,font=\scriptsize]{秩 $m+n-1$}(tp.north west);
+\draw[arr] (bs)--node[right,font=\scriptsize]{数字格 = 基变量}(tp);
+\draw[arr] (sx.south west)--node[above,sloped,font=\scriptsize]{检验数}(tp.north east);
+\draw[arr] (du)--node[above,font=\scriptsize]{位势法}(tp);
+\draw[arr] (gr)--node[above,font=\scriptsize]{闭回路 = 圈}(tp);
+\end{tikzpicture}
+\end{center}
+图中每一条指向“运输问题”的箭头都标出了“它在本章哪里被用到”。如果你对单纯形法中的“检验数”已经比较模糊，不用担心：第 3 章会从“改运一单位货，总运费变化多少”这个直观角度重新解释它。
+
+% ================= 学科小史 =================
+\unsec{学科小史：这个知识是怎样出现的？}
+\begin{historybox}[人们最初遇到的问题]
+“把东西从很多地方运到很多地方，怎样最省”是一个古老的问题。早在 1781 年，法国数学家蒙日（G.~Monge）就研究过“挖方与填方”的最优搬运——把一堆土搬去填一个坑，怎样使总搬运距离最小。但在没有计算机的年代，人们缺少一套能够\key{一步步算出最优方案}的通用方法。
+\end{historybox}
+
+20 世纪 30--40 年代，大规模的工业生产与战时物资调度让这个问题变得迫切起来，几条研究线索几乎同时出现：
+
+\begin{center}
+\begin{tikzpicture}[x=1.45cm]
+\draw[navy,line width=1.2pt,-{Stealth}] (0,0)--(10.6,0);
+\foreach \x/\yr/\t/\up in {0.3/1781/{蒙日：挖填方\\最优搬运}/1,
+  2.0/1939/{康托罗维奇：\\生产计划的数学方法}/0,
+  3.5/1941/{希区柯克：\\运输问题的经典表述}/1,
+  5.0/1940s/{库普曼斯：战时\\航运调度研究}/0,
+  6.6/1951/{丹齐格：用单纯形法\\求解运输问题}/1,
+  8.1/1954/{查恩斯、库珀：\\闭回路(踏石)法}/0,
+  9.7/{1950s 末}/{Vogel 近似法\\等初始解方法}/1}{
+  \fill[navy] (\x,0) circle (2.4pt);
+  \node[font=\sffamily\scriptsize\bfseries,text=navy] at (\x,{\up==1 ? -0.32 : 0.32}) {\yr};
+  \node[font=\scriptsize,align=center,fill=bgwarm,draw=warmline,rounded corners=1.5pt,inner sep=2.5pt] at (\x,{\up==1 ? 0.85 : -0.9}) {\t};}
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+\item \key{康托罗维奇}（L.~V.~Kantorovich）在 1939 年出版了关于生产组织与计划的数学方法的小册子，随后在 1940 年代初研究了物资的最优调运。他的工作长期不为西方所知。
+\item \key{希区柯克}（F.~L.~Hitchcock）在 1941 年发表了“多个产地向多个地点分配产品”的论文，给出了今天教科书中运输问题的经典数学表述，因此运输问题常被称为 \emph{Hitchcock 问题}。
+\item \key{库普曼斯}（T.~C.~Koopmans）在二战期间为航运调度独立研究了同一问题。1975 年，康托罗维奇与库普曼斯因“对资源最优配置理论的贡献”共同获得诺贝尔经济学奖。
+\item \key{丹齐格}（G.~B.~Dantzig）提出单纯形法后，于 1951 年给出了把单纯形法用于运输问题的做法；1954 年查恩斯（A.~Charnes）与库珀（W.~W.~Cooper）发表了用“踏石法”（即闭回路法）解释运输问题计算的论文。
+\end{itemize}
+
+\begin{intuitionbox}[为什么它成为今天的基础课内容]
+运输问题是“结构最清楚的线性规划”：它的约束只有“供应”和“需求”两类，系数全是 0 或 1。正因为结构简单，单纯形法的每一步（找基、算检验数、换基）都可以\key{直接画在一张表上}。学运输问题，本质上是在一张看得见的表格里，重新、彻底地理解一遍单纯形法。
+\end{intuitionbox}
+\tip[说明]{各项研究的先后与归属在文献中存在不同表述（例如康托罗维奇关于调运的工作有 1939 年和 1942 年两种说法），本讲义采用较为保守的写法。}
+
+% ================= 从课本到现实 =================
+\unsec{从课本到现实：这个知识到底有什么用？}
+运输问题的模型几乎原封不动地出现在许多真实系统中。下面选三个与本章最直接相关的方向：
+
+\begin{center}
+\begin{tikzpicture}[node distance=4mm]
+\node[floww,text width=4.6cm,align=left] (a) {\textbf{1. 物流配送与调拨}\\ 工厂/仓库 = 产地，门店/城市 = 销地；单位运费来自距离、油价、过路费。企业的“配送计划”就是一个大规模运输问题。};
+\node[floww,text width=4.6cm,align=left,right=of a] (b) {\textbf{2. 生产—存储计划}\\ “第 $i$ 月生产、第 $j$ 月交货”也可以看成一条“运输路线”，运价 = 生产成本 + 存储成本（本讲义第 4 章例 1）。};
+\node[floww,text width=4.6cm,align=left,right=of b] (c) {\textbf{3. 资源分配与调度}\\ 把人员分配到岗位、把计算任务分配到服务器、把电力从电厂分配到地区，都可以写成“供应 = 需求”的分配模型。};
+\end{tikzpicture}
+\end{center}
+
+\begin{sciencebox}[课堂知识在真实系统中的位置]
+真实的物流规划软件里，运输问题往往有成千上万个变量，计算机用的是更高效的网络单纯形法等算法，但其核心思想与本章完全一致：\key{先找一个可行方案 → 检查“改运一单位”能否更省 → 若能，沿闭回路调整}。另外，运输问题有一个对实际工作非常重要的性质：只要产量和销量都是整数，最优方案中的运量也可以取整数（第 1 章会解释原因）。这意味着“运 3.7 箱货”这种尴尬结果不会出现。
+\end{sciencebox}
+\tip[边界]{现实中的运费往往不是“单位运价 × 运量”这样的线性关系（例如整车运输、满减、拥堵），这时需要更复杂的模型。本章研究的是最基础的线性情形。}
+
+% ================= 原始资料重编码 =================
+\unsec{原始资料内容重新编码（课堂笔记逐页整理）}
+下表把 12 页笔记照片按页整理。页码为 PDF 页码，Memo No. 与日期为笔记纸上的手写编号。
+
+{\small
+\begin{longtable}{@{}p{0.7cm}p{1.9cm}p{13.2cm}@{}}
+\toprule
+\textbf{页} & \textbf{编号 / 日期} & \textbf{可可靠识别的内容}\\
+\midrule
+\endhead
+1 & （无编号） & 章标题“第五章：运输问题”；“§1. 数学建模\ 一、模型”；“已知有 $m$ 个生产地点 $A_i$，可供应某种物资，其供应量（产量）分别……”。页面最上方一行属于上一章内容，仅能辨认出 “$\max z' = \min(-z) =$”，其后\textsf{原始资料此处无法可靠辨认}。\\
+2 & 609\newline 2026.10.21 & 产量 $a_i$、$n$ 个销地 $B_j$、需求量 $b_j$、单位运价 $c_{ij}$；$m\times n$ 运价表；“设从 $A_i$ 到 $B_j$ 的运输量为 $x_{ij}$（$x_{ij}\ge 0$）”；目标“运费最少”$\min z=\sum\sum c_{ij}x_{ij}=CX$；约束（供销平衡）：产量约束 $m$ 个、销量约束 $n$ 个。\\
+3 & 610\newline 2026.10.21 & $x_{ij}\ge0$；对比“指派问题（0-1 型）”，“指派问题为一种特殊的运输问题”；“s.t. 中有 $m+n$ 个方程，但有 1 个多余方程”；“§2 表上作业法（本质为单纯形法）”；单纯形法三步与表上作业法三步的对照；引例：3 个产地产量 7, 4, 9，4 个销地销量 3, 6, 5, 6 及单位运价表，“平衡”。\\
+4 & 611 & 西北角法（填出 $m+n-1$ 个数作为初始解）及其结果表；“有数格（基变量）/ 空格（非基变量）”；“出现退化，需要把 0 写到空格里”及操作规则；“局限：只是找个解”；最小元素法结果表；特点与缺点；“Vogel 法：从运费差额角度考虑”。\\
+5 & 612\newline 2026.10.24 & Vogel 法步骤 (a)(b)(c)；行差额、列差额的逐轮记录；“有多个差额最大值，任选即可”；“二、最优性判断与解的调整\ ①闭回路法”：闭回路的画法；“检验数 = 奇数顶点的单位运价之和 $-$ 偶数顶点的单位运价之和”；经济意义。\\
+6 & 613\newline 2026.10.25 & 最小元素法初始解上的 6 条闭回路及检验数 (a)--(f)：$1, 2, 1, -1, 10, 12$；“有 6 个空格 → 6 个非基变量 → 6 个 $\sigma$”；“$\min z \to \sigma_{ij}\ge 0$”；“3. 调整”的文字规则；$\theta=\min\{3,1\}=1$。\\
+7 & 614\newline 2026.10.25 & 调整后的方案表及检验数（部分有误，见原图纠错）；“已找到最优解”；“②位势法”的思想与 $\sigma_{ij}=c_{ij}-(u_i+v_j)$；位势表：$u_1=0,u_2=-1,u_3=-5$；$v_1=2,v_2=9,v_3=3,v_4=10$。\\
+8 & 615\newline 2026.10.25 & 位势的逐个求解与各空格检验数（一处有误）；“$(A_2,B_4)$ 所在闭回路需调整”，$\theta=1$；红笔：“产销平衡问题一定有最优解，若 $\sigma_{\text{空格}}=0$，本题有多重最优解”；“§3 产销不平衡问题”；产大于销的模型；“松弛变量意义：虚设一个销地 $B_{n+1}$”。\\
+9 & 616\newline 2026.10.25 & 虚设销地的表格与 $b_{n+1}=\sum a_i-\sum b_j$、存储成本说明；产小于销的模型、虚设产地 $A_{m+1}$；“产大于销 → 增加销地（列）→ 平衡；产小于销 → 增加产地（行）→ 平衡”；例 1 题干（按季度交货 10, 15, 25, 20，积压每季度 0.15）。\\
+10 & 617\newline 2026.10.25 & 例 1 的生产能力与单位成本表；扩展运价表（含 $M$ 与虚设列 D）及最优方案；变量含义、合同约束与生产约束；“默认 D 的运价为 0（题目未说明）”；例 2 题干。\\
+11 & 618\newline 2026.10.25 & 例 2 的运价与最低 / 最高需求表；“以最高需求作为切入点”拆分需求：I$'$=30, I$''$=20, II=70, III=30, IV$'$=10, IV$''$=50；扩展表（虚设产地 D）；“运不运都行，此时 $c_{ij}=0$”。\\
+12 & 619\newline 2026.10.25 & 例 2 的最终方案表。\\
+\bottomrule
+\end{longtable}}
+
+\subsection*{原始资料无法可靠辨认的内容}
+\begin{itemize}
+\item 第 1 页顶部上一章公式的后半部分。
+\item 第 2 页运价表右侧 $a_2$ 旁的一行小字。\textsf{可能解释}：“一般是要用的”（以下属于推测，不属于原图可靠识别结果）。它不影响本章内容。
+\item 第 5 页 Vogel 法结果表中第 1、2 行的具体数字（字迹与表格线重叠）。讲义在第 2 章按 Vogel 法规则\key{重新完整计算}了这一结果。
+\item 第 6 页调整说明的红笔小字末尾（“……所以 $\theta$ 尽可能……”之后）。
+\item 第 11 页例 2 中销地 IV 最高需求“60(C)”中括号里的字符。按题意，IV 的最高需求不限，可由“总产量 $-$ 其余销地最低需求”算出 $160-(30+70+0)=60$，与笔记中的 60 一致。
+\end{itemize}
+
+\subsection*{原图纠错}
+\begin{correctionbox}[1. 约束右端的下标]
+\textbf{原始写法}\ （第 8、9 页）$\sum_j x_{ij}=a_{ij}$，$\sum_i x_{ij}=b_{ij}$。\par
+\textbf{存在的问题}\ 产量只与产地有关，销量只与销地有关，右端应只有一个下标。\par
+\textbf{规范写法}\ $\sum_{j=1}^n x_{ij}=a_i\ (i=1,\dots,m)$，$\sum_{i=1}^m x_{ij}=b_j\ (j=1,\dots,n)$。\par
+\textbf{为什么这样改}\ 双下标会让人误以为每条路线都有自己的“产量”。\quad\textbf{是否影响后续}\ 不影响计算，只是记号问题。
+\end{correctionbox}
+
+\begin{correctionbox}[2. 调整后方案的检验数（第 7 页）]
+\textbf{原始写法}\ 调整后的方案（$x_{13}=5,x_{14}=2,x_{21}=3,x_{24}=1,x_{32}=6,x_{34}=3$）上写了 $\sigma_{A_1B_1}=(3+2)-(3+1)=1$，$\sigma_{A_3B_1}=10$，另有一行 $(10+8)-(2+5)=11$，并漏算了一个空格。\par
+\textbf{存在的问题}\ 这几个数沿用了\emph{调整前}方案的闭回路。调整后 $x_{23}$ 已变为空格、$x_{24}$ 已变为数字格，闭回路随之改变。\par
+\textbf{规范写法}\ 重新计算（第 3 章用位势法逐一验证）：
+$\sigma_{11}=0,\ \sigma_{12}=2,\ \sigma_{22}=2,\ \sigma_{23}=1,\ \sigma_{31}=9,\ \sigma_{33}=12$。\par
+\textbf{为什么这样改}\ 例如 $(A_1,B_1)$ 的新闭回路是 $(1,1)\to(2,1)\to(2,4)\to(1,4)$，$\sigma_{11}=3-1+8-10=0$。\par
+\textbf{是否影响后续}\ 结论“所有 $\sigma\ge0$，已得最优解”仍然正确；而且 $\sigma_{11}=0$ 恰好说明本题\key{有多重最优解}，与笔记第 8 页红笔结论一致。此外该页销量行 $B_3$ 处的数字看起来像“3”，应为 5（可能是笔误）。
+\end{correctionbox}
+
+\begin{correctionbox}[3. 位势法中 $\sigma_{12}$ 的计算（第 8 页）]
+\textbf{原始写法}\ $\sigma_{A_1B_2}=c_{12}-(2-1)=11-(2-1)=10$。\par
+\textbf{存在的问题}\ 公式中应代入 $u_1+v_2$，但实际代入了 $v_1+u_2=2+(-1)$。\par
+\textbf{规范写法}\ $\sigma_{12}=c_{12}-(u_1+v_2)=11-(0+9)=2$。\par
+\textbf{为什么这样改}\ 与闭回路法第 (b) 条的结果 $\sigma_{12}=2$ 一致——两种方法算出的检验数必须相同。\quad\textbf{是否影响后续}\ 不影响“$\sigma_{24}=-1<0$，需调整”的结论。
+\end{correctionbox}
+
+\begin{correctionbox}[4. Vogel 法的差额没有逐轮全部更新（第 5 页）]
+\textbf{原始写法}\ 行差额只记录了三轮（$0,0,0$；$1,1,1$；$1,2,\times$），之后只更新列差额。\par
+\textbf{存在的问题}\ 每划去一行或一列，\key{所有剩余的行和列}的差额都要重新计算。第 4 轮时行差额应为 $A_1:10-3=7$，$A_2:8-2=6$。\par
+\textbf{规范写法}\ 见第 2 章 Vogel 法的完整逐轮表。\quad\textbf{是否影响后续}\ 本例最终结果碰巧相同（$\min z$ 初值 85），但一般情况下漏算差额可能选错格子。
+\end{correctionbox}
+
+\begin{correctionbox}[5. 例 2 最终方案缺一个数字（第 12 页）]
+\textbf{原始写法}\ 虚设产地 D 行只写了 III 列的 30。\par
+\textbf{存在的问题}\ D 的“产量”为 50，只写 30 则行和不平衡；销地 IV$''$ 列 $30$（B）$+\,?=50$ 也缺 20。\par
+\textbf{规范写法}\ 补上 $x_{D,\mathrm{IV}''}=20$。此时数字格共 $9=4+6-1$ 个（含 $x_{C,\mathrm{II}}=0$）。\quad\textbf{是否影响后续}\ 补上后方案可行且最优，$\min z=2460$（第 4 章验证）。
+\end{correctionbox}
+
+\begin{correctionbox}[6. 两处表述不严谨]
+\textbf{(1)} 第 4 页最小元素法“缺点：可能一开始很节省，但之后会翻倍增长”——更准确的说法是：\key{前面贪心地占用了便宜格子，后面可能被迫使用运价很高的格子}，总运费不一定低。\par
+\textbf{(2)} 第 9 页产小于销时“①不需要从 $A_{m+1}$ 调货，$c=0$；②若需要……，$c=M$”——规范表述是：虚设产地 $A_{m+1}$ 的运量表示\key{缺货量}，其运价取\key{单位缺货损失}；题目未给出时取 0；若某销地\key{不允许缺货}，则该格取 $M$（充分大的数），迫使最优解不在该格分配。
+\end{correctionbox}
+
+\subsection*{知识点总览}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}l l X l@{}}
+\toprule
+\textbf{编号} & \textbf{知识点} & \textbf{一句话} & \textbf{位置}\\
+\midrule
+K1 & 运输问题的数学模型 & 变量 $x_{ij}$、目标 $\min\sum c_{ij}x_{ij}$、供需约束 & 1.1--1.3\\
+K2 & 模型结构 & $m+n$ 个约束中恰有 1 个多余；必有最优解；整数性 & 1.4\\
+K3 & 指派问题 & 一种特殊的运输问题（$a_i=b_j=1$） & 1.5\\
+K4 & 基可行解与退化 & $m+n-1$ 个数字格、不含闭回路；不足时补 0 & 2.1\\
+K5 & 西北角法 & 从左上角起，按位置依次分配 & 2.2\\
+K6 & 最小元素法 & 每次挑运价最小的格子分配 & 2.3\\
+K7 & Vogel 法 & 每次先照顾“差额（机会成本）”最大的行或列 & 2.4\\
+K8 & 闭回路法 & 检验数 = 沿闭回路改运 1 单位的运费变化 & 3.1\\
+K9 & 位势法 & $u_i+v_j=c_{ij}$（数字格），$\sigma_{ij}=c_{ij}-u_i-v_j$ & 3.2\\
+K10 & 闭回路调整法 & 取 $\theta=\min\{\text{“$-$”格运量}\}$ 进行换基 & 3.3\\
+K11 & 最优性与多重最优解 & 全部 $\sigma\ge0$ 即最优；空格 $\sigma=0$ 则有多重最优解 & 3.4\\
+K12 & 产销不平衡 & 虚设销地（列）或虚设产地（行）化为平衡 & 4.1--4.2\\
+K13 & 应用建模 & 生产—存储问题、需求有上下限的问题 & 4.3--4.4\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{知识关系图}
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+\node[flow] (k1) at (0,0) {K1 模型};
+\node[flow] (k2) at (2.4,0) {K2 结构\\$m+n-1$};
+\node[flow] (k4) at (5.0,0) {K4 基可行解\\退化};
+\node[flow] (k5) at (8.0,1.2) {K5 西北角};
+\node[flow] (k6) at (8.0,0) {K6 最小元素};
+\node[flow] (k7) at (8.0,-1.2) {K7 Vogel};
+\node[flow] (k8) at (11.4,0) {K8 闭回路法\\K9 位势法};
+\node[flow] (k10) at (11.4,-2.6) {K10 调整};
+\node[flowg] (k11) at (7.4,-2.6) {K11 最优 / 多重最优};
+\node[flow] (k3) at (0,-1.5) {K3 指派问题};
+\node[floww] (k12) at (0,-3.2) {K12 产销不平衡};
+\node[floww] (k13) at (3.4,-3.2) {K13 应用建模};
+\draw[arr] (k1)--(k2); \draw[arr] (k2)--(k4); \draw[arr] (k4)--(k5.west); \draw[arr] (k4)--(k6); \draw[arr] (k4)--(k7.west);
+\draw[arr] (k5.east)--(k8); \draw[arr] (k6)--(k8); \draw[arr] (k7.east)--(k8);
+\draw[arr] (k8)--node[right,font=\scriptsize]{有 $\sigma<0$}(k10); \draw[arr] (k10)--(k11);
+\draw[arr] (k10.north west) to[bend left=20] node[above,font=\scriptsize,sloped]{再检验} (k8.south west);
+\draw[arr] (k1)--node[right,font=\scriptsize]{特例}(k3);
+\draw[arr] (k1.west) to[bend right=40] node[left,font=\scriptsize]{推广} (k12.west);
+\draw[arr] (k12)--(k13);
+\draw[arr,dashed] (k13.east)--node[below=1pt,font=\scriptsize]{化为平衡后同法求解}(k11.south west);
+\end{tikzpicture}
+\end{center}
+三种初始方法（K5--K7）是“平行”的：任选一种都能得到初始方案，它们的差别只在于初始方案的好坏。检验（K8/K9）与调整（K10）则是“串行”的循环。
+\newpage

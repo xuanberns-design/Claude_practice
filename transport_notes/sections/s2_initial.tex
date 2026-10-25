@@ -1,0 +1,306 @@
+% ============================================================
+\needspace{7\baselineskip}
+\section{表上作业法（一）：确定初始基可行解}
+% ============================================================
+\noindent 第 1 章把运输问题写成了线性规划，并知道每个基可行解恰有 $m+n-1$ 个基变量。本章回答三个问题：
+\begin{enumerate}[label=\arabic*.]
+\item “基可行解”画在运价表上是什么样子？
+\item 怎样\key{快速}地在表上填出一个基可行解？
+\item 三种常用方法（西北角法、最小元素法、Vogel 法）各有什么特点？
+\end{enumerate}
+\noindent\textsf{\color{blue2}本章知识路线：}\ 单纯形法三步 $\to$ 表上的基可行解 $\to$ 西北角法 $\to$ 最小元素法 $\to$ Vogel 法 $\to$ 方法比较。
+
+\subsection*{表上作业法 = 搬到表格上的单纯形法}
+笔记写道 \orig：“§2 表上作业法（本质为单纯形法）”，并把两者的步骤一一对应。下图把这张对照表画了出来。
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=3mm and 10mm]
+\node[flow,text width=3.6cm] (s1) {① 找出初始基可行解};
+\node[flow,text width=3.6cm,below=of s1] (s2) {② 判断最优性（检验数 $\sigma$）};
+\node[flow,text width=3.6cm,below=of s2] (s3) {③ 调整（换基迭代）};
+\node[flowg,text width=5.6cm,right=of s1] (t1) {① 找初始解：西北角法 / 最小元素法 / Vogel 法};
+\node[flowg,text width=5.6cm,right=of s2] (t2) {② 判断最优性：闭回路法 / 位势法};
+\node[flowg,text width=5.6cm,right=of s3] (t3) {③ 调整：闭回路调整法};
+\node[font=\sffamily\small\bfseries,text=navy,above=2mm of s1] {单纯形法};
+\node[font=\sffamily\small\bfseries,text=accgreen,above=2mm of t1] {表上作业法};
+\foreach \k in {1,2,3}{\draw[arr,<->] (s\k)--(t\k);}
+\draw[arr] (s1)--(s2); \draw[arr] (s2)--(s3);
+\draw[arr] (s3.west) to[bend left=50] node[left,font=\scriptsize]{重复} (s2.west);
+\end{tikzpicture}
+\caption{单纯形法与表上作业法的三步对应（据笔记第 3 页）。}\label{fig:simplexmap}
+\end{figure}
+左列是线性规划一章学过的单纯形法，右列是本章的表上作业法；横向双箭头表示“做的是同一件事”。本章处理第 ① 步，第 3 章处理第 ② ③ 步。
+
+\subsection{表上的基可行解：数字格与空格}
+\begin{definitionbox}[数字格、空格、基可行解]
+在运价表中填上一组运量后：
+\begin{itemize}
+\item \key{数字格}（有数格）：填了数（包括特意填入的 0）的格子，对应\key{基变量}；
+\item \key{空格}：没有填数的格子，对应\key{非基变量}，其运量为 0。
+\end{itemize}
+一组运量是\key{基可行解}，当且仅当：① 满足全部行和、列和约束且非负；② 数字格恰为 $m+n-1$ 个；③ 数字格中\key{不含闭回路}。
+\end{definitionbox}
+条件 ③ 里出现了一个新概念——闭回路。它在第 3 章是主角，这里先给出定义：
+\begin{definitionbox}[闭回路]
+从表中某一格出发，沿\key{水平或竖直}方向前进，每到一个转角格就转 $90^\circ$，最后回到出发格，所经过的转角格组成的封闭折线称为\key{闭回路}。闭回路的顶点数一定是偶数（至少 4 个），且每一行、每一列中要么没有顶点，要么恰有 2 个顶点。
+\end{definitionbox}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.32\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{,,,},{,,,},{,,,}}{,,}{,,,}
+\foreach \c in {1-1,1-2,2-2,2-3,3-3,3-4}{\fill[navy] (t\c) circle (3pt);}
+\end{tikzpicture}\\{\small \good{(a) 6 格、无闭回路：是基}}
+\end{minipage}\hfill
+\begin{minipage}{0.32\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{,,,},{,,,},{,,,}}{,,}{,,,}
+\foreach \c in {1-1,1-3,2-1,2-3,3-2,3-4}{\fill[navy] (t\c) circle (3pt);}
+\draw[tploop] (t1-1)--(t1-3)--(t2-3)--(t2-1)--cycle;
+\end{tikzpicture}\\{\small \bad{(b) 6 格但含闭回路：不是基}}
+\end{minipage}\hfill
+\begin{minipage}{0.32\linewidth}\centering
+\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{,,,},{,,,},{,,,}}{,,}{,,,}
+\foreach \c in {1-1,1-2,2-2,3-3,3-4}{\fill[navy] (t\c) circle (3pt);}
+\end{tikzpicture}\\{\small \bad{(c) 只有 5 格：不够，需补 0}}
+\end{minipage}
+\caption{判断一组数字格能否构成基：数量与“无闭回路”两个条件缺一不可。}\label{fig:basis}
+\end{figure}
+三幅图都是 $3\times4$ 表（$m+n-1=6$），黑点表示数字格。(a) 是“楼梯形”，从任何一个数字格出发都绕不回来，满足条件；(b) 虽然也是 6 格，但 $(1,1),(1,3),(2,3),(2,1)$ 四格构成闭回路（红线），所以不是基；(c) 只有 5 格，必须再补一个“0”格。
+
+\begin{supplementbox}[为什么“含闭回路”就不是基]
+\textbf{要证明什么}\ 若数字格中含闭回路，则对应的系数列线性相关。\par
+\textbf{思路}\ 回忆：变量 $x_{ij}$ 的系数列记作 $P_{ij}=e_i+e_{m+j}$（第 $i$ 个产量行和第 $j$ 个销量行各一个 1）。\par
+\textbf{证明}\ 设闭回路为 $(i_1,j_1)\to(i_1,j_2)\to(i_2,j_2)\to(i_2,j_3)\to\cdots\to(i_k,j_k)\to(i_k,j_1)$，交替地给顶点配上 $+,-$ 号，计算
+\[
+P_{i_1j_1}-P_{i_1j_2}+P_{i_2j_2}-P_{i_2j_3}+\cdots+P_{i_kj_k}-P_{i_kj_1}.
+\]
+相邻两个顶点同行（或同列），一正一负，于是该行（或列）的单位向量 $e$ 恰好抵消；每个顶点都与前后两个顶点各共享一行一列，所以全部单位向量两两抵消，和为 $\mathbf 0$。这是一组不全为零的系数使列向量组合为零，故线性相关，不能作为基。\hfill$\square$\par
+\textbf{反过来}\ “$m+n-1$ 个不含闭回路的格子对应的列线性无关”也成立，其证明需要用到“无圈图是树”的图论结论，这里不展开（第 6 部分跨学科题会从图论角度再看一次）。
+\end{supplementbox}
+
+\paragraph{退化}
+如果填数过程中某一步\key{同时满足了一行和一列}，数字格就会少于 $m+n-1$ 个。笔记的处理 \orig：“出现退化，需要把 0 写到空格里。操作：若填上一个数，能同时划去两条线（一行一列），则在划去的行或列上任选一个未填数的空格填入 0，将其作为数字格。”这个 0 是\key{基变量取值为 0}，不是空格。它的作用是“占位”，保证数字格总数为 $m+n-1$，后面才能对每个空格找到闭回路。
+\tip[注意]{补 0 的格子不能与已有数字格构成闭回路；在“划去的那一行或那一列”上补，通常就能保证这一点。}
+
+\begin{lifebox}[电影院的“预留座”]
+\textbf{生活场景}\ 影院售票系统中，为保证一排座位按规则编组，有时会把某个座位标成“已预留”——它被占着，但没有人坐。\par
+\LifeMap{预留座}{退化的 0}{{占着位置但没人坐的座位}/{取值为 0 的基变量},{真正坐了人的座位}/{取正值的基变量（数字格）},{空着可以卖的座位}/{非基变量（空格）},{一排必须凑够固定数量的“已占”}/{数字格必须有 $m+n-1$ 个}}
+\textbf{小判断}\ $2\times3$ 表需要 $2+3-1=4$ 个数字格；若填完只有 3 个正数，就需要 1 个“0”。\par
+\textbf{边界说明}\ 这只是帮助记忆的类比：影院预留座有实际用途，而退化的 0 纯粹是数学上的“占位”，它不运任何货物。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{西北角法}
+\noindent\textsf{\color{blue2}它解决什么问题}\quad 用最简单、最机械的规则，保证一定能填出一个基可行解。
+
+\begin{definitionbox}[西北角法（north-west corner rule）]
+从表的左上角（“西北角”）格 $(1,1)$ 开始，令 $x_{11}=\min\{a_1,b_1\}$，然后：若第 1 行已满足就划去该行、向下移；若第 1 列已满足就划去该列、向右移。在剩下的表中对新的“西北角”重复，直到填出 $m+n-1$ 个数（笔记：“从表的西北角开始，填出 $m+n-1$ 个数作为初始解”）。
+\end{definitionbox}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\MainGrid
+\al{1}{1}{3}\al{1}{2}{4}\al{2}{2}{2}\al{2}{3}{2}\al{3}{3}{3}\al{3}{4}{6}
+\stepno{1}{1}{1}\stepno{1}{2}{2}\stepno{2}{2}{3}\stepno{2}{3}{4}\stepno{3}{3}{5}\stepno{3}{4}{6}
+\draw[accgold,line width=1pt,-{Stealth},opacity=0.7] (t1-1)--(t1-2)--(t2-2)--(t2-3)--(t3-3)--(t3-4);
+\rnote{1}{①$x_{11}=\min(7,3)=3$；②$x_{12}=4$}
+\rnote{2}{③$x_{22}=\min(4,6-4)=2$；④$x_{23}=2$}
+\rnote{3}{⑤$x_{33}=5-2=3$；⑥$x_{34}=6$}
+\end{tikzpicture}
+\caption{西北角法：沿“楼梯”从左上走到右下（金色箭头），圆圈数字是填数顺序。}\label{fig:nw}
+\end{figure}
+金色箭头是填数路线：每填一格，要么向右（这一列满足了），要么向下（这一行满足了）。第 ① 步 $x_{11}=\min\{7,3\}=3$，$B_1$ 满足，划去第 1 列，$A_1$ 还剩 4；第 ② 步 $x_{12}=\min\{4,6\}=4$，$A_1$ 满足，下移，$B_2$ 还缺 2；依此类推。最终 6 个数字格恰为 $m+n-1=6$，且呈楼梯形，不含闭回路。总运费
+\[
+z_{\text{西北角}}=3\times3+4\times11+2\times9+2\times2+3\times10+6\times5=135.
+\]
+
+\begin{examplebox}[西北角法中出现退化]
+\textbf{例题}\ $a=(4,6)$，$b=(4,3,3)$，用西北角法求初始基可行解（运价不影响西北角法，略）。\par
+\begin{minipage}{0.55\linewidth}
+\textbf{第一步}\ $x_{11}=\min\{4,4\}=4$：第 1 行与第 1 列\key{同时}满足——这就是退化信号。\par
+\textbf{第二步}\ 按笔记规则，在划去的第 1 行（或第 1 列）上选一个空格填 0，这里取 $x_{12}=0$，然后划去第 1 行、第 1 列。\par
+\textbf{第三步}\ 剩下 $A_2$ 行：$x_{22}=3$，$x_{23}=3$。\par
+\textbf{检查}\ 数字格 $(1,1),(1,2),(2,2),(2,3)$ 共 $4=2+3-1$ 个，无闭回路。
+\end{minipage}\hfill
+\begin{minipage}{0.42\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{4,6}{4,3,3}
+\al{1}{1}{4}\alz{1}{2}{0}\al{2}{2}{3}\al{2}{3}{3}
+\xrow{1}\xcol{1}
+\end{tikzpicture}
+\end{minipage}\par
+\textbf{本题真正想说明什么}\ 红色的 0 是“数字格”，它在后续检验中和其他数字格一样参与闭回路与位势计算。
+\end{examplebox}
+\begin{lifebox}[考场按学号排座]
+\textbf{生活场景}\ 期末考试时，监考老师按学号顺序依次安排座位：第一考场坐满了，就从第二考场接着排。\par
+\LifeMap{按序排座}{西北角法}{{学号从小到大依次入座}/{从 $(1,1)$ 开始按位置依次分配},{一个考场坐满就换下一个}/{一行（或一列）满足就移到下一行（列）},{完全不考虑谁离哪个考场近}/{完全不看单位运价 $c_{ij}$}}
+\textbf{小判断}\ 这种办法\key{一定排得完}，但如果学生住处与考场距离差别很大，总步行距离通常不是最小的——正如本例西北角法得到 135，而最优值是 85。\par
+\textbf{边界说明}\ 真实排座还有防作弊等其他目的，并不以“距离最短”为目标。
+\end{lifebox}
+\tip[西北角法的局限]{笔记评价 \orig：“局限：只是找个解，局限性太大。”它的优点是规则简单、一定可行；缺点是完全不看运价，初始方案通常离最优较远，后续需要较多次调整。}
+
+% ------------------------------------------------------------
+\subsection{最小元素法}
+\noindent\textsf{\color{blue2}它解决什么问题}\quad 西北角法不看运价。一个自然的改进是：\key{运价越低的路线，越应该优先多运}。
+
+\begin{definitionbox}[最小元素法（least-cost method）]
+在尚未划去的格子中，选\key{单位运价最小}的格 $(i,j)$，令 $x_{ij}=\min\{\text{该行剩余产量},\text{该列剩余销量}\}$，划去已满足的行或列（同时满足时只划一条，另一条在剩余量中记 0，见退化处理）。重复直到全部划去。
+\end{definitionbox}
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{2}{1}{3}\al{2}{3}{1}\stepno{2}{1}{1}\stepno{2}{3}{2}\xcol{1}\xrow{2}
+\end{tikzpicture}\\{\small (a) 第 1、2 步：$c_{21}=1$、$c_{23}=2$}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\MainGrid
+\al{2}{1}{3}\al{2}{3}{1}\al{1}{3}{4}\al{3}{2}{6}\stepno{1}{3}{3}\stepno{3}{2}{4}\xcol{1}\xrow{2}\xcol{3}\xcol{2}
+\end{tikzpicture}\\{\small (b) 第 3、4 步：$c_{13}=3$、$c_{32}=4$}
+\end{minipage}\\[4pt]
+\begin{tikzpicture}[small]\MainGrid
+\al{2}{1}{3}\al{2}{3}{1}\al{1}{3}{4}\al{3}{2}{6}\al{3}{4}{3}\al{1}{4}{3}
+\stepno{2}{1}{1}\stepno{2}{3}{2}\stepno{1}{3}{3}\stepno{3}{2}{4}\stepno{3}{4}{5}\stepno{1}{4}{6}
+\hl[hlr]{1}{4}
+\end{tikzpicture}\\{\small (c) 第 5、6 步：$c_{34}=5$，最后被迫使用 $c_{14}=10$（红底）}
+\caption{最小元素法的三个状态：初始 → 中间 → 最终。}\label{fig:least}
+\end{figure}
+(a) 全表最小运价是 $c_{21}=1$，令 $x_{21}=\min\{4,3\}=3$，$B_1$ 满足（虚线划去第 1 列），$A_2$ 剩 1；剩下格子中最小的是 $c_{23}=2$，$x_{23}=\min\{1,5\}=1$，$A_2$ 满足（划去第 2 行），$B_3$ 剩 4。(b) 接着 $c_{13}=3$：$x_{13}=4$，$B_3$ 满足；然后 $c_{32}=4$：$x_{32}=6$，$B_2$ 满足，$A_3$ 剩 3。(c) 剩下只有第 4 列：$c_{34}=5$ 先填 $x_{34}=3$，最后只能用 $c_{14}=10$ 填 $x_{14}=3$。结果与笔记第 4 页一致 \orig：
+\[
+z_{\text{最小元素}}=4\times3+3\times10+3\times1+1\times2+6\times4+3\times5=86.
+\]
+\begin{intuitionbox}[“贪心”的代价]
+笔记：“特点：每一步都依着最小单价位格来。”这是一种\key{贪心}策略：只看眼前最便宜的格子。图 (c) 中的红底格说明了它的缺点——前面把便宜的格子都占了，最后剩下的往往是贵的格子（这里 $c_{14}=10$），所以总运费不一定最低。
+\end{intuitionbox}
+\begin{lifebox}[打车平台“派最近的车”]
+\textbf{生活场景}\ 如果打车平台总是把请求派给\emph{当前}离乘客最近的空车，有时会出现：先来的乘客“抢走”了附近的车，后来的乘客只能等很远的车。\par
+\LifeMap{就近派车}{最小元素法}{{每次只看当前最近的车}/{每次只选当前最小的 $c_{ij}$},{附近的车被先到的请求用完}/{便宜的行列先被划去},{后来的乘客被迫等远处的车}/{最后被迫使用高运价格}}
+\textbf{小判断}\ 本例中前 5 步用的运价都不超过 5，第 6 步却是 10，3 吨货就花了 30，占总运费 86 的约 35\%。\par
+\textbf{边界说明}\ 真实平台会综合考虑全局等待时间，并不是单纯的“就近”规则。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{Vogel 法（差额法）}
+\noindent\textsf{\color{blue2}它解决什么问题}\quad 最小元素法的毛病是“只看最便宜，不看错过最便宜的代价”。Vogel 法改为先照顾那些\key{如果不走最便宜路线就会损失最大}的行或列。笔记：“特点：从运费差额角度考虑。”
+
+\begin{definitionbox}[差额（罚数）]
+对某一行（或列），在尚未划去的格子中取\key{次小运价 $-$ 最小运价}，称为该行（列）的\key{差额}。它表示：如果这一行（列）的货不能走最便宜的路线，而只能走次便宜的路线，每单位至少要多付多少钱——即“错过最佳选择的机会成本”。
+\end{definitionbox}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=1.1cm]
+\draw[gridgray,-{Stealth}] (-0.3,0)--(11.6,0) node[right,font=\small]{运价};
+\foreach \x in {0,2,4,6,8,10}{\draw[gridgray] (\x,0.08)--(\x,-0.08) node[below,font=\scriptsize]{\x};}
+\foreach \x/\c in {7/accgold,4/navy,10/gridgray,5/accred}{\fill[\c] (\x,0) circle (3pt);}
+\node[font=\footnotesize,above,text=navy] at (4,0.15) {最小 4};
+\node[font=\footnotesize,above,text=accred] at (5,0.15) {次小 5};
+\node[font=\footnotesize,above] at (7,0.15) {7}; \node[font=\footnotesize,above] at (10,0.15) {10};
+\draw[decorate,decoration={brace,amplitude=4pt,mirror},accred] (4,-0.5)--(5,-0.5) node[midway,below=4pt,font=\footnotesize,text=accred]{差额 $=1$};
+\node[font=\small,text=navy,anchor=west] at (-0.3,1.0) {第 3 行 $A_3$ 的运价 $\{7,4,10,5\}$：};
+\end{tikzpicture}
+\caption{差额只看“最小”与“次小”两个数之间的距离。}\label{fig:penalty}
+\end{figure}
+数轴上标出了 $A_3$ 行的四个运价。差额只取最小值 4 与次小值 5 的距离 1；最大的 10 和中间的 7 都不参与计算。
+
+\begin{summarybox}[Vogel 法的步骤（据笔记第 5 页整理）]
+\begin{enumerate}[label=(\alph*)]
+\item 计算每一行、每一列的差额（共 $m+n$ 个）；
+\item 在所有差额中找\key{最大值}，在它所对应的行（或列）中找\key{最小运价}的格子，优先在该格分配尽可能多的量；
+\item 划去已被满足的行或列，在剩下的表中\key{重新计算所有行列的差额}，重复 (b)，直到全部划去。若最大差额并列，任选其一（笔记：“有多个差额最大值，任选即可”）。
+\end{enumerate}
+\end{summarybox}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\MainGrid
+\al{3}{2}{6}\al{3}{4}{3}\al{2}{1}{3}\al{1}{3}{5}\al{1}{4}{2}\al{2}{4}{1}
+\stepno{3}{2}{1}\stepno{3}{4}{2}\stepno{2}{1}{3}\stepno{1}{3}{4}\stepno{1}{4}{5}\stepno{2}{4}{5}
+\node[font=\scriptsize\sffamily,text=blue2] at ({5.9*\tpw},0) {轮 1}; \node[font=\scriptsize\sffamily,text=blue2] at ({6.5*\tpw},0) {轮 2};
+\node[font=\scriptsize\sffamily,text=blue2] at ({7.1*\tpw},0) {轮 3}; \node[font=\scriptsize\sffamily,text=blue2] at ({7.7*\tpw},0) {轮 4};
+\foreach \i/\a/\b/\c/\d in {1/0/0/0/\mx{7},2/1/1/1/6,3/1/2/$\times$/$\times$}{
+ \node[font=\footnotesize] at ({5.9*\tpw},-\i*\tph) {\a}; \node[font=\footnotesize] at ({6.5*\tpw},-\i*\tph) {\b};
+ \node[font=\footnotesize] at ({7.1*\tpw},-\i*\tph) {\c}; \node[font=\footnotesize] at ({7.7*\tpw},-\i*\tph) {\d};}
+\foreach \k/\r in {1/{2,\mx{5},1,3},2/{2,$\times$,1,\mx{3}},3/{\mx{2},$\times$,1,2},4/{$\times$,$\times$,1,2}}{
+ \node[font=\scriptsize\sffamily,text=blue2] at (0,{-(4.5+0.65*\k)*\tph}) {轮 \k};
+ \foreach \v [count=\j] in \r {\node[font=\footnotesize] at (\j*\tpw,{-(4.5+0.65*\k)*\tph}) {\v};}}
+\end{tikzpicture}
+\caption{Vogel 法完整逐轮记录：右侧为行差额，下方为列差额，红框为每轮最大差额。}\label{fig:vogel}
+\end{figure}
+读图方法：先看“轮 1”——列差额 $B_2$ 为 $9-4=5$ 最大（红框），$B_2$ 列最小运价是 $c_{32}=4$，填 $x_{32}=\min\{9,6\}=6$（圆圈 1），$B_2$ 满足后标 $\times$。“轮 2”重新计算：$B_4$ 列差额 $8-5=3$ 最大，填 $x_{34}=\min\{3,6\}=3$，$A_3$ 满足。“轮 3”出现并列最大值 2（$B_1$ 与 $B_4$），与笔记相同地选 $B_1$，填 $x_{21}=3$。“轮 4”行差额 $A_1$ 为 $10-3=7$ 最大，填 $x_{13}=5$。最后只剩第 4 列，$x_{14}=2$、$x_{24}=1$ 同时完成。
+\[
+z_{\text{Vogel}}=5\times3+2\times10+3\times1+1\times8+6\times4+3\times5=85.
+\]
+\tip[与笔记对照]{这一结果与笔记第 7 页“调整后得到的最优方案”完全相同。笔记第 5 页的逐轮记录在第 4 轮后没有更新行差额（见原图纠错 4），本例碰巧不影响结果。}
+
+\begin{warningbox}[Vogel 法不保证最优]
+Vogel 法得到的通常是“很好”的初始解，但\key{不保证}是最优解。反例：$c=\bigl(\begin{smallmatrix}6&1&7\\9&2&5\end{smallmatrix}\bigr)$，$a=(15,35)$，$b=(30,5,15)$。第 1 轮行差额 $A_1$ 为 $6-1=5$ 最大，填 $x_{12}=5$；第 2 轮行差额 $A_2$ 为 $9-5=4$ 最大，填 $x_{23}=15$；最后 $x_{11}=10$，$x_{21}=20$，总运费 $5+60+180+75=320$。而方案 $x_{11}=15,x_{21}=15,x_{22}=5,x_{23}=15$ 的总运费只有 $310$（它才是最优解，可用第 3 章的方法验证）。所以\key{无论用哪种方法找初始解，都必须做最优性检验}。
+\end{warningbox}
+
+\begin{lifebox}[选课系统里先抢“错过损失最大”的课]
+\textbf{生活场景}\ 选课开放时，有经验的同学不会先选自己最想上的课，而是先抢“一旦错过，替代课程差很多”的那门。\par
+\LifeMap{抢课策略}{Vogel 法}{{某门课最佳时段与次佳时段的差距}/{差额 = 次小运价 $-$ 最小运价},{差距最大的课最先抢}/{差额最大的行/列优先分配},{抢到后从清单上划掉}/{划去已满足的行或列},{剩下的课重新比较差距}/{重新计算所有差额}}
+\textbf{小判断}\ 课 X 最佳/次佳评分为 9/8（差 1），课 Y 为 9/3（差 6），应先抢 Y——正如 Vogel 法第 1 轮先处理差额为 5 的 $B_2$。\par
+\textbf{边界说明}\ 真实选课还有名额、冲突等多种约束，这只是“机会成本”思想的类比。
+\end{lifebox}
+
+% ------------------------------------------------------------
+\subsection{三种方法的比较}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[ybar,width=8.2cm,height=4.6cm,bar width=16pt,ymin=0,ymax=160,
+  symbolic x coords={西北角法,最小元素法,Vogel 法},xtick=data,
+  nodes near coords,nodes near coords style={font=\footnotesize},
+  ylabel={初始总运费},ylabel style={font=\small},tick label style={font=\small},
+  axis line style={gridgray},enlarge x limits=0.25,
+  extra y ticks={85},extra y tick style={grid=major,major grid style={accgreen,dashed}},extra y tick labels={}]
+\addplot[fill=blue2!60,draw=navy] coordinates {(西北角法,135) (最小元素法,86) (Vogel 法,85)};
+\end{axis}
+\end{tikzpicture}
+\caption{同一例题上三种初始方法的总运费（绿色虚线为最优值）。}\label{fig:compare}
+\end{figure}
+柱高是初始方案的总运费，绿色虚线是最优值 85。越“聪明”的方法，初始方案越接近最优，后续需要的调整次数通常越少，但每一步的计算量也越大。
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l X X X@{}}
+\toprule
+ & 西北角法 & 最小元素法 & Vogel 法\\
+\midrule
+选格依据 & 位置（左上角） & 当前最小运价 & 最大差额所在行/列中的最小运价\\
+是否看运价 & 否 & 是（只看眼前） & 是（看机会成本）\\
+计算量 & 最小 & 中等 & 最大（每轮重算差额）\\
+本例结果 & 135 & 86 & 85（恰为最优）\\
+是否保证最优 & 否 & 否 & 否\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{checkbox}
+\begin{enumerate}[label=\arabic*.]
+\item 数字格、空格分别对应单纯形法中的什么？为什么数字格要恰有 $m+n-1$ 个？
+\item 什么情况下会出现退化？补 0 时应补在哪里？
+\item 西北角法为什么一定能得到基可行解？它最大的缺点是什么？
+\item 最小元素法“贪心”的代价体现在哪里？
+\item 差额的含义是什么？为什么每划去一行（列）都要重算差额？
+\item Vogel 法得到的解一定最优吗？
+\end{enumerate}
+\end{checkbox}
+
+\solved
+我们已能用三种方法在表上填出初始基可行解，并理解了“数字格 = 基变量、$m+n-1$ 个、无闭回路、必要时补 0”。
+\nextq
+有了初始方案，怎么知道它是不是最优？如果不是，又该往哪个方向改、改多少？这就要在表上实现单纯形法的“检验数”和“换基”——第 3 章。
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=3.5mm]
+\node[flow] (b) {基可行解\\$m+n-1$ 格·无闭回路};
+\node[flow,right=of b] (d) {退化\\补 0 占位};
+\node[floww,above right=0.5mm and 6mm of d] (n) {西北角法：看位置};
+\node[floww,right=6mm of d] (l) {最小元素法：看运价};
+\node[floww,below right=0.5mm and 6mm of d] (v) {Vogel 法：看差额};
+\node[flowg,right=6mm of l] (c) {下一章：\\最优性检验};
+\draw[arr] (b)--(d); \draw[arr] (d)--(n.west); \draw[arr] (d)--(l); \draw[arr] (d)--(v.west);
+\draw[arr] (n.east)--(c); \draw[arr] (l)--(c); \draw[arr] (v.east)--(c);
+\end{tikzpicture}
+\caption{第 2 章知识地图。}
+\end{figure}

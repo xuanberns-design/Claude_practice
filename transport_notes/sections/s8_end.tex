@@ -1,0 +1,90 @@
+% ============================================================
+\unsec{第 8 部分\quad 总结与复习}
+% ============================================================
+\subsection*{高频易错点总表}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}p{2.4cm} X X l@{}}
+\toprule
+环节 & 常见错误 & 正确做法 & 对应\\
+\midrule
+建模 & 平衡问题的约束写成 $\le$；混淆 $c_{ij}$ 与 $x_{ij}$ & 平衡时两组都是等式；$c$ 已知、$x$ 待求 & 1.3\\
+基变量个数 & 用 $m+n$ 或 $mn$ & $m+n-1$（含退化的 0） & 1.4\\
+退化 & 把补入的 0 当空格 & 0 是数字格，参与位势和闭回路 & 2.1\\
+西北角法 & 第二步起用原始量而非剩余量 & 每步都用“剩余产量 / 剩余销量” & 2.2\\
+最小元素法 & 只在当前行找最小 & 在全部未划去格子中找最小 & 2.3\\
+Vogel 法 & 差额用“最大 $-$ 最小”；不逐轮重算 & 次小 $-$ 最小；每划一行（列）重算全部差额 & 2.4\\
+闭回路 & 在空格处转弯；以为必是矩形 & 只在数字格转弯；顶点数为偶数，可多于 4 & 3.1\\
+位势法 & 用空格列方程；下标对调 & 只用数字格：$u_i+v_j=c_{ij}$；$\sigma_{ij}=c_{ij}-u_i-v_j$ & 3.2\\
+调整 & $\theta$ 取“$+$”格或取最大值 & $\theta=\min\{\text{“$-$”格运量}\}$ & 3.3\\
+最优判断 & 认为 Vogel 解就是最优 & 任何初始解都必须检验 & 2.4/3.1\\
+多重最优解 & 看数字格的 $\sigma=0$ & 只看空格的 $\sigma=0$ & 3.4\\
+不平衡 & 产大于销却加行 & 多产加销地（列），多销加产地（行） & 4.1--4.2\\
+虚设格运价 & 一律取 0 & 0 / 存储或缺货成本 / $M$，视题意而定 & 4.1--4.4\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{基础解题步骤总结}
+\begin{summarybox}[表上作业法“五步走”]
+\begin{enumerate}[label=\textbf{第 \arabic* 步},leftmargin=4.6em]
+\item \key{检查平衡}：比较 $\sum a_i$ 与 $\sum b_j$；不平衡则虚设产地（行）或销地（列），确定虚设格运价。
+\item \key{找初始解}：西北角法 / 最小元素法 / Vogel 法；检查数字格是否为 $m+n-1$ 个，不足补 0。
+\item \key{求检验数}：令 $u_1=0$，由数字格求全部位势，算空格 $\sigma_{ij}=c_{ij}-u_i-v_j$（或用闭回路法）。
+\item \key{判断}：全部 $\sigma\ge0$ 则最优（空格 $\sigma=0$ 时有多重最优解）；否则选最负的 $\sigma$ 进基。
+\item \key{调整}：画进基格的闭回路，标 $\pm$，$\theta=\min\{-\}$，换基，回到第 3 步。
+\end{enumerate}
+\end{summarybox}
+
+\subsection*{相近概念总对比}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l X X@{}}
+\toprule
+概念对 & 区别 & 判断方法\\
+\midrule
+数字格 / 空格 & 基变量（可为 0）/ 非基变量（必为 0） & 看是否属于当前的 $m+n-1$ 个基格\\
+空格 / 运量为 0 的数字格 & 后者是退化的基变量 & 看它是否被“标记”为数字格\\
+闭回路法 / 位势法 & 同一检验数的两种算法 & 结果必须一致；位势法更快\\
+检验数 / 差额 & 检验数用于判优；差额用于 Vogel 法选格 & $\sigma=c-u-v$；差额 = 次小 $-$ 最小\\
+虚设产地 / 虚设销地 & 吸收“缺货”/ 吸收“剩余” & 少什么就补什么的“对方”\\
+运输问题 / 指派问题 & 后者是 $a_i=b_j=1$ 的特例 & 看产销量是否全为 1、是否一一配对\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{后续课程连接}
+\begin{center}
+\begin{tikzpicture}[node distance=4mm and 6mm]
+\node[flow] (t) {运输问题};
+\node[floww] (a) at ($(t)+(3.4,1.5)$) {指派问题\\匈牙利法};
+\node[floww] (n) at ($(t)+(3.4,0)$) {网络流\\最小费用流};
+\node[floww] (i) at ($(t)+(3.4,-1.5)$) {整数规划\\全单模性};
+\node[floww,right=of n] (s) {供应链 / 物流\\选址、调拨};
+\node[floww,left=of t] (d) {对偶理论\\影子价格};
+\draw[arr] (t)--(a.west); \draw[arr] (t)--(n); \draw[arr] (t)--(i.west); \draw[arr] (n)--(s); \draw[arr] (d)--node[above,font=\scriptsize]{位势}(t);
+\end{tikzpicture}
+\end{center}
+
+\subsection*{参考资料}
+\paragraph{原始教学依据}
+\begin{itemize}
+\item 课堂手写笔记（运筹学第五章“运输问题”，Memo No.\,608--619，2026 年 10 月 21--25 日），共 12 页照片。
+\end{itemize}
+\paragraph{核心定义与公式核验}
+\begin{itemize}
+\item 《运筹学》教材编写组.《运筹学》（第 4 版）. 清华大学出版社. ——运输问题模型、表上作业法、产销不平衡与应用例题。
+\item F.~S.~Hillier, G.~J.~Lieberman. \emph{Introduction to Operations Research}. McGraw-Hill. ——Transportation problem 一章（模型结构、整数性、transportation simplex method）。
+\item H.~A.~Taha. \emph{Operations Research: An Introduction}. Pearson. ——north-west corner、least-cost、Vogel approximation method 与 stepping-stone / u-v 方法。
+\end{itemize}
+\paragraph{学科史资料}
+\begin{itemize}
+\item F.~L.~Hitchcock. The distribution of a product from several sources to numerous localities. \emph{Journal of Mathematics and Physics}, 1941, 20: 224--230.
+\item T.~C.~Koopmans. Optimum utilization of the transportation system. \emph{Econometrica}, 1949, 17 (Supplement): 136--146.
+\item G.~B.~Dantzig. Application of the simplex method to a transportation problem. In: T.~C.~Koopmans (ed.), \emph{Activity Analysis of Production and Allocation}. Wiley, 1951.
+\item A.~Charnes, W.~W.~Cooper. The stepping stone method of explaining linear programming calculations in transportation problems. \emph{Management Science}, 1954, 1(1): 49--69.
+\item L.~V.~Kantorovich. Mathematical methods of organizing and planning production（1939 年俄文原著的英译）. \emph{Management Science}, 1960, 6(4): 366--422.
+\item INFORMS 人物简介：Tjalling C.~Koopmans；诺贝尔奖官网：1975 年经济学奖（康托罗维奇、库普曼斯）。
+\end{itemize}
+\paragraph{计算核验说明}
+讲义中全部数值（三种初始方法的结果、全部检验数、各例题与 38 道练习的最优值）均已用独立编写的程序（西北角 / 最小元素 / Vogel / 位势法 + 闭回路迭代）逐一复算。
+\vspace{6pt}
+\begin{center}\small\color{blue2}—— 全文完 ——\end{center}

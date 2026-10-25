@@ -1,0 +1,354 @@
+% ============================================================
+\unsec{第 7 部分\quad 答案速查与详细解析}
+% ============================================================
+\newcommand{\ofig}[3]{\begin{minipage}[t]{\linewidth}\centering\tikzset{every picture/.append style={baseline=(current bounding box.north)}}#2\par\vspace{-1pt}{\footnotesize\optlab{#1}\ #3}\end{minipage}}
+\newcommand{\ok}{\good{\textbf{✓ 正确}}}
+\newcommand{\no}{\bad{\textbf{$\times$ 错误}}}
+% 迷你网络（3 产地 4 销地）
+\newcommand{\minet}[2][]{\begin{tikzpicture}[scale=0.55,every node/.style={transform shape}]
+  \foreach \i/\y in {1/1.2,2/0,3/-1.2}{\node[circle,draw=navy,fill=bgblue,minimum size=7mm] (A\i) at (0,\y) {$A_\i$};}
+  \foreach \j/\y in {1/1.8,2/0.6,3/-0.6,4/-1.8}{\node[circle,draw=accgold,fill=bgwarm,minimum size=7mm] (B\j) at (3,\y) {$B_\j$};}
+  \edef\minetlist{#2}\ifx\minetlist\empty\else\foreach \i/\j in \minetlist{\draw[navy,line width=1pt] (A\i)--(B\j);}\fi #1
+\end{tikzpicture}}
+\newcommand{\alledges}{1/1,1/2,1/3,1/4,2/1,2/2,2/3,2/4,3/1,3/2,3/3,3/4}
+
+\subsection*{全部答案速查}
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+基础单选 1--10 & 1.\,B\quad 2.\,C\quad 3.\,A\quad 4.\,B\quad 5.\,B\quad 6.\,B\quad 7.\,A\quad 8.\,A\quad 9.\,A\quad 10.\,A\\
+基础多选 11--15 & 11.\,ABD\quad 12.\,AC\quad 13.\,ABD\quad 14.\,ABC\quad 15.\,ACD\\
+基础填空 16--20 & 16.\,18\quad 17.\,4\quad 18.\,6\quad 19.\,4\quad 20.\,产地；10\\
+基础解答 21--25 & 21.\ 见解析，基变量 3 个\quad 22.\ $x_{11}=5,x_{13}=15,x_{22}=25,x_{23}=5,x_{31}=25$，$z=265$\\
+ & 23.\ $x_{11}=5,x_{12}=15,x_{13}=15,x_{22}=25$，$z=240$\quad 24.\ $z=170$，$\sigma_{13}=-8,\sigma_{21}=5$，不是最优\\
+ & 25.\ $x_{11}=10,x_{13}=5,x_{22}=20,x_{23}=5$，$z=130$\\
+\midrule
+提升单选 26--28 & 26.\,B\quad 27.\,B\quad 28.\,C\\
+提升多选 29--30 & 29.\,ABC\quad 30.\,ABC\\
+提升填空 31--33 & 31.\,$(A_3,B_2)$；20\quad 32.\,15；1380\quad 33.\,65\\
+提升大题 34--35 & 34.\ 初始 $z=340$；$\sigma_{13}=-2$；最优 $x_{11}=25,x_{13}=5,x_{22}=10,x_{23}=15,x_{32}=20$，$\min z=330$\\
+ & 35.\ 该方案最优，总费用 455（百元）；$\sigma_{13}=0$，最优方案不唯一\\
+\midrule
+跨学科 36--38 & 36.\,B\quad 37.\,ABC\quad 38.\,5\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{基础单选详细解析}
+% ---------- 1 ----------
+\Sol{1}{B}{基础}{K1 决策变量}
+\st{对应定义}一条“产地→销地”路线对应一个变量 $x_{ij}$，共 $m\times n$ 个。\par
+\st{判断过程}$m=3,n=4$，变量个数 $=3\times4=12$。四个选项分别对应四种“数法”：
+\fourfig{\ofig{A}{\minet[\foreach \i in {1,2,3}{\node[circle,draw=accred,line width=1.2pt,minimum size=7mm] at (A\i) {};}\foreach \j in {1,...,4}{\node[circle,draw=accred,line width=1.2pt,minimum size=7mm] at (B\j) {};}]{}}{\no：数的是\key{顶点}（$m+n=7$）}}
+{\ofig{B}{\minet{\alledges}}{\ok：数的是\key{边}（路线），12 条}}
+{\ofig{C}{\minet{1/3,1/4,2/1,2/4,3/2,3/4}}{\no：6 是\key{基变量}个数 $m+n-1$}}
+{\ofig{D}{\minet[\foreach \j in {1,...,4}{\node[circle,draw=accred,line width=1.2pt,minimum size=7mm] at (B\j) {};}]{}}{\no：只数了销地，$n=4$}}
+\st{图上证据}(B) 中每一条线都是一个变量，3 个产地各连出 4 条，共 12 条。(C) 的 6 条线只是某个基可行解中的数字格，不是全部变量。\par
+\st{常见错误}把“变量个数 $mn$”与“约束个数 $m+n$”“基变量个数 $m+n-1$”混淆。\par
+\st{一句话总结}变量数 = 格子数 = $mn$。
+
+% ---------- 2 ----------
+\Sol{2}{C}{基础}{K2 秩与基变量个数}
+\st{对应定理}约束矩阵秩为 $m+n-1$，基变量个数 $=m+n-1=3+4-1=6$。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\MainGrid\foreach \i in {1,2,3}{\foreach \j in {1,...,4}{\fill[navy] (t\i-\j) circle (3pt);}}\lp{(t1-1)--(t1-2)--(t2-2)--(t2-1)}\end{tikzpicture}}{\no：12 格必含闭回路（红线）}}
+{\ofig{B}{\begin{tikzpicture}[mini]\MainGrid\foreach \c in {1-1,1-2,2-2,2-3,3-3,3-4,2-1}{\fill[navy] (t\c) circle (3pt);}\lp{(t1-1)--(t1-2)--(t2-2)--(t2-1)}\end{tikzpicture}}{\no：7 格多 1 个，必出现闭回路}}
+{\ofig{C}{\begin{tikzpicture}[mini]\MainGrid\foreach \c in {1-1,1-2,2-2,2-3,3-3,3-4}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}{\ok：6 格，楼梯形、无闭回路}}
+{\ofig{D}{\begin{tikzpicture}[mini]\MainGrid\foreach \c in {1-1,1-2,2-2,3-3,3-4}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}{\no：5 格不足，需补 0}}
+\st{图上证据}(A)(B) 中红线是数字格构成的闭回路——数字格一旦超过 6 个就一定会出现闭回路；(D) 中第 2 行与第 3 行之间“断开”了，无法为每个空格找到闭回路。\par
+\st{常见错误}忘记“退化的 0 也算基变量”；或误用 $m+n=7$。\par
+\st{一句话总结}基变量（数字格）恰为 $m+n-1$ 个。
+
+% ---------- 3 ----------
+\Sol{3}{A}{基础}{K1 约束的含义}
+\st{思路}看求和下标：$x_{11}+x_{12}+x_{13}+x_{14}$ 的第一个下标都是 1，第二个下标遍历全部销地，所以它是第 1 \key{行}的和。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\MainGrid\hlrow{1}\end{tikzpicture}}{\ok：第 1 行之和 = $a_1$}}
+{\ofig{B}{\begin{tikzpicture}[mini]\MainGrid\hlcol[hlr]{1}\end{tikzpicture}}{\no：这是第 1 列，应 $=b_1$}}
+{\ofig{C}{\begin{tikzpicture}[mini]\MainGrid\hl[hlr]{1}{1}\end{tikzpicture}}{\no：只是一个格子}}
+{\ofig{D}{\begin{tikzpicture}[mini]\MainGrid\foreach \i in {1,2,3}{\hlrow[hlr]{\i}}\end{tikzpicture}}{\no：全表之和 $=Q$}}
+\st{图上证据}(A) 的蓝色区域恰好是约束中出现的 4 个变量；(B)(C)(D) 的红色区域与约束中的变量不一致。\par
+\st{一句话总结}“一行一个产量约束，一列一个销量约束”。
+
+% ---------- 4 ----------
+\Sol{4}{B}{基础}{K5 西北角法}
+\st{对应规则}$x_{11}=\min\{a_1,b_1\}=\min\{5,3\}=3$。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{5,8}{3,6,4}\alz{1}{1}{5}\cnote[3.1]{1}{\bad{5>3}}\end{tikzpicture}}{\no：$B_1$ 只要 3，超出}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{5,8}{3,6,4}\al{1}{1}{3}\xcol{1}\end{tikzpicture}}{\ok：$B_1$ 满足，划去第 1 列}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{5,8}{3,6,4}\alz{1}{1}{0}\end{tikzpicture}}{\no：西北角法要“尽量多填”}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{5,8}{3,6,4}\alz{1}{1}{8}\end{tikzpicture}}{\no：超过 $a_1$ 与 $b_1$}}
+\st{图上证据}(A)(D) 中红色数字超过了第 1 列下方的销量 3，违反列约束；(C) 虽然可行，但不符合“取两者最小值”的规则。\par
+\st{一句话总结}西北角格填 $\min\{\text{行剩余},\text{列剩余}\}$。
+
+% ---------- 5 ----------
+\Sol{5}{B}{基础}{K6 最小元素法}
+\st{思路}在全表运价 $\{4,2,6,3,5,1\}$ 中找最小值：$c_{23}=1$。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,2,6},{3,5,1}}{10,15}{8,9,8}\hl[hlr]{1}{2}\end{tikzpicture}}{\no：$c_{12}=2$ 是第 2 小}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,2,6},{3,5,1}}{10,15}{8,9,8}\hl[hlg]{2}{3}\al{2}{3}{8}\end{tikzpicture}}{\ok：$c_{23}=1$ 最小，填 $\min\{15,8\}=8$}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,2,6},{3,5,1}}{10,15}{8,9,8}\hl[hlr]{1}{1}\end{tikzpicture}}{\no：这是西北角法的起点}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,2,6},{3,5,1}}{10,15}{8,9,8}\hl[hlr]{2}{1}\end{tikzpicture}}{\no：$c_{21}=3$ 不是最小}}
+\st{常见错误}把“按行找最小”当成“全表找最小”：第 1 行最小是 $c_{12}=2$，但全表最小是 $c_{23}=1$。\par
+\st{一句话总结}最小元素法每步在\key{全部未划去的格子}中找最小运价。
+
+% ---------- 6 ----------
+\Sol{6}{B}{基础}{K7 差额}
+\st{对应定义}差额 = 次小 $-$ 最小。排序 $2<3<5<8$，差额 $=3-2=1$。
+\newcommand{\pnl}[3]{\begin{tikzpicture}[x=0.42cm]\draw[gridgray,-{Stealth}] (0,0)--(9.3,0);\foreach \x in {0,...,9}{\draw[gridgray] (\x,0.07)--(\x,-0.07);}\foreach \x in {2,3,5,8}{\fill[navy] (\x,0) circle (2.2pt);\node[font=\tiny,above] at (\x,0.05){\x};}#1\node[font=\scriptsize,text=#3] at (4.6,-0.55){#2};\end{tikzpicture}}
+\fourfig{\ofig{A}{\pnl{\draw[accred,line width=1.2pt] (2,-0.15)--(5,-0.15);}{$5-2=3$}{accred}}{\no：取了“第一个数与最小值”}}
+{\ofig{B}{\pnl{\draw[accgreen,line width=1.2pt] (2,-0.15)--(3,-0.15);}{$3-2=1$}{accgreen}}{\ok：最小与次小}}
+{\ofig{C}{\pnl{\draw[accred,line width=1.2pt] (2,-0.15)--(8,-0.15);}{$8-2=6$}{accred}}{\no：最大 $-$ 最小}}
+{\ofig{D}{\pnl{}{无并列最小值，差额不为 0}{accred}}{\no：只有最小值并列时差额才为 0}}
+\st{图上证据}只有 (B) 的绿色线段连接了数轴上最靠左的两个点。\par
+\st{一句话总结}差额只看“最便宜的两个”。
+
+% ---------- 7 ----------
+\Sol{7}{A}{基础}{K8 闭回路}
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{1}{1}\lp{(t1-1)--(t1-3)--(t2-3)--(t2-1)}\end{tikzpicture}}{\ok：存在且唯一（第 3 章定理）}}
+{\ofig{B}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{1}{1}\draw[accred,line width=1.1pt] (t1-1)--(t1-2)--(t3-2);\node[text=accred,font=\Large\bfseries] at (t1-2) {$\times$};\end{tikzpicture}}{\no：$(1,2)$ 是空格，不能转弯}}
+{\ofig{C}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{1}{1}\draw[accred,line width=1.1pt,dashed] (t1-1)--(t1-3)--(t2-3)--(t1-1);\end{tikzpicture}}{\no：回到起点需斜走，不允许}}
+{\ofig{D}{\begin{tikzpicture}[mini]\MainGrid\al{1}{3}{4}\al{1}{4}{3}\al{2}{1}{3}\al{2}{3}{1}\al{3}{2}{6}\al{3}{4}{3}\hl{2}{2}\lp{(t2-2)--(t2-3)--(t1-3)--(t1-4)--(t3-4)--(t3-2)}\end{tikzpicture}}{\no：6 个顶点，不是矩形}}
+\st{图上证据}(C) 中最后一段虚线是斜线——只能横竖走，所以每次“横”之后必须“竖”，顶点数一定是偶数；(D) 是第 3 章图中真实存在的 6 顶点闭回路，说明“一定是矩形”是错的。\par
+\st{一句话总结}闭回路：横竖交替、只在数字格转弯、顶点偶数、每个空格恰有一条。
+
+% ---------- 8 ----------
+\Sol{8}{A}{基础}{K9 位势法}
+\begin{center}
+\begin{tikzpicture}
+\draw[gridgray] (0,0) rectangle (2.2,1.3); \node[tpcost] at (2.18,1.28) {$c_{ij}$}; \node[tpal] at (0.9,0.55) {$x_{ij}$};
+\draw[accred,-{Stealth}] (2.3,0.65)--(3.3,0.65) node[right,font=\small]{行位势 $u_i$};
+\draw[accred,-{Stealth}] (1.1,-0.1)--(1.1,-0.8) node[below,font=\small]{列位势 $v_j$};
+\node[callout,anchor=west] at (4.8,0.3) {数字格：$u_i+v_j=c_{ij}$\\即该格 $\sigma_{ij}=c_{ij}-(u_i+v_j)=0$};
+\end{tikzpicture}
+\end{center}
+\st{判断过程}位势的定义就是让数字格的检验数为 0：$\sigma_{ij}=c_{ij}-(u_i+v_j)=0\iff u_i+v_j=c_{ij}$。\par
+\st{其他选项}(B) 减号来自误把 $v_j$ 当作“价格的相反数”；(C) 混淆了“检验数为 0”和“位势之和为 0”；(D) 位势与运价是加法关系而不是乘法。这三个选项是纯符号辨析，不适合画图。\par
+\st{一句话总结}数字格：$u+v=c$；空格：$\sigma=c-u-v$。
+
+% ---------- 9 ----------
+\Sol{9}{A}{基础}{K11 最优性准则}
+\fourfig{\ofig{A}{\begin{tikzpicture}[x=0.5cm]\fill[hlg] (0,-0.2) rectangle (6,0.2);\draw[gridgray,-{Stealth}] (-6,0)--(6.3,0);\draw (0,0.15)--(0,-0.15) node[below,font=\scriptsize]{0};\foreach \x in {0,2,2,1,9,12}{\fill[navy] ({\x/2},0) circle (2pt);}\end{tikzpicture}}{\ok：极小化，全部 $\sigma\ge0$ 即最优}}
+{\ofig{B}{\begin{tikzpicture}[x=0.5cm]\fill[hlr] (-6,-0.2) rectangle (0,0.2);\draw[gridgray,-{Stealth}] (-6,0)--(6.3,0);\draw (0,0.15)--(0,-0.15) node[below,font=\scriptsize]{0};\end{tikzpicture}}{\no：这是\key{极大化}问题的准则}}
+{}{}
+\st{判断过程}检验数是“往空格放 1 单位货的运费变化”。极小化时，若所有变化都 $\ge0$，就不可能再省（第 3 章证明）。\par
+\st{其他选项}(C) 数字格的 $\sigma$ 按定义恒为 0，不提供任何信息；(D) 检验数之和没有意义。这两个选项不具图形意义，不画图。\par
+\st{一句话总结}min 看 $\sigma\ge0$，max 看 $\sigma\le0$。
+
+% ---------- 10 ----------
+\Sol{10}{A}{基础}{K12 产大于销}
+\st{判断过程}产比销多 $50-40=10$，多出的产量需要一个“接收者”——虚设销地，销量 10；库存不计费，运价 0。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$(虚)}{{,,0},{,,0}}{30,20}{25,15,10}\hlcol[hlg]{3}\end{tikzpicture}}{\ok：$50=25+15+10$，平衡}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$(虚)}{$B_1$,$B_2$}{{,},{,},{0,0}}{30,20,10}{25,15}\hlrow[hlr]{3}\end{tikzpicture}}{\no：产量变 60，更不平衡}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$(虚)}{{,,0},{,,0}}{30,20}{25,15,50}\hlcol[hlr]{3}\end{tikzpicture}}{\no：销量变 90}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{,},{,}}{30,20}{25,15}\draw[accred,line width=1.2pt] (0.3,-0.84)--(4.2,-0.84);\end{tikzpicture}}{\no：删去后产量 20 < 40}}
+\st{图上证据}以产量 30、20，销量 25、15 为例（总量 50 与 40）：只有 (A) 的右下角“产量合计 = 销量合计”成立。\par
+\st{一句话总结}产多加销地（列），虚设量 = 差额。
+
+\subsection*{基础多选详细解析}
+% ---------- 11 ----------
+\Sol{11}{ABD}{基础}{K2 模型结构}
+\st{A}\ok。构造 $x_{ij}=a_ib_j/Q$ 即可（第 1 章）。
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{,},{,}}{30,20}{25,25}\al{1}{1}{15}\al{1}{2}{15}\al{2}{1}{10}\al{2}{2}{10}\rnote[2.2]{1}{$x_{ij}=\dfrac{a_ib_j}{Q}$}\end{tikzpicture}\end{center}
+图上每一行、每一列的和都与右侧/下方的数一致，这就是一个可行解。\par
+\st{B}\ok。可行域非空且有界（$0\le x_{ij}\le\min\{a_i,b_j\}$），线性目标一定能取到最小值。此项是存在性结论，不适合画图。\par
+\st{C}\no。产量行之和 = 销量行之和，故 $m+n$ 个方程线性相关，秩只有 $m+n-1$。
+\begin{center}\begin{tikzpicture}[x=0.75cm,y=0.5cm]
+\foreach \r/\lab [count=\i] in {{1,1,0,0}/{$A_1$},{0,0,1,1}/{$A_2$},{1,0,1,0}/{$B_1$},{0,1,0,1}/{$B_2$}}{\node[font=\scriptsize] at (0,-\i) {\lab};\foreach \e [count=\k] in \r {\node[font=\scriptsize] at (\k,-\i) {\e};}}
+\draw[decorate,decoration={brace,amplitude=3pt},navy] (4.5,-0.6)--(4.5,-2.4) node[midway,right=3pt,font=\scriptsize]{和 $=(1,1,1,1)$};
+\draw[decorate,decoration={brace,amplitude=3pt},accgold] (4.5,-2.6)--(4.5,-4.4) node[midway,right=3pt,font=\scriptsize]{和 $=(1,1,1,1)$};
+\end{tikzpicture}\end{center}
+\st{D}\ok。$x_{ij}$ 只出现在第 $i$ 个产量约束和第 $j$ 个销量约束中（上图每一列恰有两个 1）。\par
+\st{补充}指派问题也满足 A、B、D，因为它是 $a_i=b_j=1$ 的特例。\par
+\noindent\textbf{正确答案：ABD}。\quad\st{一句话总结}“必有最优解、秩 $m+n-1$、每列两个 1”是运输问题的三大结构特征。
+
+% ---------- 12 ----------
+\Sol{12}{AC}{基础}{K4 基可行解的判定}
+\st{判定标准}$2\times3$ 表需要 $2+3-1=4$ 个数字格，且不含闭回路。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,2-2,2-3}{\fill[navy] (t\c) circle (3pt);}\draw[accgreen,line width=1pt] (t1-1)--(t1-2)--(t2-2)--(t2-3);\end{tikzpicture}}{\ok：4 格，楼梯形连通、无回路}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,2-1,2-2}{\fill[navy] (t\c) circle (3pt);}\lp{(t1-1)--(t1-2)--(t2-2)--(t2-1)}\end{tikzpicture}}{\no：4 格自成闭回路}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,1-2,1-3,2-3}{\fill[navy] (t\c) circle (3pt);}\draw[accgreen,line width=1pt] (t1-1)--(t1-3)--(t2-3);\end{tikzpicture}}{\ok：4 格，L 形连通、无回路}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{,}{,,}\foreach \c in {1-1,2-2,2-3}{\fill[navy] (t\c) circle (3pt);}\end{tikzpicture}}{\no：只有 3 格，且 $(1,1)$ 与其余断开}}
+\st{图上证据}绿色折线把 (A)(C) 的 4 个数字格连成一条不闭合的链；(B) 的红线说明 4 个格子绕成了圈，对应的 4 列线性相关；(D) 格数不足。\par
+\noindent\textbf{正确答案：AC}。\quad\st{一句话总结}“够数 + 无圈”两个条件缺一不可。
+
+% ---------- 13 ----------
+\Sol{13}{ABD}{基础}{K5--K7 三种初始方法}
+\st{A}\ok。西北角法只按位置从左上向右下走（左下图金色路线），从不看运价。\par
+\st{B}\ok。最小元素法每次在未划去格子中挑最小运价（右上图：引例中第一步选 $c_{21}=1$）。
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\MainGrid\al{1}{1}{3}\al{1}{2}{4}\al{2}{2}{2}\al{2}{3}{2}\al{3}{3}{3}\al{3}{4}{6}\draw[accgold,line width=1pt,-{Stealth}] (t1-1)--(t1-2)--(t2-2)--(t2-3)--(t3-3)--(t3-4);\end{tikzpicture}}{\ok：路线只由位置决定}}
+{\ofig{B}{\begin{tikzpicture}[mini]\MainGrid\hl[hlg]{2}{1}\al{2}{1}{3}\end{tikzpicture}}{\ok：先选全表最小的 $c_{21}=1$}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{6,1,7},{9,2,5}}{15,35}{30,5,15}\al{1}{1}{10}\al{1}{2}{5}\al{2}{1}{20}\al{2}{3}{15}\cnote[3.1]{2}{\bad{Vogel：$z=320$}}\end{tikzpicture}}{\no：最优值是 310，Vogel 不保证最优}}
+{\ofig{D}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{4,6}{4,3,3}\al{1}{1}{4}\alz{1}{2}{0}\al{2}{2}{3}\al{2}{3}{3}\end{tikzpicture}}{\ok：退化时补 0，仍为 $m+n-1$ 格}}
+\st{C}\no。第 2 章的反例（左下图）：Vogel 法得 320，而最优方案为 310。\par
+\st{D}\ok。三种方法每填一格就划去一行或一列（最后一格同时划去一行一列），共填 $m+n-1$ 格；同时划去时补 0（右下图红色 0）。\par
+\noindent\textbf{正确答案：ABD}。\quad\st{一句话总结}三种方法只决定“起点好不好”，都必须再检验。
+
+% ---------- 14 ----------
+\Sol{14}{ABC}{基础}{K10 闭回路调整}
+\st{题意还原}进基格 $(2,1)$，闭回路 $(2,1)^+\to(1,1)^-\to(1,2)^+\to(2,2)^-$；$\sigma_{21}=2-6+3-7=-8$。
+\fourfig{\ofig{A}{\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{6,3},{2,7}}{8,6}{5,9}\al{1}{1}{5}\al{1}{2}{3}\al{2}{2}{6}\hl[hlr]{1}{1}\hl[hlr]{2}{2}\pl{2}{1}\mi{1}{1}\pl{1}{2}\mi{2}{2}\lp{(t2-1)--(t1-1)--(t1-2)--(t2-2)}\cnote[3.1]{1}{\footnotesize$\theta=\min\{5,6\}=5$}\end{tikzpicture}}{\ok：“$-$”格（红底）中取最小}}
+{\ofig{C}{\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{6,3},{2,7}}{8,6}{5,9}\al{1}{2}{8}\al{2}{1}{5}\al{2}{2}{1}\hl[hlg]{2}{1}\cnote[3.1]{1}{\footnotesize$z:81\to41$}\end{tikzpicture}}{\ok(B,C)：$\Delta z=5\times(-8)=-40$；$(2,1)$ 变数字格}}
+{}{}
+\st{A}\ok。“$-$”格运量为 5、6，$\theta=5$，保证调整后不出现负数。\par
+\st{B}\ok。每单位改变 $\sigma=-8$，共改变 $\theta=5$ 单位，$\Delta z=-40$；验算 $z$：调整前 $30+9+42=81$，调整后 $24+10+7=41$。\par
+\st{C}\ok。进基格 $(2,1)$ 填入 $\theta=5$，变为数字格。\par
+\st{D}\no。出基的是“$-$”格中运量最小者 $(1,1)$（左图红底中的 5），而不是“$+$”格；“$+$”格的运量只会增加，不可能变成 0。\par
+\noindent\textbf{正确答案：ABC}。\quad\st{一句话总结}进基：最负 $\sigma$；改多少：$\theta=\min\{-\}$；出基：“$-$”格中变 0 者。
+
+% ---------- 15 ----------
+\Sol{15}{ACD}{基础}{K12--K13 不平衡与建模}
+\fourfig{\ofig{A}{\begin{tikzpicture}[mini]\TPgrid{$A_1$,$A_2$,$A_3$(虚)}{$B_1$,$B_2$,$B_3$}{{,,},{,,},{,,}}{20,30,10}{15,25,20}\hlrow[hlg]{3}\end{tikzpicture}}{\ok：产少，加虚设产地（行）}}
+{\ofig{B}{\begin{tikzpicture}[mini]\TPgrid{I,II}{I,II,D(虚)}{{,,0},{,,1}}{30,30}{20,30,10}\hl[hlr]{2}{3}\end{tikzpicture}}{\no：有存储费时虚设列运价 = 存储费}}
+{\ofig{C}{\begin{tikzpicture}[mini]\TPgrid{A,B,C}{I,II,III,IV}{{16,13,22,17},{14,13,19,15},{19,20,23,$M$}}{50,60,50}{,,,}\hl[hlg]{3}{4}\end{tikzpicture}}{\ok：C 不能供应 IV，取 $M$}}
+{\ofig{D}{\begin{tikzpicture}[x=0.07cm,y=0.5cm]\fill[navy!70] (0,0) rectangle (30,0.5);\fill[accgold!45] (30,0) rectangle (50,0.5);\node[font=\tiny,text=white] at (15,0.25){必须 30};\node[font=\tiny] at (40,0.25){尽量 20};\draw[gridgray] (0,0) rectangle (50,0.5);\end{tikzpicture}}{\ok：需求区间 $[30,50]$ 拆成两个销地}}
+\st{A}\ok（左上图）。\quad\st{B}\no：虚设格运价取 0 只是“题目未给出费用”时的默认；有存储费、缺货损失时取相应费用，禁止时取 $M$（右上图红底格运价为存储费 1）。\quad\st{C}\ok：例 2 中 C 不能供应 IV，表中取 $M$（左下图）。\quad\st{D}\ok：例 2 的做法（右下图）。\par
+\noindent\textbf{正确答案：ACD}。\quad\st{一句话总结}虚设格运价 = 这部分货“实际意味着什么”的费用。
+
+\subsection*{基础填空详细解析}
+% ---------- 16 ----------
+\Sol{16}{18}{基础}{K1 目标函数}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{2,4},{3,1}}{5,4}{3,6}\al{1}{1}{3}\al{1}{2}{2}\al{2}{2}{4}
+\rnote[2.1]{1}{$2\times3+4\times2=14$}\rnote[2.1]{2}{$1\times4=4$}\end{tikzpicture}\end{center}
+\st{公式}$z=\sum c_{ij}x_{ij}$，只需对有运量的格子求和。\par
+\st{代入}$z=2\times3+4\times2+1\times4=6+8+4=18$。\par
+\st{检查}行和 $3+2=5$、$0+4=4$，列和 $3$、$2+4=6$，方案可行。\par
+\st{易错}把空格的运价也加进去（空格运量为 0，贡献为 0）。\quad 单位与运价单位一致。
+
+% ---------- 17 ----------
+\Sol{17}{4}{基础}{K5 西北角法}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{,,},{,,}}{4,6}{3,5,2}\al{1}{1}{3}\al{1}{2}{1}\al{2}{2}{4}\al{2}{3}{2}
+\stepno{1}{1}{1}\stepno{1}{2}{2}\stepno{2}{2}{3}\stepno{2}{3}{4}\draw[accgold,line width=1pt,-{Stealth},opacity=0.7] (t1-1)--(t1-2)--(t2-2)--(t2-3);\end{tikzpicture}\end{center}
+\st{推理}① $x_{11}=\min\{4,3\}=3$，$B_1$ 满足，$A_1$ 剩 1；② $x_{12}=\min\{1,5\}=1$，$A_1$ 满足，$B_2$ 剩 4；③ $x_{22}=\min\{6,4\}=4$，$B_2$ 满足，$A_2$ 剩 2；④ $x_{23}=2$。\par
+\st{易错}第 ③ 步误用 $B_2$ 的原始销量 5（应使用剩余量 $5-1=4$）。
+
+% ---------- 18 ----------
+\Sol{18}{6}{基础}{K9 位势法}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{5,8,4},{6,3,9}}{20,30}{25,15,10}\al{1}{1}{10}\al{1}{3}{10}\al{2}{1}{15}\al{2}{2}{15}
+\sg{1}{2}{6}\sg{2}{3}{4}\foreach \i/\u in {1/0,2/1}{\node[font=\small,text=accred] at ({5.0*\tpw},-\i*\tph) {$u_\i=\u$};}
+\foreach \j/\v in {1/5,2/2,3/4}{\node[font=\small,text=accred] at (\j*\tpw,{-4.0*\tph}) {$v_\j=\v$};}\end{tikzpicture}\end{center}
+\st{推理}$u_1=0$；$c_{11}=5\Rightarrow v_1=5$；$c_{13}=4\Rightarrow v_3=4$；$c_{21}=6\Rightarrow u_2=1$；$c_{22}=3\Rightarrow v_2=2$。\par
+\st{代入}$\sigma_{12}=c_{12}-(u_1+v_2)=8-(0+2)=6$。（顺带：$\sigma_{23}=9-(1+4)=4$。）\par
+\st{验证}闭回路 $(1,2)^+\to(2,2)^-\to(2,1)^+\to(1,1)^-$：$8-3+6-5=6$，一致。\par
+\st{易错}用空格列方程；或写成 $c_{12}-(u_2+v_1)$。
+
+% ---------- 19 ----------
+\Sol{19}{4}{基础}{K8 闭回路法}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$}{{3,5},{4,2}}{10,8}{6,12}\al{1}{1}{6}\al{1}{2}{4}\al{2}{2}{8}\hl{2}{1}\lp{(t2-1)--(t1-1)--(t1-2)--(t2-2)}\pl{2}{1}\mi{1}{1}\pl{1}{2}\mi{2}{2}\end{tikzpicture}\end{center}
+\st{推理}闭回路：$(2,1)^+\to(1,1)^-\to(1,2)^+\to(2,2)^-$。$\sigma_{21}=4-3+5-2=4$。\par
+\st{含义}让 $A_2$ 给 $B_1$ 运 1 单位，总运费增加 4，不划算；且这是唯一空格，故当前方案最优。\par
+\st{易错}正负号排错：起点空格永远是“$+$”（第 1 个顶点）。
+
+% ---------- 20 ----------
+\Sol{20}{产地；10}{基础}{K12 产小于销}
+\begin{center}\begin{tikzpicture}[x=0.09cm,y=0.6cm]
+\fill[navy!60] (0,0) rectangle (20,0.5); \fill[navy!35] (20,0) rectangle (50,0.5); \fill[pattern=north east lines,pattern color=accred] (50,0) rectangle (60,0.5); \node[font=\scriptsize,anchor=east] at (-1,0.25) {产量};
+\fill[accgold!60] (0,-1) rectangle (15,-0.5); \fill[accgold!40] (15,-1) rectangle (40,-0.5); \fill[accgold!25] (40,-1) rectangle (60,-0.5); \node[font=\scriptsize,anchor=east] at (-1,-0.75) {销量};
+\node[font=\scriptsize,text=accred,anchor=west] at (61,0.25) {虚设产地 10};
+\foreach \x in {0,10,...,60}{\draw[gridgray] (\x,-1.15)--(\x,-1.3) node[below,font=\tiny]{\x};}
+\end{tikzpicture}\end{center}
+\st{推理}$\sum a=50<\sum b=60$，产小于销，增加虚设\key{产地} $A_3$，$a_3=60-50=10$。图中红色斜线段就是补上的“产量”。\par
+\st{易错}写成“虚设销地”。\quad\st{等价答案}“虚设产地 $A_3$，产量 10”。
+
+\subsection*{基础解答详细解析}
+% ---------- 21 ----------
+\Sol{21}{见下}{基础}{K1 建模、K2 基变量个数}
+\st{题意分析}2 个产地、2 个销地，总量 $40+60=100=50+50$，平衡。
+\begin{center}\begin{tikzpicture}[scale=0.85,every node/.style={transform shape}]
+\node[circle,draw=navy,fill=bgblue] (A1) at (0,0.8) {$A_1$};\node[left=1mm of A1,font=\footnotesize]{40};
+\node[circle,draw=navy,fill=bgblue] (A2) at (0,-0.8) {$A_2$};\node[left=1mm of A2,font=\footnotesize]{60};
+\node[circle,draw=accgold,fill=bgwarm] (B1) at (3.5,0.8) {$B_1$};\node[right=1mm of B1,font=\footnotesize]{50};
+\node[circle,draw=accgold,fill=bgwarm] (B2) at (3.5,-0.8) {$B_2$};\node[right=1mm of B2,font=\footnotesize]{50};
+\draw[arr] (A1)--node[above,font=\scriptsize]{$x_{11}$, 3}(B1); \draw[arr] (A1)--node[above,font=\scriptsize,pos=0.3]{$x_{12}$, 5}(B2);
+\draw[arr] (A2)--node[below,font=\scriptsize,pos=0.3]{$x_{21}$, 4}(B1); \draw[arr] (A2)--node[below,font=\scriptsize]{$x_{22}$, 2}(B2);
+\end{tikzpicture}\end{center}
+\st{已知}$a=(40,60)$，$b=(50,50)$，$c_{11}=3,c_{12}=5,c_{21}=4,c_{22}=2$。\quad\st{求}模型与基变量个数。\par
+\st{(1) 模型}
+\[
+\begin{aligned}
+\min z&=3x_{11}+5x_{12}+4x_{21}+2x_{22}\\
+\text{s.t.}\ &x_{11}+x_{12}=40,\quad x_{21}+x_{22}=60\quad(\text{产量})\\
+&x_{11}+x_{21}=50,\quad x_{12}+x_{22}=50\quad(\text{销量})\\
+&x_{ij}\ge0 .
+\end{aligned}
+\]
+\st{(2) 基变量}$m+n-1=2+2-1=3$ 个。\par
+\st{结果检查}4 个约束中任一个可由其余 3 个推出：例如 (产量 1)+(产量 2)$-$(销量 1) $\Rightarrow x_{12}+x_{22}=50$。\par
+\st{易错}把约束写成 $\le$；把运价写在约束里。\quad\st{同类题以后怎么做}“一格一变量，一行一约束，一列一约束”。
+
+% ---------- 22 ----------
+\Sol{22}{$z=265$}{基础}{K6 最小元素法}
+\st{题意分析}$\sum a=75=\sum b$，平衡；$m+n-1=5$。
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{4,8,5},{6,3,9},{2,7,6}}{20,30,25}{30,25,20}
+\al{3}{1}{25}\al{2}{2}{25}\stepno{3}{1}{1}\stepno{2}{2}{2}\xrow{3}\xcol{2}\end{tikzpicture}\\{\small (a) 第 1、2 步}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$}{{4,8,5},{6,3,9},{2,7,6}}{20,30,25}{30,25,20}
+\al{3}{1}{25}\al{2}{2}{25}\al{1}{1}{5}\al{1}{3}{15}\al{2}{3}{5}\stepno{3}{1}{1}\stepno{2}{2}{2}\stepno{1}{1}{3}\stepno{1}{3}{4}\stepno{2}{3}{5}\end{tikzpicture}\\{\small (b) 最终方案}
+\end{minipage}
+\end{center}
+\st{分步求解}
+① 全表最小 $c_{31}=2$：$x_{31}=\min\{25,30\}=25$，$A_3$ 满足，$B_1$ 剩 5。\par
+② 剩余最小 $c_{22}=3$：$x_{22}=\min\{30,25\}=25$，$B_2$ 满足，$A_2$ 剩 5。\par
+③ 剩余（列 1、3，行 1、2）最小 $c_{11}=4$：$x_{11}=\min\{20,5\}=5$，$B_1$ 满足，$A_1$ 剩 15。\par
+④ 剩余最小 $c_{13}=5$：$x_{13}=\min\{15,20\}=15$，$A_1$ 满足，$B_3$ 剩 5。\par
+⑤ 最后 $x_{23}=5$。\par
+\st{结果}$z=25\times2+25\times3+5\times4+15\times5+5\times9=50+75+20+75+45=265$。\par
+\st{结果检查}数字格 5 个 $=3+3-1$；行和 $5+15=20$、$25+5=30$、$25$；列和 $5+25=30$、$25$、$15+5=20$。\par
+\st{易错}第 ③ 步误选 $c_{13}=5$ 或忘记 $B_1$ 只剩 5。\quad\st{同类题以后怎么做}每步写下“行剩余 / 列剩余”，并在表上划线。
+
+% ---------- 23 ----------
+\Sol{23}{$z=240$}{基础}{K7 Vogel 法}
+\begin{center}\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{5,3,8},{7,2,6}}{35,25}{5,40,15}
+\al{2}{2}{25}\al{1}{1}{5}\al{1}{2}{15}\al{1}{3}{15}\stepno{2}{2}{1}\stepno{1}{1}{2}\stepno{1}{2}{2}\stepno{1}{3}{2}
+\node[font=\scriptsize\sffamily,text=blue2] at ({5.0*\tpw},0) {行差额};
+\node[font=\footnotesize] at ({5.0*\tpw},-1*\tph) {2}; \node[font=\footnotesize] at ({5.0*\tpw},-2*\tph) {\mx{4}};
+\foreach \j/\v in {1/2,2/1,3/2}{\node[font=\footnotesize] at (\j*\tpw,{-4.0*\tph}) {\v};}
+\node[font=\scriptsize\sffamily,text=blue2] at (0,{-4.0*\tph}) {列差额};\end{tikzpicture}\end{center}
+\st{分步求解}
+① 行差额：$A_1$：$5-3=2$，$A_2$：$6-2=4$；列差额：$B_1$：$2$，$B_2$：$1$，$B_3$：$2$。最大为 4（$A_2$，红框）。\par
+② $A_2$ 行最小运价 $c_{22}=2$，$x_{22}=\min\{25,40\}=25$，$A_2$ 满足，$B_2$ 剩 15。\par
+③ 只剩 $A_1$ 一行，依次 $x_{11}=5$，$x_{12}=15$，$x_{13}=15$。\par
+\st{结果}$z=25\times2+5\times5+15\times3+15\times8=50+25+45+120=240$。\par
+\st{结果检查}数字格 $4=2+3-1$。\supp 用位势法检验：$u_1=0$，$v=(5,3,8)$，$u_2=-1$，$\sigma_{21}=7-4=3$，$\sigma_{23}=6-7=-1<0$，所以 240 \key{不是}最优（最优值为 225）——这再次说明 Vogel 法不保证最优。\par
+\st{易错}只算行差额或只算列差额。\quad\st{同类题以后怎么做}每轮都把 $m+n$ 个差额写在表外。
+
+% ---------- 24 ----------
+\Sol{24}{不是最优}{基础}{K5 西北角法、K9 位势法}
+\begin{center}
+\begin{minipage}{0.47\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}
+\al{1}{1}{10}\al{1}{2}{5}\al{2}{2}{15}\al{2}{3}{10}\draw[accgold,line width=1pt,-{Stealth},opacity=0.7] (t1-1)--(t1-2)--(t2-2)--(t2-3);\end{tikzpicture}\\{\small (a) 西北角法初始解}
+\end{minipage}\hfill
+\begin{minipage}{0.5\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}
+\al{1}{1}{10}\al{1}{2}{5}\al{2}{2}{15}\al{2}{3}{10}\sgn{1}{3}{-8}\sg{2}{1}{5}\hl[hlr]{1}{3}
+\foreach \i/\u in {1/0,2/-4}{\node[font=\small,text=accred] at ({5.0*\tpw},-\i*\tph) {$\u$};}
+\foreach \j/\v in {1/4,2/6,3/11}{\node[font=\small,text=accred] at (\j*\tpw,{-4.0*\tph}) {$\v$};}\end{tikzpicture}\\{\small (b) 位势与检验数}
+\end{minipage}
+\end{center}
+\st{第一步（西北角法）}$x_{11}=\min\{15,10\}=10$；$x_{12}=\min\{5,20\}=5$；$x_{22}=\min\{25,15\}=15$；$x_{23}=10$。$z=40+30+30+70=170$。\par
+\st{第二步（位势）}$u_1=0$；$v_1=4$，$v_2=6$；由 $c_{22}=2$ 得 $u_2=-4$；由 $c_{23}=7$ 得 $v_3=11$。\par
+\st{第三步（检验数）}$\sigma_{13}=3-(0+11)=-8$，$\sigma_{21}=5-(-4+4)=5$。\par
+\st{结论}$\sigma_{13}=-8<0$，不是最优，应以 $(1,3)$ 进基（第 25 题）。\par
+\st{结果检查}用闭回路验证 $\sigma_{13}$：$(1,3)^+\to(2,3)^-\to(2,2)^+\to(1,2)^-$，$3-7+2-6=-8$。\par
+\st{易错}$u_2$ 的符号：$u_2=c_{22}-v_2=2-6=-4$，位势可以为负。\quad\st{同类题以后怎么做}先画出位势的“求解顺序树”，再逐格计算。
+
+% ---------- 25 ----------
+\Sol{25}{$z=130$}{基础}{K10 闭回路调整}
+\begin{center}
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}
+\al{1}{1}{10}\al{1}{2}{5}\al{2}{2}{15}\al{2}{3}{10}\hl[hlr]{1}{3}\lp{(t1-3)--(t2-3)--(t2-2)--(t1-2)}\pl{1}{3}\mi{2}{3}\pl{2}{2}\mi{1}{2}\end{tikzpicture}\\{\small (a) 调整前：“$-$”格为 10 与 5}
+\end{minipage}\hfill
+\begin{minipage}{0.48\linewidth}\centering
+\begin{tikzpicture}[small]\TPgrid{$A_1$,$A_2$}{$B_1$,$B_2$,$B_3$}{{4,6,3},{5,2,7}}{15,25}{10,20,10}
+\al{1}{1}{10}\al{1}{3}{5}\al{2}{2}{20}\al{2}{3}{5}\hl[hlg]{1}{3}\end{tikzpicture}\\{\small (b) 调整后：$(1,3)$ 进基，$(1,2)$ 出基}
+\end{minipage}
+\end{center}
+\st{第一步}闭回路 $(1,3)^+\to(2,3)^-\to(2,2)^+\to(1,2)^-$。\par
+\st{第二步}$\theta=\min\{x_{23},x_{12}\}=\min\{10,5\}=5$。\par
+\st{第三步}$x_{13}=5$，$x_{23}=10-5=5$，$x_{22}=15+5=20$，$x_{12}=5-5=0$（出基）。\par
+\st{结果}$z=170+5\times(-8)=130$；验算 $4\times10+3\times5+2\times20+7\times5=40+15+40+35=130$。\par
+\st{结果检查}\supp 新位势 $u=(0,4)$，$v=(4,-2,3)$，$\sigma_{12}=8$，$\sigma_{21}=5-8=-3<0$，还需继续调整；再以 $(2,1)$ 进基（$\theta=5$）得 $x_{11}=5,x_{13}=10,x_{21}=5,x_{22}=20$，$z=115$，此时全部 $\sigma\ge0$，为最优。\par
+\st{易错}$\theta$ 取成“$+$”格的最小值，或取 $\max$。\quad\st{同类题以后怎么做}先在表上标好 $\pm$，再只看“$-$”格。
+
+\input{sections/s7b_answers}

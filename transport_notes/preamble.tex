@@ -1,0 +1,245 @@
+% ============================================================
+%  运输问题 · 可视化专题讲义  —— 导言区（宏包、配色、信息框、绘图宏）
+% ============================================================
+\usepackage[a4paper,top=2.3cm,bottom=2.3cm,left=2.2cm,right=2.2cm,headheight=15pt]{geometry}
+\setCJKmainfont{Noto Serif CJK SC}[BoldFont=Noto Serif CJK SC Bold]
+\setCJKsansfont{Noto Sans CJK SC}
+\xeCJKDeclareCharClass{CJK}{"2460->"24FF,"2160->"217F,"2713->"2717}
+\setCJKfamilyfont{hei}{Noto Sans CJK SC}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,tabularx,longtable,array,multirow,makecell}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,arrows.meta,backgrounds,shapes.geometric,fit,decorations.pathreplacing,patterns}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[hidelinks,bookmarksnumbered]{hyperref}
+
+% ---------------- 配色（固定语义） ----------------
+\definecolor{navy}{HTML}{173A63}
+\definecolor{blue2}{HTML}{557A9E}
+\definecolor{bgblue}{HTML}{F3F6F9}
+\definecolor{bgwarm}{HTML}{FAF8F4}
+\definecolor{bgred}{HTML}{FFF5F4}
+\definecolor{bggreen}{HTML}{F4F8F5}
+\definecolor{lineblue}{HTML}{B9C9DA}
+\definecolor{warmline}{HTML}{D9CBB0}
+\definecolor{redline}{HTML}{D9A49E}
+\definecolor{greenline}{HTML}{9DBFA6}
+\definecolor{accred}{HTML}{B5483B}
+\definecolor{accgreen}{HTML}{2F7650}
+\definecolor{accgold}{HTML}{A8781E}
+\definecolor{tagbasic}{HTML}{E4EAF1}
+\definecolor{tagmid}{HTML}{EEF3E6}
+\definecolor{tagcross}{HTML}{ECE9F3}
+\definecolor{gridgray}{HTML}{8A97A6}
+\definecolor{headfill}{HTML}{E8EEF4}
+\definecolor{hlc}{HTML}{FCEFC7}
+\definecolor{hlb}{HTML}{DCE8F5}
+\definecolor{hlr}{HTML}{F8DEDA}
+\definecolor{hlg}{HTML}{DCEFE2}
+
+\captionsetup{font=small,labelfont={bf,color=navy},labelsep=quad}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% ---------------- 页眉页脚 ----------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{blue2}运筹学 · 第五章\ 运输问题}
+\fancyhead[R]{\small\color{blue2}可视化基础学习讲义}
+\fancyfoot[C]{\small\color{navy}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{lineblue}\leaders\hrule height \headrulewidth\hfill}}
+
+% ---------------- 标题样式 ----------------
+\ctexset{
+  section={format=\Large\bfseries\color{navy}\raggedright,
+           name={第,章},number=\arabic{section},aftername=\quad,
+           beforeskip=1.6ex plus .4ex,afterskip=1.1ex},
+  subsection={format=\large\bfseries\color{navy}\raggedright,beforeskip=1.4ex plus .3ex,afterskip=.8ex},
+  subsubsection={format=\normalsize\bfseries\color{blue2}\raggedright,beforeskip=1.1ex plus .3ex,afterskip=.5ex},
+  paragraph={format=\bfseries\color{navy},runin=true,afterskip=.6em}
+}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\newcommand{\unsec}[1]{\section*{#1}\addcontentsline{toc}{section}{#1}\markboth{#1}{}}
+
+\setlist{itemsep=1pt,topsep=3pt,parsep=0pt,leftmargin=2em}
+\linespread{1.18}
+\setlength{\parskip}{2pt}
+
+% ---------------- 信息框体系 ----------------
+\tcbset{
+  base/.style={enhanced,breakable,arc=2pt,boxrule=0.5pt,left=7pt,right=7pt,top=4pt,bottom=4pt,
+    fonttitle=\bfseries\sffamily\small,before skip=6pt,after skip=6pt},
+  lvl1/.style={base,colback=bgblue,colframe=navy!80,coltitle=white,colbacktitle=navy,
+    attach boxed title to top left={xshift=6pt,yshift=-2pt},boxed title style={arc=1.5pt,boxrule=0pt}},
+  lvl2/.style={base,colback=#1,frame hidden,borderline west={2.2pt}{0pt}{blue2},arc=0pt,
+    coltitle=navy,title style={},detach title,before upper={\tcbtitle\par\smallskip}},
+}
+\newtcolorbox{definitionbox}[1][]{lvl1,unbreakable,title={定义\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{theorembox}[1][]{lvl1,unbreakable,title={定理 / 性质\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{formulabox}[1][]{lvl1,unbreakable,colback=bgblue,title={核心公式\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{proofbox}[1][]{base,colback=white,colframe=lineblue,coltitle=navy,colbacktitle=bgblue,
+  title={证明 / 推导\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{supplementbox}[1][]{base,colback=white,colframe=blue2!60,coltitle=blue2,colbacktitle=white,
+  boxrule=0.4pt,title={\textsf{教学补全}\ifx&#1&\else ：#1\fi},
+  borderline={0.4pt}{1.6pt}{blue2!40,dashed}}
+\newtcolorbox{intuitionbox}[1][为什么 / 直观理解]{lvl2=bgblue,title={\textsf{\textbf{\color{navy}#1}}}}
+\newtcolorbox{connectionbox}[1][学科联系]{lvl2=bgblue,borderline west={2.2pt}{0pt}{blue2!70},title={\textsf{\textbf{\color{navy}#1}}}}
+\newtcolorbox{examplebox}[1][]{base,colback=bgwarm,colframe=warmline,coltitle=accgold!80!black,colbacktitle=bgwarm,
+  title={例题\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{lifebox}[1][]{base,colback=bgwarm,colframe=warmline,coltitle=accgold!80!black,colbacktitle=bgwarm,
+  title={生活中的它\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{historybox}[1][]{base,colback=bgwarm,colframe=warmline,coltitle=navy,colbacktitle=bgwarm,title={#1}}
+\newtcolorbox{sciencebox}[1][]{base,colback=bgwarm,colframe=warmline,coltitle=navy,colbacktitle=bgwarm,title={#1}}
+\newtcolorbox{warningbox}[1][]{base,colback=bgred,colframe=redline,coltitle=accred,colbacktitle=bgred,
+  title={易错点\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{correctionbox}[1][]{base,colback=bgred,colframe=redline,coltitle=accred,colbacktitle=bgred,
+  title={原图纠错\ifx&#1&\else ：#1\fi}}
+\newtcolorbox{summarybox}[1][方法总结]{base,colback=bggreen,colframe=greenline,coltitle=accgreen,colbacktitle=bggreen,title={#1}}
+\newtcolorbox{checkbox}[1][学完这里，你应该能够回答]{base,colback=bggreen,colframe=greenline,coltitle=accgreen,colbacktitle=bggreen,title={#1}}
+\newtcolorbox{extbox}{base,colback=white,colframe=lineblue,boxrule=0.3pt,coltitle=blue2,colbacktitle=white,
+  title={拓展联想：以下内容只用于建立知识联系，当前阶段不要求掌握}}
+\newtcolorbox{solbox}{enhanced,breakable,arc=1.5pt,boxrule=0.4pt,colback=white,colframe=lineblue,left=6pt,right=6pt,top=3pt,bottom=3pt,before skip=5pt,after skip=7pt}
+
+% 三级提示：细色线 + 普通正文
+\newcommand{\tip}[2][注意]{\par\smallskip\noindent{\color{blue2}\rule[-0.2ex]{1.6pt}{2.4ex}}\hspace{5pt}\textsf{\textbf{\color{blue2}#1}}\quad #2\par\smallskip}
+\newcommand{\key}[1]{\textbf{\color{navy}#1}}
+\newcommand{\bad}[1]{\textcolor{accred}{#1}}
+\newcommand{\good}[1]{\textcolor{accgreen}{#1}}
+\newcommand{\orig}{\textsf{\small\color{accgold!85!black}[原图]}\ }
+\newcommand{\supp}{\textsf{\small\color{blue2}[教学补全]}\ }
+
+% 过渡小标题
+\newcommand{\solved}{\subsubsection*{到这里，我们已经解决了什么？}}
+\newcommand{\nextq}{\subsubsection*{下一步还需要解决什么？}}
+
+% 练习标签
+\newcommand{\qtag}[2]{\tikz[baseline=(t.base)]\node[fill=#1,rounded corners=1.5pt,inner xsep=4pt,inner ysep=1.5pt,font=\sffamily\scriptsize](t){#2};}
+\newcounter{qn}
+\newcommand{\Q}[2]{\par\medskip\needspace{4\baselineskip}\refstepcounter{qn}\noindent
+  {\color{navy}\textbf{\sffamily 第\,\theqn\,题}}\ \qtag{#1}{#2}\quad}
+\newcommand{\opts}[4]{\par\smallskip\noindent\begin{tabularx}{\linewidth}{@{\hspace{1.5em}}X X@{}}
+ (A)\ #1 & (B)\ #2\\[1pt] (C)\ #3 & (D)\ #4\end{tabularx}\par}
+\newcommand{\optsl}[4]{\par\smallskip\begin{enumerate}[label=(\Alph*),leftmargin=3em,itemsep=0pt]
+ \item #1 \item #2 \item #3 \item #4\end{enumerate}}
+\newcommand{\blank}{\underline{\hspace{2.2em}}}
+\newcommand{\Sol}[4]{\par\medskip\needspace{5\baselineskip}\noindent
+  {\color{navy}\textbf{\sffamily 第\,#1\,题}}\quad\textbf{答案：}{\color{accred}\textbf{#2}}\hfill
+  \qtag{headfill}{难度：#3}\ \qtag{bggreen}{知识点：#4}\par\nopagebreak[4]}
+\newcommand{\st}[1]{\par\noindent\textsf{\textbf{\color{blue2}#1}}\ }
+\usepackage{needspace}
+
+% ============================================================
+%   运输表绘图宏（TikZ）
+%   \TPgrid{行标签}{列标签}{运价表 {{..},{..}}}{产量}{销量}
+%   单元格中心坐标： (t<i>-<j>)
+% ============================================================
+\def\tpw{1.35}\def\tph{0.84}
+\tikzset{
+  tphead/.style={font=\sffamily\small,text=navy},
+  tpcost/.style={draw=gridgray,line width=0.35pt,inner sep=1.2pt,font=\scriptsize\sffamily,anchor=north east,minimum width=3.1mm,minimum height=2.7mm,fill=white},
+  tpal/.style={font=\bfseries\normalsize,text=navy},
+  tpzero/.style={font=\bfseries\normalsize,text=accred},
+  tpsig/.style={font=\footnotesize\itshape,text=blue2},
+  tpsign/.style={font=\bfseries\footnotesize,inner sep=0.6pt,circle,draw,fill=white},
+  tploop/.style={draw=accred,line width=1.1pt,rounded corners=1.5pt,opacity=0.8},
+  tploop2/.style={draw=accgreen,line width=1.1pt,rounded corners=1.5pt,opacity=0.8,dashed},
+  tpgrid/.style={draw=gridgray,line width=0.5pt},
+  small/.style={scale=0.72,every node/.append style={transform shape}},
+  mini/.style={scale=0.62,every node/.append style={transform shape}},
+  sixs/.style={scale=0.56,every node/.append style={transform shape}},
+}
+\newcommand{\TPsize}[2]{\def\tpw{#1}\def\tph{#2}}
+\newcommand{\TPgrid}[5]{%
+  \foreach \r [count=\i] in {#1}{\xdef\tpm{\i}}%
+  \foreach \c [count=\j] in {#2}{\xdef\tpn{\j}}%
+  \pgfmathsetmacro{\tpR}{(\tpn+1.5)*\tpw}%
+  \pgfmathsetmacro{\tpB}{-(\tpm+1.5)*\tph}%
+  \pgfmathsetmacro{\tpL}{-0.5*\tpw}%
+  \pgfmathsetmacro{\tpT}{0.5*\tph}%
+  \fill[headfill] (\tpL,\tpT) rectangle (\tpR,-0.5*\tph);
+  \fill[headfill] (\tpL,\tpT) rectangle (0.5*\tpw,\tpB);
+  \draw[gridgray,line width=0.35pt] (\tpL,\tpT) -- (0.5*\tpw,-0.5*\tph);
+  \node[font=\sffamily\tiny,text=navy,anchor=north east] at (0.5*\tpw-0.04,\tpT-0.03) {销地};
+  \node[font=\sffamily\tiny,text=navy,anchor=south west] at (\tpL+0.04,-0.5*\tph+0.03) {产地};
+  \foreach \c [count=\j] in {#2}{\node[tphead] at (\j*\tpw,0) {\c};}
+  \node[tphead] at ({(\tpn+1)*\tpw},0) {产量};
+  \foreach \r [count=\i] in {#1}{\node[tphead] at (0,-\i*\tph) {\r};}
+  \node[tphead] at (0,{-(\tpm+1)*\tph}) {销量};
+  \foreach \row [count=\i] in {#3}{\foreach \cc [count=\j] in \row {%
+      \coordinate (t\i-\j) at (\j*\tpw,-\i*\tph);
+      \ifx\cc\empty\else\node[tpcost] at ({\j*\tpw+0.5*\tpw-0.02},{-\i*\tph+0.5*\tph-0.02}) {\cc};\fi}}
+  \foreach \s [count=\i] in {#4}{\node[font=\small] at ({(\tpn+1)*\tpw},-\i*\tph) {\s};}
+  \foreach \d [count=\j] in {#5}{\node[font=\small] at (\j*\tpw,{-(\tpm+1)*\tph}) {\d};}
+  \foreach \i in {0,...,\tpm}{\draw[tpgrid,line width=0.35pt] (\tpL,{-(\i+0.5)*\tph}) -- (\tpR,{-(\i+0.5)*\tph});}
+  \foreach \j in {0,...,\tpn}{\draw[tpgrid,line width=0.35pt] ({(\j+0.5)*\tpw},\tpT) -- ({(\j+0.5)*\tpw},\tpB);}
+  \draw[tpgrid] (\tpL,\tpT) rectangle (\tpR,\tpB);
+}
+% 运量（数字格）、退化 0、检验数
+\newcommand{\al}[3]{\node[tpal] at ($(t#1-#2)+(-0.1,-0.07)$) {#3};}
+\newcommand{\alz}[3]{\node[tpzero] at ($(t#1-#2)+(-0.1,-0.07)$) {#3};}
+\newcommand{\sg}[3]{\node[tpsig] at ($(t#1-#2)+(-0.12,-0.07)$) {\ensuremath{#3}};}
+\newcommand{\sgn}[3]{\node[tpsig,text=accred,font=\footnotesize\bfseries\itshape] at ($(t#1-#2)+(-0.12,-0.07)$) {\ensuremath{#3}};}
+% 闭回路（画在背景层，数字压在线上方）
+\newcommand{\lp}[2][tploop]{\begin{scope}[on background layer]\draw[#1] #2 -- cycle;\end{scope}}
+% 闭回路顶点上的 +/- 记号（左上角）
+\newcommand{\pl}[2]{\node[tpsign,text=accgreen,draw=accgreen] at ($(t#1-#2)+(-0.4*\tpw,-0.26*\tph)$) {$+$};}
+\newcommand{\mi}[2]{\node[tpsign,text=accred,draw=accred] at ($(t#1-#2)+(-0.4*\tpw,-0.26*\tph)$) {$-$};}
+% 单元格 / 行 / 列 高亮（背景层）
+\newcommand{\hl}[3][hlc]{\begin{scope}[on background layer]\fill[#1] ($(t#2-#3)+(-0.5*\tpw,-0.5*\tph)$) rectangle ($(t#2-#3)+(0.5*\tpw,0.5*\tph)$);\end{scope}}
+\newcommand{\hlrow}[2][hlb]{\begin{scope}[on background layer]\fill[#1] (0.5*\tpw,{-(#2-0.5)*\tph}) rectangle ({(\tpn+0.5)*\tpw},{-(#2+0.5)*\tph});\end{scope}}
+\newcommand{\hlcol}[2][hlb]{\begin{scope}[on background layer]\fill[#1] ({(#2-0.5)*\tpw},-0.5*\tph) rectangle ({(#2+0.5)*\tpw},{-(\tpm+0.5)*\tph});\end{scope}}
+% 划去行 / 列
+\newcommand{\xrow}[2][]{\draw[gridgray!80!black,line width=0.7pt,dashed,opacity=0.55] (0.55*\tpw,-#2*\tph) -- ({(\tpn+1.45)*\tpw},-#2*\tph) node[right,font=\scriptsize\sffamily,text=gridgray!80!black]{#1};}
+\newcommand{\xcol}[2][]{\draw[gridgray!80!black,line width=0.7pt,dashed,opacity=0.55] (#2*\tpw,-0.55*\tph) -- (#2*\tpw,{-(\tpm+1.45)*\tph}) node[below,font=\scriptsize\sffamily,text=gridgray!80!black]{#1};}
+% 表外标注：行右侧 / 列下方
+\newcommand{\rnote}[3][2]{\node[font=\footnotesize,text=blue2,anchor=west] at ({(\tpn+#1)*\tpw-0.45*\tpw},-#2*\tph) {#3};}
+\newcommand{\cnote}[3][2]{\node[font=\footnotesize,text=blue2] at (#2*\tpw,{-(\tpm+#1)*\tph}) {#3};}
+
+% 常用表：主例题（笔记中的 3×4 例）
+\newcommand{\MainGrid}{\TPgrid{$A_1$,$A_2$,$A_3$}{$B_1$,$B_2$,$B_3$,$B_4$}{{3,11,3,10},{1,9,2,8},{7,4,10,5}}{7,4,9}{3,6,5,6}}
+
+% 2×2 选项小图
+\newcommand{\fourfig}[4]{\par\smallskip\noindent
+ \begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+ #1 & #2\\[2pt] #3 & #4\end{tabularx}\par\smallskip}
+\newcommand{\optlab}[1]{\textsf{\small\color{navy}(#1)}}
+
+% 生活场景 ↔ 抽象模型 对照图
+\tikzset{
+  lifeitem/.style={draw=warmline,fill=bgwarm,rounded corners=2pt,font=\small,minimum height=6mm,text width=5.4cm,align=left,inner sep=3pt},
+  modelitem/.style={draw=lineblue,fill=bgblue,rounded corners=2pt,font=\small,minimum height=6mm,text width=5.4cm,align=left,inner sep=3pt},
+  corr/.style={draw=blue2,line width=0.6pt,{Circle[length=3pt]}-{Stealth[length=5pt]}},
+}
+\newcommand{\LifeMap}[3]{%
+\begin{center}\begin{tikzpicture}
+  \node[font=\sffamily\small\bfseries,text=accgold!80!black] at (0,0.05) {生活场景：#1};
+  \node[font=\sffamily\small\bfseries,text=navy] at (8.2,0.05) {抽象模型：#2};
+  \foreach \a/\b [count=\k] in {#3}{%
+    \node[lifeitem] (L\k) at (0,-\k*0.8) {\a};
+    \node[modelitem] (R\k) at (8.2,-\k*0.8) {\b};
+    \draw[corr] (L\k.east) -- (R\k.west);}
+\end{tikzpicture}\end{center}}
+
+% 通用流程框
+\tikzset{
+  flow/.style={draw=navy!70,fill=bgblue,rounded corners=2pt,font=\small,align=center,inner sep=4pt,minimum height=7mm},
+  flowg/.style={draw=greenline,fill=bggreen,rounded corners=2pt,font=\small,align=center,inner sep=4pt,minimum height=7mm},
+  floww/.style={draw=warmline,fill=bgwarm,rounded corners=2pt,font=\small,align=center,inner sep=4pt,minimum height=7mm},
+  flowr/.style={draw=redline,fill=bgred,rounded corners=2pt,font=\small,align=center,inner sep=4pt,minimum height=7mm},
+  dec/.style={draw=navy!70,fill=white,diamond,aspect=2.2,font=\small,align=center,inner sep=1pt},
+  arr/.style={-{Stealth[length=5pt]},draw=navy!70,line width=0.7pt},
+  callout/.style={draw=blue2,fill=white,rounded corners=2pt,font=\footnotesize,align=left,inner sep=3pt},
+  lead/.style={draw=blue2,line width=0.5pt,-{Circle[length=2.5pt]}},
+}
+
+\newcommand{\mx}[1]{\fcolorbox{accred}{white}{\textcolor{accred}{\textbf{#1}}}}
+\newcommand{\stepno}[3]{\node[font=\scriptsize\sffamily,text=white,fill=accgold,circle,inner sep=0.8pt] at ($(t#1-#2)+(-0.45*\tpw,-0.26*\tph)$) {#3};}
